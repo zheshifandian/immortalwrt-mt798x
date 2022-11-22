@@ -12,6 +12,7 @@ module("luci.controller.mtkwifi", package.seeall)
 local ioctl_help = require "ioctl_helper"
 local http = require("luci.http")
 local mtkwifi = require("mtkwifi")
+local sys = require "luci.sys"
 
 local logDisable = 0
 function debug_write(...)
@@ -51,6 +52,7 @@ end
 
 function index()
     entry({"admin", "network", "wifi"}, template("admin_mtk/mtk_wifi_overview"), _("Wireless"), 1)
+    entry({"admin", "network", "wifi", "test"}, call("test")).leaf = true
     entry({"admin", "network", "wifi", "chip_cfg_view"}, template("admin_mtk/mtk_wifi_chip_cfg")).leaf = true
     entry({"admin", "network", "wifi", "chip_cfg"}, call("chip_cfg")).leaf = true
     entry({"admin", "network", "wifi", "dev_cfg_view"}, template("admin_mtk/mtk_wifi_dev_cfg")).leaf = true
@@ -85,6 +87,10 @@ function index()
     entry({"admin", "network", "wifi", "loading"}, template("admin_mtk/mtk_wifi_loading")).leaf = true;
     entry({"admin", "network", "wifi", "get_apply_status"}, call("get_apply_status")).leaf = true;
     entry({"admin", "network", "wifi", "reset_to_defaults"}, call("reset_to_defaults")).leaf = true;
+end
+
+function test()
+    http.write_json(http.formvalue())
 end
 
 function exec_reboot()
@@ -975,7 +981,12 @@ function sta_info(ifname)
     local count = 0
     for _ in pairs(stalist) do count = count + 1 end
 
+    local hosts = sys.net.host_hints()
+
     for i=0, count - 1 do
+        stalist[i].ipv4 = hosts[stalist[i].MacAddr].ipv4 or ""
+        stalist[i].ipv6 = hosts[stalist[i].MacAddr].ipv6 or ""
+        stalist[i].hostname = hosts[stalist[i].MacAddr].name or "-"
         table.insert(output, stalist[i])
     end
     http.write_json(output)

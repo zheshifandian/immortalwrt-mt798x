@@ -805,6 +805,7 @@ function __update_mbss_para(cfgs, vif_idx)
     cfgs.VHT_STBC = mtkwifi.token_set(cfgs.VHT_STBC, vif_idx, http.formvalue("__vht_stbc") or "0")
     cfgs.VHT_LDPC = mtkwifi.token_set(cfgs.VHT_LDPC, vif_idx, http.formvalue("__vht_ldpc") or "0")
     cfgs.DLSCapable = mtkwifi.token_set(cfgs.DLSCapable, vif_idx, http.formvalue("__dls_capable") or "0")
+    cfgs.RRMEnable = mtkwifi.token_set(cfgs.RRMEnable, vif_idx, http.formvalue("__rrmenable") or "0")
     cfgs.APSDCapable = mtkwifi.token_set(cfgs.APSDCapable, vif_idx, http.formvalue("__apsd_capable") or "0")
     cfgs.FragThreshold = mtkwifi.token_set(cfgs.FragThreshold, vif_idx, http.formvalue("__frag_threshold") or "0")
     cfgs.RTSThreshold = mtkwifi.token_set(cfgs.RTSThreshold, vif_idx, http.formvalue("__rts_threshold") or "0")
@@ -977,10 +978,12 @@ function sta_info(ifname)
     local hosts = sys.net.host_hints()
 
     for i=0, count - 1 do
-        stalist[i].ipv4 = hosts[stalist[i].MacAddr].ipv4 or ""
-        stalist[i].ipv6 = hosts[stalist[i].MacAddr].ipv6 or ""
-        stalist[i].hostname = hosts[stalist[i].MacAddr].name or "-"
-        table.insert(output, stalist[i])
+        if stalist[i].MacAddr then
+            stalist[i].ipv4 = hosts[stalist[i].MacAddr].ipv4 or ""
+            stalist[i].ipv6 = hosts[stalist[i].MacAddr].ipv6 or ""
+            stalist[i].hostname = hosts[stalist[i].MacAddr].name or "-"
+            table.insert(output, stalist[i])
+        end
     end
     http.write_json(output)
 end

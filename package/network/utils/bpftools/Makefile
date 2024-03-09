@@ -8,12 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bpftools
-PKG_VERSION:=5.10.10
-PKG_RELEASE:=2
+PKG_RELEASE:=1
 
-PKG_SOURCE:=linux-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=@KERNEL/linux/kernel/v5.x
-PKG_HASH:=60ed866fa951522a5255ea37ec3ac2006d3f3427d4783a13ef478464f37cdb19
+PKG_SOURCE_URL:=https://github.com/libbpf/bpftool
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_DATE:=2022-03-08
+PKG_SOURCE_VERSION:=04c465fd1f561f67796dc68bbfe1aa7cfa956c3c
+PKG_MIRROR_HASH:=e22a954cd186f43228a96586bbdc120b11e6c87360ab88ae96ba37afb9c7cb58
+PKG_ABI_VERSION:=$(call abi_version_str,$(PKG_SOURCE_DATE))
 
 PKG_MAINTAINER:=Tony Ambardar <itugrok@yahoo.com>
 
@@ -21,17 +23,8 @@ PKG_USE_MIPS16:=0
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
-LINUX_VERSION:=$(PKG_VERSION)
-LINUX_TLD:=linux-$(LINUX_VERSION)
-
-BPF_FILES:= \
-	kernel/bpf scripts tools/Makefile tools/bpf tools/perf/perf-sys.h \
-	tools/arch tools/build tools/include tools/lib tools/scripts
-TAR_OPTIONS+= \
-	--transform="s;$(LINUX_TLD)/;$(PKG_NAME)-$(PKG_VERSION)/;" \
-	$(addprefix $(LINUX_TLD)/,$(BPF_FILES))
-
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/nls.mk
 
 define Package/bpftool/Default
@@ -77,7 +70,7 @@ define Package/libbpf
   TITLE:=libbpf - eBPF helper library
   VARIANT:=lib
   LICENSE:=LGPL-2.1 OR BSD-2-Clause
-  ABI_VERSION:=0
+  ABI_VERSION:=$(PKG_ABI_VERSION)
   URL:=http://www.kernel.org
   DEPENDS:=+libelf
 endef
@@ -93,53 +86,43 @@ ifneq ($(BUILD_VARIANT),lib)
   TARGET_LDFLAGS += -Wl,--gc-sections
 endif
 
-MAKE_FLAGS += \
-	EXTRA_CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS)" \
-	LDFLAGS="$(TARGET_LDFLAGS)" \
-	BPFTOOL_VERSION="$(LINUX_VERSION)" \
-	FEATURES_DUMP="$(PKG_BUILD_DIR)/FEATURE-DUMP.openwrt" \
-	OUTPUT="$(PKG_BUILD_DIR)/" \
-	prefix="/usr" \
-	$(if $(findstring c,$(OPENWRT_VERBOSE)),V=1,V='')
-
 ifeq ($(BUILD_VARIANT),full)
-  HAVE_LIBBFD:=1
-  HAVE_LIBCAP:=0
-  HAVE_CLANG:=0
-  MAKE_PATH:=tools/bpf/bpftool
-else ifeq ($(BUILD_VARIANT),minimal)
-  HAVE_LIBBFD:=0
-  HAVE_LIBCAP:=0
-  HAVE_CLANG:=0
-  MAKE_PATH:=tools/bpf/bpftool
-else ifeq ($(BUILD_VARIANT),lib)
-  HAVE_LIBBFD:=0
-  HAVE_LIBCAP:=0
-  HAVE_CLANG:=0
-  MAKE_PATH:=tools/lib/bpf
+  full:=1
+else
+  full:=0
 endif
 
-# Perform a "throw-away" make to create a FEATURE-DUMP.* file to edit later.
-# The "//" in the make target is actually needed, very unPOSIXly.
-define Build/Configure
-	+$(MAKE_VARS) $(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR)/tools/bpf/bpftool \
-		$(MAKE_FLAGS) FEATURES_DUMP= $(PKG_BUILD_DIR)//libbpf/libbpf.a
-	(cd $(PKG_BUILD_DIR); cat FEATURE-DUMP.bpftool libbpf/FEATURE-DUMP.libbpf \
-		| sort | uniq > FEATURE-DUMP.openwrt)
-	$(SED) 's/feature-libbfd=1/feature-libbfd=$(HAVE_LIBBFD)/' \
-		-e 's/feature-libcap=1/feature-libcap=$(HAVE_LIBCAP)/' \
-		-e 's/feature-clang-bpf-co-re=1/feature-clang-bpf-co-re=$(HAVE_CLANG)/' \
-		$(PKG_BUILD_DIR)/FEATURE-DUMP.openwrt
-endef
+MAKE_VARS = \
+	EXTRA_CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS)" \
+	LDFLAGS="$(TARGET_LDFLAGS)"
+
+MAKE_FLAGS += \
+	OUTPUT="$(PKG_BUILD_DIR)/" \
+	prefix="/usr" \
+	$(if $(findstring c,$(OPENWRT_VERBOSE)),V=1,V='') \
+	LIBSUBDIR=lib \
+	check_feat=0 \
+	feature-clang-bpf-co-re=0 \
+	feature-reallocarray=1 \
+	feature-zlib=1 \
+	feature-libbfd=$(full) \
+	feature-libcap=0 \
+	feature-disassembler-four-args=$(full)
+
+ifeq ($(BUILD_VARIANT),lib)
+  MAKE_PATH = libbpf/src
+else
+  MAKE_PATH = src
+endif
 
 define Build/InstallDev/libbpf
 	$(INSTALL_DIR) $(1)/usr/include/bpf
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/bpf/*.h $(1)/usr/include/bpf/
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib$(LIB_SUFFIX)/libbpf.{a,so*} \
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libbpf.{a,so*} \
 		$(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib$(LIB_SUFFIX)/pkgconfig/libbpf.pc \
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libbpf.pc \
 		$(1)/usr/lib/pkgconfig/
 	$(SED) 's,/usr/include,$$$${prefix}/include,g' \
 		$(1)/usr/lib/pkgconfig/libbpf.pc
@@ -159,9 +142,30 @@ endef
 
 define Package/libbpf/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib$(LIB_SUFFIX)/libbpf.so.* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libbpf.so.* $(1)/usr/lib/
+endef
+
+HOST_MAKE_FLAGS += \
+	OUTPUT="$(HOST_BUILD_DIR)/" \
+	prefix="/usr" \
+	$(if $(findstring c,$(OPENWRT_VERBOSE)),V=1,V='') \
+	check_feat=0 \
+	feature-clang-bpf-co-re=0 \
+	feature-libbfd=1 \
+	feature-llvm=0 \
+	feature-libcap=0 \
+	feature-disassembler-four-args=1 \
+	feature-disassembler-init-styled=1
+
+HOST_MAKE_PATH = src
+
+define Host/Install
+	$(INSTALL_DIR) $(STAGING_DIR_HOST)/usr/sbin
+	$(INSTALL_BIN) $(HOST_BUILD_DIR)/bpftool \
+		$(STAGING_DIR_HOST)/usr/sbin/bpftool
 endef
 
 $(eval $(call BuildPackage,libbpf))
 $(eval $(call BuildPackage,bpftool-full))
 $(eval $(call BuildPackage,bpftool-minimal))
+$(eval $(call HostBuild))

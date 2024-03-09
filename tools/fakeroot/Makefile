@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fakeroot
-PKG_VERSION:=1.25.3
+PKG_VERSION:=1.33
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)_$(PKG_VERSION).orig.tar.gz
-PKG_SOURCE_URL:=http://deb.debian.org/debian/pool/main/f/fakeroot
-PKG_HASH:=8e903683357f7f5bcc31b879fd743391ad47691d4be33d24a76be3b6c21e956c
+PKG_SOURCE_URL:=@DEBIAN/pool/main/f/fakeroot
+PKG_HASH:=e157d8e5c64d3a755707791e9be93296c6d249d5c4478bf941b675d49c47757d
 PKG_LICENSE:=GPL-3.0-or-later
 PKG_LICENSE_FILES:=COPYING
 PKG_FIXUP:=autoreconf
@@ -24,5 +24,9 @@ HOST_CONFIGURE_VARS += \
 
 HOST_CONFIGURE_ARGS += \
 	--with-ipc=tcp
+
+define Host/Uninstall
+	-$(call Host/Compile/Default,uninstall)
+endef
 
 $(eval $(call HostBuild))

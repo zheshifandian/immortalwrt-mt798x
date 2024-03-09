@@ -7,7 +7,7 @@
 
 include $(TOPDIR)/rules.mk
 PKG_NAME:=toolchain
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=GPL-3.0-with-GCC-exception
@@ -27,7 +27,7 @@ define Package/gcc/Default
   SECTION:=libs
   CATEGORY:=Base system
   URL:=http://gcc.gnu.org/
-  VERSION:=$(LIBGCC_VERSION)-$(PKG_RELEASE)
+  VERSION:=$(LIBGCC_VERSION)-r$(PKG_RELEASE)
 endef
 
 define Package/libgcc
@@ -83,6 +83,33 @@ define Package/libatomic/config
 	endmenu
 endef
 
+define Package/libquadmath
+$(call Package/gcc/Default)
+  DEPENDS:=@TARGET_x86||TARGET_x86_64 +libgcc
+  TITLE:=Quadmath support library
+  ABI_VERSION:=1
+endef
+
+define Package/libquadmath/config
+	menu "Configuration"
+		depends on EXTERNAL_TOOLCHAIN && PACKAGE_libquadmath
+
+	config LIBQUADMATH_ROOT_DIR
+		string
+		prompt "libquadmath shared library base directory"
+		depends on EXTERNAL_TOOLCHAIN && PACKAGE_libquadmath
+		default TOOLCHAIN_ROOT  if !NATIVE_TOOLCHAIN
+		default "/"  if NATIVE_TOOLCHAIN
+
+	config LIBQUADMATH_FILE_SPEC
+		string
+		prompt "libquadmath shared library files (use wildcards)"
+		depends on EXTERNAL_TOOLCHAIN && PACKAGE_libquadmath
+		default "./lib/libquadmath.so.*"
+
+	endmenu
+endef
+
 define Package/libstdcpp
 $(call Package/gcc/Default)
   NAME:=libstdc++
@@ -115,7 +142,7 @@ define Package/libasan
 $(call Package/gcc/Default)
   NAME:=libasan
   TITLE:=Runtime library for AddressSanitizer in GCC
-  DEPENDS:=@USE_GLIBC +librt +libstdcpp @!mips @!mipsel @!mips64 @!mips64el @!arc
+  DEPENDS:=@USE_GLIBC +librt +libstdcpp @!mips64 @!mips64el @!arc
   ABI_VERSION:=5
 endef
 
@@ -144,7 +171,7 @@ define Package/libtsan
 $(call Package/gcc/Default)
   NAME:=libtsan
   TITLE:=Runtime library for ThreadSanitizer in GCC
-  DEPENDS:=@USE_GLIBC +librt +libstdcpp @!mips @!mipsel @!mips64 @!mips64el @!arc
+  DEPENDS:=@USE_GLIBC +librt +libstdcpp @!loongarch64 @!mips @!mipsel @!mips64 @!mips64el @!arc
   ABI_VERSION:=0
 endef
 
@@ -173,7 +200,7 @@ define Package/liblsan
 $(call Package/gcc/Default)
   NAME:=liblsan
   TITLE:=Runtime library for LeakSanitizer in GCC
-  DEPENDS:=@USE_GLIBC +librt +libstdcpp @!mips @!mipsel @!mips64 @!mips64el @!arc
+  DEPENDS:=@USE_GLIBC +librt +libstdcpp @!loongarch64 @!mips @!mipsel @!mips64 @!mips64el @!arc
   ABI_VERSION:=0
 endef
 
@@ -202,7 +229,7 @@ define Package/libubsan
 $(call Package/gcc/Default)
   NAME:=libubsan
   TITLE:=Runtime library for UndefinedBehaviorSanitizer in GCC
-  DEPENDS:=@USE_GLIBC +librt +libstdcpp @!mips @!mipsel @!mips64 @!mips64el @!arc
+  DEPENDS:=@USE_GLIBC +librt +libstdcpp @!mips64 @!mips64el @!arc
   ABI_VERSION:=1
 endef
 
@@ -230,7 +257,7 @@ endef
 define Package/libc/Default
   SECTION:=libs
   CATEGORY:=Base system
-  VERSION:=$(LIBC_VERSION)-$(PKG_RELEASE)
+  VERSION:=$(LIBC_VERSION)-r$(PKG_RELEASE)
   DEPENDS:=+libgcc
   URL:=$(LIBC_URL)
 endef
@@ -454,6 +481,9 @@ define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
 endef
 
+define Build/Quilt
+endef
+
 LIBGCC_A=$(lastword $(wildcard $(TOOLCHAIN_DIR)/lib/gcc/*/*/libgcc_pic.a))
 LIBGCC_MAP=$(lastword $(wildcard $(TOOLCHAIN_DIR)/lib/gcc/*/*/libgcc.map))
 LIBGCC_SO=$(lastword $(wildcard $(TOOLCHAIN_DIR)/lib/libgcc_s.so.*))
@@ -482,6 +512,11 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
 	$(CP) $(TOOLCHAIN_DIR)/lib/libatomic.so.* $(1)/lib/
   endef
 
+  define Package/libquadmath/install
+	$(INSTALL_DIR) $(1)/lib
+	$(CP) $(TOOLCHAIN_DIR)/lib/libquadmath.so.* $(1)/lib/
+  endef
+
   define Package/libgfortran/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(TOOLCHAIN_DIR)/lib/libgfortran.so.* $(1)/usr/lib/
@@ -490,6 +525,7 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
   define Package/libstdcpp/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(TOOLCHAIN_DIR)/lib/libstdc++.so.* $(1)/usr/lib/
+	rm -rf $(1)/usr/lib/*-gdb.py
   endef
 
   define Package/libasan/install
@@ -515,14 +551,12 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
   define Package/glibc/install
 	$(CP) ./glibc-files/* $(1)/
 	rm -f $(1)/etc/localtime
-	$(LN) /tmp/localtime $(1)/etc/localtime
 	$(INSTALL_DIR) $(1)/lib
 	$(CP) \
 		$(TOOLCHAIN_DIR)/lib/ld*.so.* \
-		$(TOOLCHAIN_DIR)/lib/ld-$(LIBC_SO_VERSION).so \
 		$(1)/lib/
 	for file in libanl libc libcidn libcrypt libdl libm libnsl libnss_dns libnss_files libresolv libutil; do \
-		for file in $(TOOLCHAIN_DIR)/lib/$$$$file.so.* $(TOOLCHAIN_DIR)/lib/$$$$file-$(LIBC_SO_VERSION).so; do \
+		for file in $(TOOLCHAIN_DIR)/lib/$$$$file.so.*; do \
 			if [ -e "$$$$file" ]; then \
 				$(CP) $$$$file $(1)/lib/; \
 			fi; \
@@ -561,7 +595,6 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
   ifneq ($(CONFIG_USE_MUSL),y)
 	$(CP) \
 		$(TOOLCHAIN_DIR)/lib/libpthread.so.* \
-		$(TOOLCHAIN_DIR)/lib/libpthread-$(LIBC_SO_VERSION).so \
 		$(1)/lib/
   endif
   endef
@@ -581,7 +614,6 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
   ifneq ($(CONFIG_USE_MUSL),y)
 	$(CP) \
 		$(TOOLCHAIN_DIR)/lib/librt.so.* \
-		$(TOOLCHAIN_DIR)/lib/librt-$(LIBC_SO_VERSION).so \
 		$(1)/lib/
   endif
   endef
@@ -654,12 +686,23 @@ else
 	exit 0
   endef
 
+  define Package/glibc/install
+  endef
+
+  LD_MUSL_NAME = $(notdir $(firstword $(wildcard $(TOOLCHAIN_ROOT_DIR)/lib/libc.so*)))
+
+  define Package/musl/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(LN) ../../lib/$(LD_MUSL_NAME) $(1)/usr/bin/ldd
+  endef
+
   define Package/libc/install
 	for file in $(call qstrip,$(CONFIG_LIBC_FILE_SPEC)); do \
 		$(INSTALL_DIR) $(1)/lib ; \
 		$(CP) $(call qstrip,$(CONFIG_LIBC_ROOT_DIR))/$$$$file $(1)/lib/ ; \
 	done ; \
 	exit 0
+	$(call Package/$(LIBC)/install,$1)
   endef
 
   define Package/libpthread/install
@@ -690,6 +733,14 @@ else
 	for file in $(call qstrip,$(CONFIG_LIBATOMIC_FILE_SPEC)); do \
 		$(INSTALL_DIR) $(1)/lib ; \
 		$(CP) $(call qstrip,$(CONFIG_LIBATOMIC_ROOT_DIR))/$$$$file $(1)/lib/ ; \
+	done ; \
+	exit 0
+  endef
+
+  define Package/libquadmath/install
+	for file in $(call qstrip,$(CONFIG_LIBQUADMATH_FILE_SPEC)); do \
+		$(INSTALL_DIR) $(1)/lib ; \
+		$(CP) $(call qstrip,$(CONFIG_LIBQUADMATH_ROOT_DIR))/$$$$file $(1)/lib/ ; \
 	done ; \
 	exit 0
   endef
@@ -725,6 +776,7 @@ endif
 $(eval $(call BuildPackage,libc))
 $(eval $(call BuildPackage,libgcc))
 $(eval $(call BuildPackage,libatomic))
+$(eval $(call BuildPackage,libquadmath))
 $(eval $(call BuildPackage,libstdcpp))
 $(eval $(call BuildPackage,libasan))
 $(eval $(call BuildPackage,libtsan))

@@ -8,8 +8,8 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=mt_wifi
 
-MT7981_FW_DIR := mt7981-fw-20230306
-MT7986_FW_DIR := mt7986-fw-20230808
+MT7981_FW_DIR := mt7981-asus-ax57
+MT7986_FW_DIR := mt7986-asus-ax6000
 
 ifeq ($(CONFIG_MTK_CHIP_MT7981),y)
 PKG_SUFFIX:=mt7981
@@ -304,6 +304,10 @@ define FIXUP_NEW_MCU_FW_API
 		echo "Fixup new mcu fw API"; \
 		patch -p1 -d $(PKG_BUILD_DIR) < ./files/fix-new-mcu-fw-api.patch; \
 	fi
+	@if [ "$$(CONFIG_MTK_MT7986_NEW_FW)" = "y" ]; then \
+		echo "Fixup eeprom reading API"; \
+		patch -p1 -d $(PKG_BUILD_DIR) < ./files/eeprom-flash-api.patch; \
+	fi
 endef
 
 Hooks/Prepare/Post := FIXUP_NEW_MCU_FW_API
@@ -340,7 +344,7 @@ if [ "$$(CONFIG_MTK_WIFI_FW_BIN_LOAD)" = "y" ]; then \
 			$(1)/lib/firmware/; \
 		fi; \
 		if [ "$$(CONFIG_MTK_WIFI_SKU_TYPE)" = "AX4200" ] ; then \
-			$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/mt7986/rebb/MT7986_ePAeLNA_EEPROM_ONEADIE_DBDC.bin \
+			$(INSTALL_BIN) ./files/$$(MT7986_FW_DIR)/MT7986_ePAeLNA_EEPROM_ONEADIE_DBDC.bin \
 			$(1)/lib/firmware/; \
 		fi; \
 	fi; \

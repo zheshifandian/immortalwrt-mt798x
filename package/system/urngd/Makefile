@@ -12,8 +12,6 @@ PKG_MIRROR_HASH:=743bdfacf1f1e779047a55fe8f388aaf31f6e55e8a4d0a00fcabffb68af2202
 PKG_LICENSE:=GPL-2.0 BSD-3-Clause
 PKG_LICENSE_FILES:=
 
-PKG_BUILD_PARALLEL:=1
-
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
@@ -37,10 +35,6 @@ define Package/urngd/description
   entropy. Especially during boot time, when the entropy of Linux is low, the
   Jitter RNGd provides a source of sufficient entropy.
 endef
-
-ifdef CONFIG_USE_GLIBC
-  TARGET_LDFLAGS += -lpthread
-endif
 
 define Package/urngd/install
 	$(INSTALL_DIR) $(1)/etc/init.d

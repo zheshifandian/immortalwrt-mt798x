@@ -5,20 +5,22 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dtc
-PKG_VERSION:=1.6.0
-PKG_RELEASE:=1
+PKG_VERSION:=1.7.0
+PKG_RELEASE:=3
+
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_HASH:=10503b0217e1b07933e29e8d347a00015b2431bea5f59afe0bed3af30340c82d
+PKG_HASH:=29edce3d302a15563d8663198bbc398c5a0554765c83830d0d4c0409d21a16c4
 PKG_SOURCE_URL:=@KERNEL/software/utils/dtc
-PKG_LICENSE:=GPL-2.0
+
+PKG_MAINTAINER:=Yousong Zhou <yszhou4tech@gmail.com>
+PKG_LICENSE:=GPL-2.0-only
 PKG_LICENSE_FILES:=GPL
 PKG_CPE_ID:=cpe:/a:dtc_project:dtc
 
 PKG_INSTALL:=1
-PKG_MAINTAINER:=Yousong Zhou <yszhou4tech@gmail.com>
 
 include $(INCLUDE_DIR)/package.mk
-
+include $(INCLUDE_DIR)/meson.mk
 
 define Package/dtc
   SECTION:=utils
@@ -33,9 +35,20 @@ define Package/dtc/description
   format for booting kernels on embedded systems.
 endef
 
+define Package/dtc/config
+	config DTC_STATIC_BUILD
+		depends on PACKAGE_dtc
+		bool "Build dtc as static binary"
+		default n
+		help
+			Builds dtc as a static binary.
+			This is usefull in order to export live DTS from a device running
+			various vendor modified OpenWrt versions.
+endef
+
 define Package/dtc/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(CP) $(PKG_INSTALL_DIR)/bin/dtc $(1)/usr/bin
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/dtc $(1)/usr/bin
 endef
 
 
@@ -50,11 +63,11 @@ endef
 
 define Package/fdt-utils/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/bin/convert-dtsv0 $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/bin/fdtdump $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/bin/fdtget $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/bin/fdtput $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/bin/fdtoverlay $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/convert-dtsv0 $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/fdtdump $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/fdtget $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/fdtput $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/fdtoverlay $(1)/usr/bin
 endef
 
 
@@ -71,22 +84,21 @@ endef
 
 define Package/libfdt/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/lib/libfdt*.so* $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libfdt*.so* $(1)/usr/lib
 endef
 
-# NO_PYTHON is for disabling pylibfdt
-MAKE_FLAGS += \
-	PREFIX= \
-	NO_PYTHON=1 \
-	NO_VALGRIND=1 \
-	NO_YAML=1 \
-	EXTRA_CFLAGS=$(EXTRA_CFLAGS) \
+MESON_ARGS += \
+	-Dtools=true \
+	-Dyaml=disabled \
+	-Dvalgrind=disabled \
+	-Dpython=disabled \
+	-Dstatic-build=$(if $(CONFIG_DTC_STATIC_BUILD),true,false)
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/include/* $(1)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/lib/* $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/* $(1)/usr/lib
 endef
 
 $(eval $(call BuildPackage,dtc))

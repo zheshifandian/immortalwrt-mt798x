@@ -32,11 +32,10 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
 ifeq ($(DUMP),)
-  STAMP_CONFIGURED:=$(strip $(STAMP_CONFIGURED))_$(shell echo $(CONFIG_TARGET_INIT_PATH) | mkhash md5)
+  STAMP_CONFIGURED:=$(strip $(STAMP_CONFIGURED))_$(shell echo $(CONFIG_TARGET_INIT_PATH) | $(MKHASH) md5)
 endif
 
 CMAKE_OPTIONS += -DEARLY_PATH="$(TARGET_INIT_PATH)"
-TARGET_LDFLAGS += $(if $(CONFIG_USE_GLIBC),-lrt)
 
 TARGET_CFLAGS += -flto
 TARGET_LDFLAGS += -flto
@@ -44,7 +43,7 @@ TARGET_LDFLAGS += -flto
 define Package/procd/Default
   SECTION:=base
   CATEGORY:=Base system
-  DEPENDS:=+ubusd +ubus +libjson-script +ubox +USE_GLIBC:librt +libubox \
+  DEPENDS:=+ubusd +ubus +libjson-script +ubox +libubox \
 	  +libubus +libblobmsg-json +libjson-c +jshn
   TITLE:=OpenWrt system process manager
   USERID:=:dialout=20 :audio=29

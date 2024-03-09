@@ -6,24 +6,14 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 
-define Build/sysupgrade-emmc
-	rm -f $@.recovery
-	mkfs.fat -C $@.recovery 3070
-
-	./gen_$(SUBTARGET)_emmc_img.sh $@ \
-		$(IMAGE_KERNEL) \
-		$@.recovery \
-		$(IMAGE_ROOTFS)
-endef
-
-# default all platform image(fit) build 
+# default all platform image(fit) build
 define Device/Default
   PROFILES = Default $$(DEVICE_NAME)
   KERNEL_NAME := Image
   KERNEL = kernel-bin | lzma | \
 	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
   KERNEL_INITRAMFS = kernel-bin | lzma | \
-	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
+	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd
   FILESYSTEMS := squashfs
   DEVICE_DTS_DIR := $(DTS_DIR)
   IMAGES := sysupgrade.bin

@@ -25,6 +25,8 @@ my @mirrors;
 my $ok;
 
 my $check_certificate = $ENV{DOWNLOAD_CHECK_CERTIFICATE} eq "y";
+my $custom_tool = $ENV{DOWNLOAD_TOOL_CUSTOM};
+my $download_tool;
 
 $url_filename or $url_filename = $filename;
 
@@ -58,8 +60,6 @@ sub which($) {
 	my $prog = shift;
 	my $res = `which $prog`;
 	$res or return undef;
-	$res =~ /^no / and return undef;
-	$res =~ /not found/ and return undef;
 	return $res;
 }
 
@@ -67,32 +67,75 @@ sub hash_cmd() {
 	my $len = length($file_hash);
 	my $cmd;
 
-	$len == 64 and return "mkhash sha256";
-	$len == 32 and return "mkhash md5";
+	$len == 64 and return "$ENV{'MKHASH'} sha256";
+	$len == 32 and return "$ENV{'MKHASH'} md5";
 	return undef;
 }
 
-sub download_cmd($) {
-	my $url = shift;
-	my $have_curl = 0;
+sub tool_present {
+	my $tool_name = shift;
+	my $compare_line = shift;
+	my $present = 0;
 
-	if (open CURL, "curl --version 2>/dev/null |") {
-		if (defined(my $line = readline CURL)) {
-			$have_curl = 1 if $line =~ /^curl /;
+	if (open TOOL, "$tool_name --version 2>/dev/null |") {
+		if (defined(my $line = readline TOOL)) {
+			$present = 1 if $line =~ /^$compare_line /;
 		}
-		close CURL;
+		close TOOL;
 	}
 
-	return $have_curl
-		? (qw(curl -f --connect-timeout 20 --retry 5 --location),
+	return $present
+}
+
+sub select_tool {
+	$custom_tool =~ tr/"//d;
+	if ($custom_tool) {
+		return $custom_tool;
+	}
+
+	# Try to use curl if available
+	if (tool_present("curl", "curl")) {
+		return "curl";
+	}
+
+	# No tool found, fallback to wget
+	return "wget";
+}
+
+sub download_cmd {
+	my $url = shift;
+	my $filename = shift;
+
+	if ($download_tool eq "curl") {
+		return (qw(curl -f --connect-timeout 10 --retry 3 --location),
 			$check_certificate ? () : '--insecure',
 			shellwords($ENV{CURL_OPTIONS} || ''),
-			$url)
-		: (qw(wget --tries=5 --timeout=20 --output-document=-),
+			$url);
+	} elsif ($download_tool eq "wget") {
+		return (qw(wget --tries=3 --timeout=10 --output-document=-),
 			$check_certificate ? () : '--no-check-certificate',
 			shellwords($ENV{WGET_OPTIONS} || ''),
-			$url)
-	;
+			$url);
+	} elsif ($download_tool eq "aria2c") {
+		my $additional_mirrors = join(" ", map "$_/$filename", @_);
+		my @chArray = ('a'..'z', 'A'..'Z', 0..9);
+		my $rfn = join '', "${filename}_", map{ $chArray[int rand @chArray] } 0..9;
+
+		@mirrors=();
+
+		return join(" ", "[ -d $ENV{'TMPDIR'}/aria2c ] || mkdir $ENV{'TMPDIR'}/aria2c;",
+			"touch $ENV{'TMPDIR'}/aria2c/${rfn}_spp;",
+			qw(aria2c --stderr -c -x2 -s10 -j10 -k1M), $url, $additional_mirrors,
+			$check_certificate ? () : '--check-certificate=false',
+			"--server-stat-of=$ENV{'TMPDIR'}/aria2c/${rfn}_spp",
+			"--server-stat-if=$ENV{'TMPDIR'}/aria2c/${rfn}_spp",
+			"--daemon=false --no-conf", shellwords($ENV{ARIA2C_OPTIONS} || ''),
+			"-d $ENV{'TMPDIR'}/aria2c -o $rfn;",
+			"cat $ENV{'TMPDIR'}/aria2c/$rfn;",
+			"rm $ENV{'TMPDIR'}/aria2c/$rfn $ENV{'TMPDIR'}/aria2c/${rfn}_spp");
+	} else {
+		return join(" ", $download_tool, $url);
+	}
 }
 
 my $hash_cmd = hash_cmd();
@@ -231,15 +274,9 @@ foreach my $mirror (@ARGV) {
 		push @mirrors, "ftp://apache.cs.utah.edu/apache.org/$1";
 		push @mirrors, "ftp://apache.mirrors.ovh.net/ftp.apache.org/dist/$1";
 	} elsif ($mirror =~ /^\@GITHUB\/(.+)$/) {
-		my $dir = $1;
-		my $i = 0;
-		# replace the 2nd '/' with '@' for jsDelivr mirror
-		push @mirrors, "https://cdn.jsdelivr.net/gh/". $dir =~ s{\/}{++$i == 2 ? '@' : $&}ger;
-		push @mirrors, "https://raw.sevencdn.com/$dir";
-		push @mirrors, "https://raw.fastgit.org/$dir";
 		# give github a few more tries (different mirrors)
 		for (1 .. 5) {
-			push @mirrors, "https://raw.githubusercontent.com/$dir";
+			push @mirrors, "https://raw.githubusercontent.com/$1";
 		}
 	} elsif ($mirror =~ /^\@GNU\/(.+)$/) {
 		push @mirrors, "https://mirrors.tencent.com/gnu/$1";
@@ -326,6 +363,8 @@ if (-f "$target/$filename") {
 	};
 }
 
+$download_tool = select_tool();
+
 while (!-f "$target/$filename") {
 	my $mirror = shift @mirrors;
 	$mirror or die "No more mirrors to try - giving up.\n";
@@ -337,4 +376,3 @@ while (!-f "$target/$filename") {
 }
 
 $SIG{INT} = \&cleanup;
-

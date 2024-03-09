@@ -8,16 +8,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iproute2
-PKG_VERSION:=5.11.0
-PKG_RELEASE:=3
+PKG_VERSION:=6.9.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/linux/utils/net/iproute2
-PKG_HASH:=c5e2ea108212b3445051b35953ec267f9f3469e1d5c67ac034ab559849505c54
+PKG_HASH:=2f643d09ea11a4a2a043c92e2b469b5f73228cbf241ae806760296ed0ec413d0
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_DEPENDS:=iptables
 PKG_LICENSE:=GPL-2.0
 PKG_CPE_ID:=cpe:/a:iproute2_project:iproute2
+
+PKG_BUILD_FLAGS:=gc-sections lto
 
 include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
@@ -57,7 +59,16 @@ $(call Package/iproute2/Default)
   DEFAULT_VARIANT:=1
   PROVIDES:=tc
   ALTERNATIVES:=200:/sbin/tc:/usr/libexec/tc-tiny
-  DEPENDS:=+kmod-sched-core +libxtables +tc-mod-iptables +(PACKAGE_devlink||PACKAGE_rdma):libmnl
+  DEPENDS:=+kmod-sched-core +(PACKAGE_devlink||PACKAGE_rdma):libmnl
+endef
+
+define Package/tc-bpf
+$(call Package/iproute2/Default)
+  TITLE:=Traffic control utility (bpf)
+  VARIANT:=tcbpf
+  PROVIDES:=tc
+  ALTERNATIVES:=300:/sbin/tc:/usr/libexec/tc-bpf
+  DEPENDS:=+kmod-sched-core +(PACKAGE_devlink||PACKAGE_rdma):libmnl +libbpf
 endef
 
 define Package/tc-full
@@ -65,14 +76,8 @@ $(call Package/iproute2/Default)
   TITLE:=Traffic control utility (full)
   VARIANT:=tcfull
   PROVIDES:=tc
-  ALTERNATIVES:=300:/sbin/tc:/usr/libexec/tc-full
-  DEPENDS:=+kmod-sched-core +libxtables +tc-mod-iptables +libbpf +(PACKAGE_devlink||PACKAGE_rdma):libmnl
-endef
-
-define Package/tc-mod-iptables
-$(call Package/iproute2/Default)
-  TITLE:=Traffic control module - iptables action
-  DEPENDS:=+libxtables
+  ALTERNATIVES:=400:/sbin/tc:/usr/libexec/tc-full
+  DEPENDS:=+kmod-sched-core +(PACKAGE_devlink||PACKAGE_rdma):libmnl +libbpf +libxtables
 endef
 
 define Package/genl
@@ -90,7 +95,7 @@ endef
 define Package/ss
 $(call Package/iproute2/Default)
   TITLE:=Socket statistics utility
-  DEPENDS:=+libnl-tiny +(PACKAGE_devlink||PACKAGE_rdma):libmnl +kmod-netlink-diag
+  DEPENDS:=+libnl-tiny +(PACKAGE_devlink||PACKAGE_rdma):libmnl +libbpf +kmod-netlink-diag
 endef
 
 define Package/nstat
@@ -123,13 +128,29 @@ endif
 
 ifeq ($(BUILD_VARIANT),tctiny)
   LIBBPF_FORCE:=off
+endif
+
+ifeq ($(BUILD_VARIANT),tcbpf)
+  HAVE_ELF:=y
+  LIBBPF_FORCE:=on
   SHARED_LIBS:=y
 endif
 
 ifeq ($(BUILD_VARIANT),tcfull)
+  #enable iptables/xtables requirement only if tciptables variant is selected
+  TC_CONFIG_XT:=y
+  TC_CONFIG_XT_OLD:=y
+  TC_CONFIG_XT_OLD_H:=y
+  TC_CONFIG_IPSET:=y
   HAVE_ELF:=y
   LIBBPF_FORCE:=on
   SHARED_LIBS:=y
+else
+  #disable iptables requirement by default
+  TC_CONFIG_XT:=n
+  TC_CONFIG_XT_OLD:=n
+  TC_CONFIG_XT_OLD_H:=n
+  TC_CONFIG_IPSET:=n
 endif
 
 ifdef CONFIG_PACKAGE_devlink
@@ -145,20 +166,25 @@ define Build/Configure
 		> $(PKG_BUILD_DIR)/include/SNAPSHOT.h
 endef
 
-TARGET_CFLAGS += -ffunction-sections -fdata-sections -flto
-TARGET_LDFLAGS += -Wl,--gc-sections -Wl,--as-needed
+TARGET_LDFLAGS += -Wl,--as-needed
 TARGET_CPPFLAGS += -I$(STAGING_DIR)/usr/include/libnl-tiny
 
 MAKE_FLAGS += \
-	KERNEL_INCLUDE="$(LINUX_DIR)/user_headers/include" \
+	KERNEL_INCLUDE="$(LINUX_DIR)/include/uapi" \
 	SHARED_LIBS=$(SHARED_LIBS) \
 	IP_CONFIG_TINY=$(IP_CONFIG_TINY) \
+	BUILD_VARIANT=$(BUILD_VARIANT) \
 	LIBBPF_FORCE=$(LIBBPF_FORCE) \
 	HAVE_ELF=$(HAVE_ELF) \
 	HAVE_MNL=$(HAVE_MNL) \
 	HAVE_CAP=$(HAVE_CAP) \
+	HAVE_TIRPC=n \
 	IPT_LIB_DIR=/usr/lib/iptables \
 	XT_LIB_DIR=/usr/lib/iptables \
+	TC_CONFIG_XT=$(TC_CONFIG_XT) \
+	TC_CONFIG_XT_OLD=$(TC_CONFIG_XT_OLD) \
+	TC_CONFIG_XT_OLD_H=$(TC_CONFIG_XT_OLD_H) \
+	TC_CONFIG_IPSET=$(TC_CONFIG_IPSET) \
 	FPIC="$(FPIC)" \
 	$(if $(findstring c,$(OPENWRT_VERBOSE)),V=1,V='')
 
@@ -172,10 +198,6 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/include/{libgenl,libnetlink}.h $(1)/usr/include/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/lib/libnetlink.a $(1)/usr/lib/
-	# Hack for qos-gargoyle
-	$(INSTALL_DIR) $(1)/usr/lib/iproute2/{tc,lib,include}
-	$(CP) $(PKG_BUILD_DIR)/{tc,include,lib} $(1)/usr/lib/iproute2
-	# Hack end
 endef
 
 define Package/ip-tiny/install
@@ -193,14 +215,14 @@ define Package/tc-tiny/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tc/tc $(1)/usr/libexec/tc-tiny
 endef
 
+define Package/tc-bpf/install
+	$(INSTALL_DIR) $(1)/usr/libexec
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tc/tc $(1)/usr/libexec/tc-bpf
+endef
+
 define Package/tc-full/install
 	$(INSTALL_DIR) $(1)/usr/libexec
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/tc/tc $(1)/usr/libexec/tc-full
-endef
-
-define Package/tc-mod-iptables/install
-	$(INSTALL_DIR) $(1)/usr/lib/tc
-	$(CP) $(PKG_BUILD_DIR)/tc/m_xt.so $(1)/usr/lib/tc
 endef
 
 define Package/genl/install
@@ -236,8 +258,8 @@ endef
 $(eval $(call BuildPackage,ip-tiny))
 $(eval $(call BuildPackage,ip-full))
 $(eval $(call BuildPackage,tc-tiny))
+$(eval $(call BuildPackage,tc-bpf))
 $(eval $(call BuildPackage,tc-full))
-$(eval $(call BuildPackage,tc-mod-iptables))
 $(eval $(call BuildPackage,genl))
 $(eval $(call BuildPackage,ip-bridge))
 $(eval $(call BuildPackage,ss))

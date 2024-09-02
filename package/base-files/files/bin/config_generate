@@ -200,6 +200,14 @@ generate_network() {
 				EOF
 			}
 		;;
+
+		qmi|\
+		mbim)
+			uci -q batch <<-EOF
+				set network.$1.proto='${protocol}'
+				set network.$1.pdptype='ipv4'
+			EOF
+		;;
 	esac
 }
 
@@ -298,17 +306,17 @@ generate_static_system() {
 		set system.@system[-1].hostname='ImmortalWrt'
 		set system.@system[-1].timezone='UTC'
 		set system.@system[-1].ttylogin='0'
-		set system.@system[-1].log_size='512'
+		set system.@system[-1].log_size='1024'
 		set system.@system[-1].urandom_seed='0'
 
 		delete system.ntp
 		set system.ntp='timeserver'
 		set system.ntp.enabled='1'
-		set system.ntp.enable_server='0'
-		add_list system.ntp.server='time1.apple.com'
-		add_list system.ntp.server='time1.google.com'
+		set system.ntp.enable_server='1'
+		add_list system.ntp.server='time.apple.com'
+		add_list system.ntp.server='time.google.com'
+		add_list system.ntp.server='time.windows.com'
 		add_list system.ntp.server='time.cloudflare.com'
-		add_list system.ntp.server='pool.ntp.org'
 	EOF
 
 	if json_is_a system object; then
@@ -323,6 +331,11 @@ generate_static_system() {
 				uci -q set "system.@system[-1].compat_version=$compat_version"
 			else
 				uci -q set "system.@system[-1].compat_version=1.0"
+			fi
+
+			local timezone
+			if json_get_var timezone timezone; then
+				uci -q set "system.@system[-1].timezone=$timezone"
 			fi
 
 			if json_is_a ntpserver array; then

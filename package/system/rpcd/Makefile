@@ -11,11 +11,11 @@ PKG_NAME:=rpcd
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL=$(PROJECT_GIT)/project/rpcd.git
-PKG_SOURCE_DATE:=2022-02-19
-PKG_SOURCE_VERSION:=8d26a1ba3a175016b342cc5e25d340c08ae20eed
+PKG_SOURCE_URL=https://github.com/openwrt/rpcd.git
+PKG_MIRROR_HASH:=18137fa6904b1a7aec03a16a4c25fd9b9689b24ee14d431bacdda9f093339071
+PKG_SOURCE_DATE:=2022-09-21
+PKG_SOURCE_VERSION:=8c852b656bf1622dee1ae2cfa4c083f730c1c539
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
-PKG_MIRROR_HASH:=0a692c87811e38022e7446d37fea75cc823d00534d5b91faefc58eba3b6debb1
 
 PKG_LICENSE:=ISC
 PKG_LICENSE_FILES:=
@@ -98,3 +98,4 @@ $(eval $(call BuildPackage,rpcd))
 $(eval $(call BuildPlugin,file,,Provides ubus calls for file and directory operations.))
 $(eval $(call BuildPlugin,rpcsys,,Provides ubus calls for sysupgrade and password changing.))
 $(eval $(call BuildPlugin,iwinfo,+libiwinfo,Provides ubus calls for accessing iwinfo data.))
+$(eval $(call BuildPlugin,ucode,+libucode,Allows implementing plugins using ucode scripts.))

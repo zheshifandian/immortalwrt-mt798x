@@ -24,7 +24,10 @@ ifneq ($(call qstrip,$(CONFIG_KERNEL_GIT_CLONE_URI)),)
   PKG_SOURCE_VERSION:=$(call qstrip,$(CONFIG_KERNEL_GIT_REF))
   PKG_MIRROR_HASH:=$(call qstrip,$(CONFIG_KERNEL_GIT_MIRROR_HASH))
 ifdef CHECK
+  PLATFORM_DIR:=$(firstword $(wildcard $(TOPDIR)/target/linux/feeds/$(BOARD) $(TOPDIR)/target/linux/$(BOARD)))
+  include $(PLATFORM_DIR)/Makefile
   include $(INCLUDE_DIR)/kernel-version.mk
+  include $(INCLUDE_DIR)/kernel-build.mk
   PKG_VERSION:=$(LINUX_VERSION)
 else
   PKG_SOURCE:=$(LINUX_SOURCE)
@@ -69,6 +72,7 @@ ifneq ($(CONFIG_mips)$(CONFIG_mipsel),)
 		$(HOST_BUILD_DIR)/arch/mips/include/asm/asm.h \
 		$(HOST_BUILD_DIR)/arch/mips/include/asm/regdef.h \
 		$(HOST_BUILD_DIR)/arch/mips/include/asm/asm-eva.h \
+		$(HOST_BUILD_DIR)/arch/mips/include/asm/isa-rev.h \
 		$(BUILD_DIR_TOOLCHAIN)/linux-dev/include/asm/
   endef
 endif
@@ -90,7 +94,6 @@ define Host/Prepare
 endef
 
 define Host/Configure
-	env
 	yes '' | $(HOST_KMAKE) oldconfig
 	$(call Host/Configure/all)
 	$(call Host/Configure/post/$(ARCH))

@@ -312,6 +312,9 @@ endef
 
 Hooks/Prepare/Post := FIXUP_NEW_MCU_FW_API
 
+TARGET_CFLAGS += \
+	-Wno-error=unused-function
+
 define Build/Compile
 	+$(MAKE) $(PKG_JOBS) -C "$(LINUX_DIR)" \
 		$(KERNEL_MAKE_FLAGS) \

@@ -1,23 +1,22 @@
-config GCC_VERSION_7
-	default y if GCC_USE_VERSION_7
+config GCC_VERSION_11
+	default y if GCC_USE_VERSION_11
 	bool
 
-config GCC_VERSION_9
-	default y if GCC_USE_VERSION_9
+config GCC_VERSION_12
+	default y if GCC_USE_VERSION_12
 	bool
 
-config GCC_VERSION_10
-	default y if GCC_USE_VERSION_10
+config GCC_VERSION_13
+	default y if GCC_USE_VERSION_13
 	bool
 
 config GCC_VERSION
 	string
-	default "7.5.0"		if GCC_VERSION_7
-	default "9.3.0"		if GCC_VERSION_9
-	default "10.2.0"	if GCC_VERSION_10
-	default "8.4.0"
+	default "11.5.0"	if GCC_VERSION_11
+	default "12.4.0"	if GCC_VERSION_12
+	default "13.3.0"
 
-config GCC_USE_IREMAP
+config GCC_USE_DEFAULT_VERSION
 	bool
-	default y if GCC_USE_VERSION_7
-	default n
+	default y if !TOOLCHAINOPTS || GCC_USE_VERSION_13
+	imply KERNEL_WERROR

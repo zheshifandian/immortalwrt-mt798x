@@ -26,6 +26,7 @@ HOST_STAMP_CONFIGURED:=$(HOST_BUILD_DIR)/.configured
 HOST_STAMP_BUILT:=$(HOST_BUILD_DIR)/.built
 HOST_BUILD_PREFIX?=$(if $(IS_PACKAGE_BUILD),$(STAGING_DIR_HOSTPKG),$(STAGING_DIR_HOST))
 HOST_STAMP_INSTALLED:=$(HOST_BUILD_PREFIX)/stamp/.$(PKG_NAME)_installed
+HOST_STAMP_PROGRAMS:=$(foreach program,$(PKG_PROGRAMS),$(dir $(HOST_STAMP_INSTALLED))$(subst $(PKG_NAME),$(program),$(notdir $(HOST_STAMP_INSTALLED))) )
 
 override MAKEFLAGS=
 
@@ -34,16 +35,23 @@ include $(INCLUDE_DIR)/autotools.mk
 _host_target:=$(if $(HOST_QUILT),,.)
 
 Host/Patch:=$(Host/Patch/Default)
-ifneq ($(strip $(HOST_UNPACK)),)
-  define Host/Prepare/Default
-	$(HOST_UNPACK)
+define Host/Prepare/Default
+	$(if $(strip $(HOST_UNPACK)),$(HOST_UNPACK))
 	[ ! -d ./src/ ] || $(CP) ./src/* $(HOST_BUILD_DIR)
 	$(Host/Patch)
-  endef
-endif
+endef
 
 define Host/Prepare
   $(call Host/Prepare/Default)
+endef
+
+define Host/Gnulib/Prepare
+  $(STAGING_DIR_HOST)/bin/gnulib-tool \
+	--local-dir=$(STAGING_DIR_HOST)/share/gnulib \
+	--source-base=$(PKG_GNULIB_BASE) \
+	$(PKG_GNULIB_ARGS) \
+	$(PKG_GNULIB_MODS) \
+  ;
 endef
 
 HOST_CONFIGURE_VARS = \
@@ -51,6 +59,7 @@ HOST_CONFIGURE_VARS = \
 	CFLAGS="$(HOST_CFLAGS)" \
 	CXX="$(HOSTCXX)" \
 	CPPFLAGS="$(HOST_CPPFLAGS)" \
+	CXXFLAGS="$(HOST_CXXFLAGS)" \
 	LDFLAGS="$(HOST_LDFLAGS)" \
 	CONFIG_SHELL="$(SHELL)"
 
@@ -58,6 +67,7 @@ HOST_CONFIGURE_ARGS = \
 	--target=$(GNU_HOST_NAME) \
 	--host=$(GNU_HOST_NAME) \
 	--build=$(GNU_HOST_NAME) \
+	--disable-dependency-tracking \
 	--program-prefix="" \
 	--program-suffix="" \
 	--prefix=$(HOST_BUILD_PREFIX) \
@@ -65,6 +75,10 @@ HOST_CONFIGURE_ARGS = \
 	--sysconfdir=$(HOST_BUILD_PREFIX)/etc \
 	--localstatedir=$(HOST_BUILD_PREFIX)/var \
 	--sbindir=$(HOST_BUILD_PREFIX)/bin
+
+ifneq ($(YEAR_2038),y)
+  HOST_CONFIGURE_ARGS += --disable-year2038
+endif
 
 HOST_MAKE_VARS = \
 	CFLAGS="$(HOST_CFLAGS)" \
@@ -97,15 +111,21 @@ define Host/Configure
   $(call Host/Configure/Default)
 endef
 
+HOST_MAKE_PATH ?= .
+
 define Host/Compile/Default
 	+$(HOST_MAKE_VARS) \
-	$(MAKE) $(HOST_JOBS) -C $(HOST_BUILD_DIR) \
+	$(MAKE) $(HOST_JOBS) -C $(HOST_BUILD_DIR)/$(HOST_MAKE_PATH) \
 		$(HOST_MAKE_FLAGS) \
 		$(1)
 endef
 
 define Host/Compile
   $(call Host/Compile/Default)
+endef
+
+define Host/Gnulib/Compile
+  $(call Host/Compile/Default,SUBDIRS='$$$$(wildcard $(PKG_GNULIB_BASE))')
 endef
 
 define Host/Install/Default
@@ -129,6 +149,7 @@ define Host/Exports/Default
   $(1) : export STAGING_PREFIX=$$(HOST_BUILD_PREFIX)
   $(1) : export PKG_CONFIG_PATH=$$(STAGING_DIR_HOST)/lib/pkgconfig:$$(HOST_BUILD_PREFIX)/lib/pkgconfig
   $(1) : export PKG_CONFIG_LIBDIR=$$(HOST_BUILD_PREFIX)/lib/pkgconfig
+  $(1) : export GIT_CEILING_DIRECTORIES=$$(BUILD_DIR_HOST)
   $(if $(HOST_CONFIG_SITE),$(1) : export CONFIG_SITE:=$(HOST_CONFIG_SITE))
   $(if $(IS_PACKAGE_BUILD),$(1) : export PATH=$$(TARGET_PATH_PKG))
 endef
@@ -169,7 +190,7 @@ ifndef DUMP
 		$(foreach hook,$(Hooks/HostInstall/Post),$(call $(hook))$(sep))
 		mkdir -p $$(shell dirname $$@)
 		touch $(HOST_STAMP_BUILT)
-		touch $$@
+		touch $$@ $(HOST_STAMP_PROGRAMS)
 
   $(call DefaultTargets,$(patsubst %,host-%,$(DEFAULT_SUBDIR_TARGETS)))
   ifndef STAMP_BUILT
@@ -180,11 +201,11 @@ ifndef DUMP
     clean-build: host-clean-build
   endif
 
-  $(DL_DIR)/$(FILE): FORCE
+  $(call check_download_integrity)
 
   $(_host_target)host-prepare: $(HOST_STAMP_PREPARED)
   $(_host_target)host-configure: $(HOST_STAMP_CONFIGURED)
-  $(_host_target)host-compile: $(HOST_STAMP_BUILT) $(HOST_STAMP_INSTALLED)
+  $(_host_target)host-compile: $(HOST_STAMP_BUILT) $(HOST_STAMP_INSTALLED) $(HOST_STAMP_PROGRAMS)
   host-install: host-compile
 
   host-clean-build: FORCE
@@ -193,7 +214,7 @@ ifndef DUMP
 
   host-clean: host-clean-build
 	$(call Host/Clean)
-	rm -rf $(HOST_STAMP_INSTALLED)
+	rm -rf $(HOST_STAMP_INSTALLED) $(HOST_STAMP_PROGRAMS)
 
     ifneq ($(CONFIG_AUTOREMOVE),)
       host-compile:
@@ -205,5 +226,9 @@ endif
 
 define HostBuild
   $(HostBuild/Core)
-  $(if $(if $(PKG_HOST_ONLY),,$(STAMP_PREPARED)),,$(if $(strip $(PKG_SOURCE_URL)),$(call Download,default)))
+  $(if $(if $(PKG_HOST_ONLY),,$(if $(and $(filter host-%,$(MAKECMDGOALS)),$(PKG_SKIP_DOWNLOAD)),,$(STAMP_PREPARED))),,
+	$(if $(and $(CONFIG_AUTOREMOVE), $(wildcard $(HOST_STAMP_INSTALLED), $(wildcard $(HOST_STAMP_BUILT)))),,
+		$(if $(strip $(PKG_SOURCE_URL)),$(call Download,default))
+	)
+  )
 endef

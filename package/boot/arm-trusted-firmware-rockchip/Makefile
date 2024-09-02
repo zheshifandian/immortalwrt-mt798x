@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2020 Tobias Maedel <openwrt@tbspace.de>
+# Copyright (C) 2020 Sarah Maedel <openwrt@tbspace.de>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -18,7 +18,7 @@ PKG_HASH:=bf352298743aed594cf2958dd588e06ab6713fc514bb6f809bf55a85a87134c1
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=license.md
 
-PKG_MAINTAINER:=Tobias Maedel <openwrt@tbspace.de>
+PKG_MAINTAINER:=Sarah Maedel <openwrt@tbspace.de>
 
 MAKE_PATH:=$(PKG_NAME)
 

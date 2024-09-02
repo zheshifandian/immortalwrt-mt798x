@@ -6,19 +6,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libsemanage
-PKG_VERSION:=3.2
+PKG_VERSION:=3.5
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/SELinuxProject/selinux/releases/download/3.2
-PKG_HASH:=d722a55ca4fe2d4e2b30527720db657e6238b28079e69e2e4affeb8e733ee511
+PKG_SOURCE_URL:=https://github.com/SELinuxProject/selinux/releases/download/$(PKG_VERSION)
+PKG_HASH:=f53534e50247538280ed0d76c6ce81d8fb3939bd64cadb89da10dba42e40dd9c
 PKG_MAINTAINER:=Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 PKG_LICENSE:=LGPL-2.1
 PKG_LICENSE_FILES:=COPYING
 PKG_CPE_ID:=cpe:/a:selinuxproject:libsemanage
 
 
-HOST_BUILD_DEPENDS:=libaudit/host libselinux/host bzip2/host
+HOST_BUILD_DEPENDS:=audit/host libselinux/host bzip2/host
 
 
 include $(INCLUDE_DIR)/package.mk
@@ -58,6 +58,8 @@ define Build/InstallDev
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libsemanage.pc $(1)/usr/lib/pkgconfig/
+	$(SED) 's,/usr/include,$$$${prefix}/include,g' $(1)/usr/lib/pkgconfig/libsemanage.pc
+	$(SED) 's,/usr/lib,$$$${exec_prefix}/lib,g' $(1)/usr/lib/pkgconfig/libsemanage.pc
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/* $(1)/usr/lib/
 endef

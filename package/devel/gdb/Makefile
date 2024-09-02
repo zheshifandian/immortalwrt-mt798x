@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gdb
-PKG_VERSION:=10.1
+PKG_VERSION:=15.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@GNU/gdb
-PKG_HASH:=f82f1eceeec14a3afa2de8d9b0d3c91d5a3820e23e0a01bbb70ef9f0276b62c0
+PKG_HASH:=83350ccd35b5b5a0cba6b334c41294ea968158c573940904f00b92f76345314d
 
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
@@ -33,7 +33,7 @@ endef
 define Package/gdb
 $(call Package/gdb/Default)
   TITLE:=GNU Debugger
-  DEPENDS+=+libreadline +libncurses +zlib
+  DEPENDS+=+libreadline +libncurses +zlib +libgmp +libmpfr
 endef
 
 define Package/gdb/description
@@ -45,7 +45,6 @@ endef
 define Package/gdbserver
 $(call Package/gdb/Default)
   TITLE:=Remote server for GNU Debugger
-  DEPENDS+=@!arc
 endef
 
 define Package/gdbserver/description
@@ -59,11 +58,15 @@ CONFIGURE_ARGS+= \
 	--with-system-zlib \
 	--without-expat \
 	--without-lzma \
+	--without-zstd \
 	--disable-unit-tests \
 	--disable-ubsan \
 	--disable-sim \
 	--disable-werror \
-	--disable-source-highlight
+	--disable-source-highlight \
+	--without-isl \
+	--without-xxhash \
+	--with-libgmp-prefix=$(STAGING_DIR)/usr
 
 CONFIGURE_VARS+= \
 	ac_cv_search_tgetent="$(TARGET_LDFLAGS) -lncurses -lreadline"

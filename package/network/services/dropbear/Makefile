@@ -13,7 +13,7 @@ PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:= \
-	http://matt.ucc.asn.au/dropbear/releases/ \
+	https://matt.ucc.asn.au/dropbear/releases/ \
 	https://dropbear.nl/mirror/releases/
 PKG_HASH:=48235d10b37775dbda59341ac0c4b239b82ad6318c31568b985730c788aac53b
 
@@ -23,7 +23,7 @@ PKG_CPE_ID:=cpe:/a:matt_johnston:dropbear_ssh_server
 
 PKG_BUILD_PARALLEL:=1
 PKG_ASLR_PIE_REGULAR:=1
-PKG_USE_MIPS16:=0
+PKG_BUILD_FLAGS:=no-mips16 gc-sections lto
 PKG_FIXUP:=autoreconf
 PKG_FLAGS:=nonshared
 
@@ -37,11 +37,11 @@ PKG_CONFIG_DEPENDS:= \
 include $(INCLUDE_DIR)/package.mk
 
 ifneq ($(DUMP),1)
-  STAMP_CONFIGURED:=$(strip $(STAMP_CONFIGURED))_$(shell echo $(CONFIG_TARGET_INIT_PATH) | mkhash md5)
+  STAMP_CONFIGURED:=$(strip $(STAMP_CONFIGURED))_$(shell echo $(CONFIG_TARGET_INIT_PATH) | $(MKHASH) md5)
 endif
 
 define Package/dropbear/Default
-  URL:=http://matt.ucc.asn.au/dropbear/
+  URL:=https://matt.ucc.asn.au/dropbear/
 endef
 
 define Package/dropbear/config
@@ -106,14 +106,12 @@ CONFIGURE_ARGS += \
 # remove protocol idented software version number:
 # - LOCAL_IDENT
 # disable legacy/unsafe methods and unused functionality:
-# - INETD_MODE
 # - DROPBEAR_CLI_NETCAT
 # - DROPBEAR_DSS
 # - DO_MOTD
 DB_OPT_COMMON = \
 	DEFAULT_PATH|"$(TARGET_INIT_PATH)" \
 	!!LOCAL_IDENT|"SSH-2.0-dropbear" \
-	INETD_MODE|0 \
 	DROPBEAR_CLI_NETCAT|0 \
 	DROPBEAR_DSS|0 \
 	DO_MOTD|0 \
@@ -139,8 +137,7 @@ DB_OPT_CONFIG = \
 	DROPBEAR_CLI_ASKPASS_HELPER|CONFIG_DROPBEAR_ASKPASS|1|0 \
 
 
-TARGET_CFLAGS += -DARGTYPE=3 -ffunction-sections -fdata-sections -flto
-TARGET_LDFLAGS += -Wl,--gc-sections -flto=jobserver
+TARGET_CFLAGS += -DARGTYPE=3
 
 db_opt_add     =echo '\#define $(1) $(2)' >> $(PKG_BUILD_DIR)/localoptions.h
 db_opt_replace =$(ESED) 's,^(\#define $(1)) .*$$$$,\1 $(2),g' $(PKG_BUILD_DIR)/sysoptions.h

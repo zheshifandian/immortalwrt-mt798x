@@ -304,6 +304,7 @@ endef
 
 $(eval $(call KernelPackage,fs-jfs))
 
+
 define KernelPackage/fs-minix
   SUBMENU:=$(FS_MENU)
   TITLE:=Minix filesystem support
@@ -385,12 +386,12 @@ define KernelPackage/fs-nfs-common-rpcsec
 	+kmod-crypto-sha1 \
 	+kmod-crypto-hmac \
 	+kmod-crypto-ecb \
-	+kmod-crypto-arc4
+	+kmod-crypto-arc4 \
+  +kmod-oid-registry
   KCONFIG:= \
 	CONFIG_SUNRPC_GSS \
 	CONFIG_RPCSEC_GSS_KRB5
   FILES:= \
-	$(LINUX_DIR)/lib/oid_registry.ko \
 	$(LINUX_DIR)/net/sunrpc/auth_gss/auth_rpcgss.ko \
 	$(LINUX_DIR)/net/sunrpc/auth_gss/rpcsec_gss_krb5.ko
   AUTOLOAD:=$(call AutoLoad,31,oid_registry auth_rpcgss rpcsec_gss_krb5)

@@ -314,19 +314,13 @@ find_mtd_part() {
 }
 
 find_mmc_part() {
-	local DEVNAME PARTNAME ROOTDEV
+	local DEVNAME PARTNAME
 
 	if grep -q "$1" /proc/mtd; then
 		echo "" && return 0
 	fi
 
-	if [ -n "$2" ]; then
-		ROOTDEV="$2"
-	else
-		ROOTDEV="mmcblk*"
-	fi
-
-	for DEVNAME in /sys/block/$ROOTDEV/mmcblk*p*; do
+	for DEVNAME in /sys/block/mmcblk*/mmcblk*p*; do
 		PARTNAME="$(grep PARTNAME ${DEVNAME}/uevent | cut -f2 -d'=')"
 		[ "$PARTNAME" = "$1" ] && echo "/dev/$(basename $DEVNAME)" && return 0
 	done
@@ -401,6 +395,16 @@ user_exists() {
 
 board_name() {
 	[ -e /tmp/sysinfo/board_name ] && cat /tmp/sysinfo/board_name || echo "generic"
+}
+
+cmdline_get_var() {
+	local var=$1
+	local cmdlinevar tmp
+
+	for cmdlinevar in $(cat /proc/cmdline); do
+		tmp=${cmdlinevar##${var}}
+		[ "=" = "${tmp:0:1}" ] && echo ${tmp:1}
+	done
 }
 
 [ -z "$IPKG_INSTROOT" ] && [ -f /lib/config/uci.sh ] && . /lib/config/uci.sh

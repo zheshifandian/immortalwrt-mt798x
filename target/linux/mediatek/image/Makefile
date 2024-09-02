@@ -6,7 +6,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 
-# default all platform image(fit) build 
+# default all platform image(fit) build
 define Device/Default
   PROFILES = Default $$(DEVICE_NAME)
   KERNEL_NAME := Image

@@ -3,11 +3,13 @@
 uci -q get system.@imm_init[0] > "/dev/null" || uci -q add system imm_init > "/dev/null"
 
 if ! uci -q get system.@imm_init[0].lang > "/dev/null"; then
-	uci -q set luci.main.lang="auto"
-	uci -q commit luci
+	uci -q batch <<-EOF
+		set luci.main.lang="auto"
+		commit luci
 
-	uci -q set system.@imm_init[0].lang="1"
-	uci -q commit system
+		set system.@imm_init[0].lang="1"
+			commit system
+	EOF
 fi
 
 uci -q set luci.main.socket="/var/run/ubus.sock"
@@ -22,8 +24,6 @@ uci -q commit luci
 #fi
 
 ln -sf "/sbin/ip" "/usr/bin/ip"
-
-[ ! -e "/bin/bash" ] || sed -i "s|root:x:0:0:root:/root:/bin/ash|root:x:0:0:root:/root:/bin/bash|g" "/etc/passwd"
 
 sed -i "/log-facility/d" "/etc/dnsmasq.conf"
 echo "log-facility=/dev/null" >> "/etc/dnsmasq.conf"

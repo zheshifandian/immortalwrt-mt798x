@@ -1,4 +1,5 @@
 KERNEL_LOADADDR := 0x48080000
+include ./filogic.mk
 
 MT7981_USB_PKGS := automount blkid blockdev fdisk \
     kmod-nls-cp437 kmod-nls-iso8859-1 kmod-usb2 kmod-usb3 \

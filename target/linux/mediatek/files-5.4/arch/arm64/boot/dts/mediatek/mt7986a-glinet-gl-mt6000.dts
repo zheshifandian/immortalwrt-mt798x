@@ -6,7 +6,7 @@
 #include <dt-bindings/leds/common.h>
 / {
 	model = "GL.iNet GL-MT6000";
- 	compatible = "glinet,gl-mt6000","mediatek,mt7986a-emmc-rfb";
+ 	compatible = "glinet,gl-mt6000","mediatek,mt7986a";
 	chosen {
 		bootargs = "console=ttyS0,115200n1 loglevel=8  \
 				earlycon=uart8250,mmio32,0x11002000 \
@@ -14,10 +14,12 @@
 	};
 	
 	aliases {
-		led-boot = &led_status_white;
- 		led-failsafe = &led_status_white;
- 		led-running = &led_status_blue;
- 		led-upgrade = &led_status_blue;
+		serial0 = &uart0;
+		label-mac-device = &gmac1;
+		led-boot = &led_blue;
+		led-failsafe = &led_blue;
+		led-running = &led_white;
+		led-upgrade = &led_white;
 	};
 
 	memory {
@@ -38,15 +40,15 @@
 	leds {
 		compatible = "gpio-leds";
 
-		led_status_white: status_white {
- 			label = "white:status";
- 			gpios = <&pio 37 GPIO_ACTIVE_LOW>;
- 		};
+		led_blue: led@0 {
+			label = "blue:run";
+			gpios = <&pio 38 GPIO_ACTIVE_LOW>;
+		};
 
- 		led_status_blue: status_blue {
- 			label = "blue:status";
- 			gpios = <&pio 38 GPIO_ACTIVE_LOW>;
- 		};
+		led_white: led@1 {
+			label = "white:system";
+			gpios = <&pio 37 GPIO_ACTIVE_LOW>;
+		};
 	};
 
 	reg_1p8v: regulator-1p8v {
@@ -67,7 +69,6 @@
 		regulator-always-on;
 	};
 
-
 	usb_vbus: regulator-usb-vbus {
 		compatible = "regulator-fixed";
 		regulator-name = "usb_vbus";
@@ -78,21 +79,6 @@
 		regulator-boot-on;
 	};
 
-	sound {
-		compatible = "mediatek,mt7986-wm8960-machine";
-		mediatek,platform = <&afe>;
-		audio-routing = "Headphone", "HP_L",
-				"Headphone", "HP_R",
-				"LINPUT1", "AMIC",
-				"RINPUT1", "AMIC";
-		mediatek,audio-codec = <&wm8960>;
-		status = "okay";
-	};
-};
-
-&fan {
-	pwms = <&pwm 1 50000 0>;
-	status = "disabled";
 };
 
 &pwm {
@@ -262,12 +248,6 @@
 	non-removable;
 	no-sd;
 	no-sdio;
-	status = "okay";
-};
-
-&pcie0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pcie0_pins>;
 	status = "okay";
 };
 

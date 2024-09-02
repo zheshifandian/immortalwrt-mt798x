@@ -14,18 +14,26 @@ config EXPERIMENTAL
 	  positive and negative). But do so only if you know how to
 	  recover your device in case of flashing potentially non-working
 	  firmware.
-	
+
 	  If you plan to use this build in production, say NO!
 
 menu "Global build settings"
 
 	config JSON_OVERVIEW_IMAGE_INFO
 		bool "Create JSON info file overview per target"
-		default BUILDBOT
+		default y
 		help
 		  Create a JSON info file called profiles.json in the target
 		  directory containing machine readable list of built profiles
 		  and resulting images.
+
+	config JSON_CYCLONEDX_SBOM
+		bool "Create CycloneDX SBOM JSON"
+		default BUILDBOT
+		help
+		  Create a JSON files *.bom.cdx.json in the build
+		  directory containing Software Bill Of Materials in CycloneDX
+		  format.
 
 	config ALL_NONSHARED
 		bool "Select all target specific packages by default"
@@ -111,7 +119,7 @@ menu "Global build settings"
 		default n
 		help
 		  This makes file checksums part of package metadata. It increases size
-		  but provides you with pkg_check command to check for flash coruptions.
+		  but provides you with pkg_check command to check for flash corruptions.
 
 	config INCLUDE_CONFIG
 		bool "Include build configuration in firmware" if DEVEL
@@ -153,12 +161,23 @@ menu "Global build settings"
 		help
 		  Adds -g3 to the CFLAGS.
 
-	config IPV6
+	config USE_GC_SECTIONS
 		bool
-		prompt "Enable IPv6 support in packages"
-		default y
+		prompt "Dead code and data elimination for all packages (EXPERIMENTAL)"
 		help
-		  Enables IPv6 support in kernel (builtin) and packages.
+		  Places functions and data items into its own sections to use the linker's
+		  garbage collection capabilites.
+		  Packages can choose to opt-out via setting PKG_BUILD_FLAGS:=no-gc-sections
+
+	config USE_LTO
+		bool
+		prompt "Use the xtables-nft-multi optimizer for all packages (EXPERIMENTAL)"
+		help
+		  Adds LTO flags to the CFLAGS and LDFLAGS.
+		  Packages can choose to opt-out via setting PKG_BUILD_FLAGS:=no-lto
+
+	config IPV6
+		def_bool y
 
 	comment "Stripping options"
 
@@ -179,7 +198,6 @@ menu "Global build settings"
 			bool "strip"
 			help
 			  This will install binaries stripped using strip from binutils.
-
 
 		config USE_SSTRIP
 			bool "sstrip"
@@ -207,6 +225,7 @@ menu "Global build settings"
 
 	config STRIP_KERNEL_EXPORTS
 		bool "Strip unnecessary exports from the kernel image"
+		depends on !LINUX_6_6
 		help
 		  Reduces kernel size by stripping unused kernel exports from the kernel
 		  image.  Note that this might make the kernel incompatible with any kernel
@@ -272,6 +291,8 @@ menu "Global build settings"
 			bool "Regular"
 		config PKG_CC_STACKPROTECTOR_STRONG
 			bool "Strong"
+		config PKG_CC_STACKPROTECTOR_ALL
+			bool "All"
 	endchoice
 
 	choice
@@ -374,5 +395,17 @@ menu "Global build settings"
 			  Defensec SELinux Security Policy -- OpenWrt edition
 
 	endchoice
+
+	config SECCOMP
+		bool "Enable SECCOMP"
+		select KERNEL_SECCOMP
+		select PACKAGE_procd-seccomp
+		depends on (aarch64 || arm || armeb || mips || mipsel || mips64 || mips64el || i386 || powerpc || x86_64)
+		depends on !TARGET_uml
+		default n
+		help
+		  This option enables seccomp kernel features to safely
+		  execute untrusted bytecode and selects the seccomp-variants
+		  of procd
 
 endmenu

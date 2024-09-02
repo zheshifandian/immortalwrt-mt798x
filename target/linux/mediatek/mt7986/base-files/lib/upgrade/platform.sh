@@ -208,3 +208,25 @@ platform_check_image() {
 
 	return 0
 }
+
+platform_copy_config() {
+	case "$(board_name)" in
+	glinet,gl-mt2500|\
+	glinet,gl-mt6000|\
+	jdcloud,re-cp-03)
+		emmc_copy_config
+		;;
+	esac
+}
+
+platform_pre_upgrade() {
+	local board=$(board_name)
+
+	case "$board" in
+	xiaomi,mi-router-ax3000t|\
+	xiaomi,mi-router-wr30u-stock|\
+	xiaomi,redmi-router-ax6000-stock)
+		xiaomi_initial_setup
+		;;
+	esac
+}

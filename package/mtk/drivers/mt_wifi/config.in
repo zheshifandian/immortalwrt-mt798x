@@ -195,6 +195,9 @@ choice
 	config MTK_MT_WIFI_MT7981_DEFAULT_FIRMWARE
 	bool "default firmware"
 
+	config MTK_MT_WIFI_MT7981_asus
+	bool "mt7981-asus-ax57"
+
 	config MTK_MT_WIFI_MT7981_20230306
 	bool "mt7981-fw-20230306"
 
@@ -218,6 +221,9 @@ choice
 	config MTK_MT_WIFI_MT7986_DEFAULT_FIRMWARE
 	bool "default firmware"
 
+	config MTK_MT_WIFI_MT7986_asus
+	bool "mt7986-asus-ax6000"
+
 	config MTK_MT_WIFI_MT7986_20221208
 	bool "mt7986-fw-20221208"
 
@@ -233,11 +239,13 @@ endchoice
 
 config MTK_MT_WIFI_FIRMWARE_PATH
 	string
+	default mt7981-asus-ax57 if MTK_MT_WIFI_MT7981_asus
 	default mt7981-fw-20230306 if MTK_MT_WIFI_MT7981_20230306
 	default mt7981-fw-20230330 if MTK_MT_WIFI_MT7981_20230330
 	default mt7981-fw-20230411 if MTK_MT_WIFI_MT7981_20230411
 	default mt7981-fw-20230717 if MTK_MT_WIFI_MT7981_20230717
 	default mt7981-fw-20231024 if MTK_MT_WIFI_MT7981_20231024
+	default mt7986-asus-ax6000 if MTK_MT_WIFI_MT7986_asus
 	default mt7986-fw-20221208 if MTK_MT_WIFI_MT7986_20221208
 	default mt7986-fw-20230421 if MTK_MT_WIFI_MT7986_20230421
 	default mt7986-fw-20230808 if MTK_MT_WIFI_MT7986_20230808

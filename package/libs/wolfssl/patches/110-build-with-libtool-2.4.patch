@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -32,7 +32,7 @@ AC_ARG_PROGRAM
+@@ -31,7 +31,7 @@ AC_ARG_PROGRAM
  
  AC_CONFIG_HEADERS([config.h:config.in])
  

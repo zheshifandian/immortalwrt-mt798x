@@ -34,3 +34,10 @@ git-src
 !/dl/datconf*
 !/dl/mt798*
 !/dl/warp*
+
+package/luci-app-mosdns
+package/luci-app-openclash
+package/luci-app-argon-config
+package/luci-theme-argon
+cspell.json
+.cspell/custom-dictionary.txt

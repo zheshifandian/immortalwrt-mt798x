@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2006-2020 OpenWrt.org
 
-PKG_DEFAULT_DEPENDS = +libc +USE_GLIBC:librt +USE_GLIBC:libpthread
+PKG_DEFAULT_DEPENDS = +libc
 
 ifneq ($(PKG_NAME),toolchain)
   PKG_FIXUP_DEPENDS = $(if $(filter kmod-%,$(1)),$(2),$(PKG_DEFAULT_DEPENDS) $(filter-out $(PKG_DEFAULT_DEPENDS),$(2)))
@@ -20,7 +20,7 @@ define Package/Default
   PROVIDES:=
   EXTRA_DEPENDS:=
   MAINTAINER:=$(PKG_MAINTAINER)
-  SOURCE:=$(patsubst $(TOPDIR)/%,%,$(CURDIR))
+  SOURCE:=$(patsubst $(TOPDIR)/%,%,$(patsubst $(TOPDIR)/package/%,feeds/base/%,$(CURDIR)))
   ifneq ($(PKG_VERSION),)
     ifneq ($(PKG_RELEASE),)
       VERSION:=$(PKG_VERSION)-$(PKG_RELEASE)

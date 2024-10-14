@@ -272,3 +272,52 @@ define KernelPackage/asn1-decoder
 endef
 
 $(eval $(call KernelPackage,asn1-decoder))
+
+
+define KernelPackage/asn1-encoder
+  SUBMENU:=$(LIB_MENU)
+  TITLE:=Simple ASN1 encoder
+  KCONFIG:= CONFIG_ASN1_ENCODER
+  HIDDEN:=1
+  FILES:=$(LINUX_DIR)/lib/asn1_encoder.ko
+endef
+
+$(eval $(call KernelPackage,asn1-encoder))
+
+
+define KernelPackage/oid-registry
+  SUBMENU:=$(LIB_MENU)
+  TITLE:=Object identifier registry
+  KCONFIG:= CONFIG_OID_REGISTRY
+  FILES:=$(LINUX_DIR)/lib/oid_registry.ko
+  AUTOLOAD:=$(call AutoLoad,31,oid_registry)
+endef
+
+$(eval $(call KernelPackage,oid-registry))
+
+
+define KernelPackage/lib-objagg
+  SUBMENU:=$(LIB_MENU)
+  TITLE:=objagg support
+  FILES:=$(LINUX_DIR)/lib/objagg.ko
+  KCONFIG:= \
+  CONFIG_OBJAGG \
+  CONFIG_TEST_OBJAGG=n
+  AUTOLOAD:=$(call AutoProbe,objagg)
+endef
+
+$(eval $(call KernelPackage,lib-objagg))
+
+
+define KernelPackage/lib-parman
+  SUBMENU:=$(LIB_MENU)
+  TITLE:=parman support
+  FILES:=$(LINUX_DIR)/lib/parman.ko
+  KCONFIG:= \
+  CONFIG_PARMAN \
+  CONFIG_TEST_PARMAN=n
+  AUTOLOAD:=$(call AutoProbe,parman)
+endef
+
+$(eval $(call KernelPackage,lib-parman))
+

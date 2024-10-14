@@ -147,9 +147,9 @@ platform_do_upgrade() {
 		;;
 	xiaomi,redmi-router-ax6000 |\
 	bananapi,bpi-r3mini |\
-	netcore,n60|\
-	tplink,tl-xdr608*|\
-	ruijie,rg-x60-pro*|\
+	netcore,n60 |\
+	tplink,tl-xdr608* |\
+	ruijie,rg-x60-pro* |\
 	*snand*)
 		nand_do_upgrade "$1"
 		;;
@@ -178,12 +178,12 @@ platform_check_image() {
 	case "$board" in
 	xiaomi,redmi-router-ax6000* |\
 	bananapi,bpi-r3mini* |\
-	netcore,n60|\
-	ruijie,rg-x60-pro*|\
+	netcore,n60 |\
+	ruijie,rg-x60-pro* |\
 	*snand* |\
-	glinet,gl-mt6000|\
-	jdcloud,re-cp-03|\
-	tplink,tl-xdr608*|\
+	glinet,gl-mt6000 |\
+	jdcloud,re-cp-03 |\
+	tplink,tl-xdr608* |\
 	*emmc*)
 		# tar magic `ustar`
 		magic="$(dd if="$1" bs=1 skip=257 count=5 2>/dev/null)"
@@ -205,4 +205,26 @@ platform_check_image() {
 	esac
 
 	return 0
+}
+
+platform_copy_config() {
+	case "$(board_name)" in
+	glinet,gl-mt2500|\
+	glinet,gl-mt6000|\
+	jdcloud,re-cp-03)
+		emmc_copy_config
+		;;
+	esac
+}
+
+platform_pre_upgrade() {
+	local board=$(board_name)
+
+	case "$board" in
+	xiaomi,mi-router-ax3000t|\
+	xiaomi,mi-router-wr30u-stock|\
+	xiaomi,redmi-router-ax6000-stock)
+		xiaomi_initial_setup
+		;;
+	esac
 }

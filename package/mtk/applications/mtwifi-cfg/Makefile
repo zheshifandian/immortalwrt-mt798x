@@ -16,8 +16,7 @@ define Package/mtwifi-cfg
   CATEGORY:=MTK Properties
   SUBMENU:=Applications
   TITLE:=mtwifi configure scripts for mt798x
-  DEPENDS:=+iwinfo +wifi-dats +lua-cjson +datconf-lua +USE_UCLIBC:libpthread +USE_UCLIBC:librt +libkvcutil +libopenssl \
-  +libnl-tiny  @!PACKAGE_luci-app-mtk @!PACKAGE_wifi-profile
+  DEPENDS:=+iwinfo +wifi-dats +lua-cjson +datconf-lua +libkvcutil +libopenssl luci-app-mtk wifi-profile
 endef
 
 define Build/Compile

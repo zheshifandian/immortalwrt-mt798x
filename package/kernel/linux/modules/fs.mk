@@ -84,6 +84,28 @@ endef
 $(eval $(call KernelPackage,fs-btrfs))
 
 
+define KernelPackage/fs-smbfs-common
+  SUBMENU:=$(FS_MENU)
+  TITLE:=SMBFS common dependencies support
+  HIDDEN:=1
+  DEPENDS:=+LINUX_6_6:kmod-fs-netfs +LINUX_6_6:kmod-nls-ucs2-utils
+  KCONFIG:=\
+	CONFIG_SMBFS_COMMON@lt6.1 \
+	CONFIG_SMBFS@ge6.1
+  FILES:= \
+	$(LINUX_DIR)/fs/smbfs_common/cifs_arc4.ko@lt6.1 \
+	$(LINUX_DIR)/fs/smbfs_common/cifs_md4.ko@lt6.1 \
+	$(LINUX_DIR)/fs/smb/common/cifs_arc4.ko@ge6.1 \
+	$(LINUX_DIR)/fs/smb/common/cifs_md4.ko@ge6.1
+endef
+
+define KernelPackage/fs-smbfs-common/description
+ Kernel module dependency for CIFS or SMB_SERVER support
+endef
+
+$(eval $(call KernelPackage,fs-smbfs-common))
+
+
 define KernelPackage/fs-cifs
   SUBMENU:=$(FS_MENU)
   TITLE:=CIFS support
@@ -304,6 +326,7 @@ endef
 
 $(eval $(call KernelPackage,fs-jfs))
 
+
 define KernelPackage/fs-minix
   SUBMENU:=$(FS_MENU)
   TITLE:=Minix filesystem support
@@ -334,6 +357,17 @@ define KernelPackage/fs-msdos/description
 endef
 
 $(eval $(call KernelPackage,fs-msdos))
+
+
+define KernelPackage/fs-netfs
+  SUBMENU:=$(FS_MENU)
+  TITLE:=Network Filesystems support
+  KCONFIG:= CONFIG_NETFS_SUPPORT
+  FILES:=$(LINUX_DIR)/fs/netfs/netfs.ko
+  AUTOLOAD:=$(call AutoLoad,28,netfs)
+endef
+
+$(eval $(call KernelPackage,fs-netfs))
 
 
 define KernelPackage/fs-nfs
@@ -385,12 +419,12 @@ define KernelPackage/fs-nfs-common-rpcsec
 	+kmod-crypto-sha1 \
 	+kmod-crypto-hmac \
 	+kmod-crypto-ecb \
-	+kmod-crypto-arc4
+	+kmod-crypto-arc4 \
+  +kmod-oid-registry
   KCONFIG:= \
 	CONFIG_SUNRPC_GSS \
 	CONFIG_RPCSEC_GSS_KRB5
   FILES:= \
-	$(LINUX_DIR)/lib/oid_registry.ko \
 	$(LINUX_DIR)/net/sunrpc/auth_gss/auth_rpcgss.ko \
 	$(LINUX_DIR)/net/sunrpc/auth_gss/rpcsec_gss_krb5.ko
   AUTOLOAD:=$(call AutoLoad,31,oid_registry auth_rpcgss rpcsec_gss_krb5)
@@ -475,26 +509,6 @@ define KernelPackage/fs-ntfs/description
 endef
 
 $(eval $(call KernelPackage,fs-ntfs))
-
-
-define KernelPackage/fs-ntfs3
-  SUBMENU:=$(FS_MENU)
-  TITLE:=NTFS3 Read-Write file system support
-  DEPENDS:=+kmod-nls-base
-  KCONFIG:= \
-	CONFIG_NTFS3_FS \
-	CONFIG_NTFS3_64BIT_CLUSTER=y \
-	CONFIG_NTFS3_LZX_XPRESS=y \
-	CONFIG_NTFS3_FS_POSIX_ACL=y
-  FILES:=$(LINUX_DIR)/fs/ntfs3/ntfs3.ko
-  AUTOLOAD:=$(call AutoLoad,30,ntfs3)
-endef
-
-define KernelPackage/fs-ntfs3/description
- Kernel module for NTFS3 filesystem support
-endef
-
-$(eval $(call KernelPackage,fs-ntfs3))
 
 
 define KernelPackage/fs-reiserfs

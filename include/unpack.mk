@@ -18,7 +18,7 @@ ifeq ($(strip $(UNPACK_CMD)),)
 
     ifeq ($(filter gz tgz,$(EXT)),$(EXT))
       EXT:=$(call ext,$(PKG_SOURCE:.$(EXT)=))
-      DECOMPRESS_CMD:=gzip -dc $(DL_DIR)/$(PKG_SOURCE) |
+      DECOMPRESS_CMD:=$(STAGING_DIR_HOST)/bin/libdeflate-gzip -dc $(DL_DIR)/$(PKG_SOURCE) |
     endif
     ifeq ($(filter bzip2 bz2 bz tbz2 tbz,$(EXT)),$(EXT))
       EXT:=$(call ext,$(PKG_SOURCE:.$(EXT)=))
@@ -40,7 +40,7 @@ ifeq ($(strip $(UNPACK_CMD)),)
       UNPACK_CMD=$(DECOMPRESS_CMD) $(TAR_CMD)
     endif
     ifeq ($(EXT),cpio)
-      UNPACK_CMD=$(DECOMPRESS_CMD) (cd $(1)/..; cpio -i -d)
+      UNPACK_CMD=$(DECOMPRESS_CMD) (cd $(1)/..; $(STAGING_DIR_HOST)/bin/cpio -i -d)
     endif
     ifeq ($(EXT),zip)
       UNPACK_CMD=$(UNZIP_CMD)
@@ -56,7 +56,7 @@ ifeq ($(strip $(UNPACK_CMD)),)
     endif
     # replace zcat with $(ZCAT), because some system don't support it properly
     ifeq ($(PKG_CAT),zcat)
-      UNPACK_CMD=gzip -dc $(DL_DIR)/$(PKG_SOURCE) | $(TAR_CMD)
+      UNPACK_CMD=$(STAGING_DIR_HOST)/bin/libdeflate-gzip -dc $(DL_DIR)/$(PKG_SOURCE) | $(TAR_CMD)
     endif
   endif
 endif

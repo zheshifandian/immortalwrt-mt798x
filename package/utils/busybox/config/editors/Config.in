@@ -7,7 +7,7 @@
 menu "Editors"
 
 config BUSYBOX_CONFIG_AWK
-	bool "awk (23 kb)"
+	bool "awk (24 kb)"
 	default BUSYBOX_DEFAULT_AWK
 	help
 	Awk is used as a pattern scanning and processing language.
@@ -31,7 +31,7 @@ config BUSYBOX_CONFIG_FEATURE_AWK_GNU_EXTENSIONS
 	This enables the use of awk library files.
 	Example: awk -f mylib.awk -e '{print myfunction($1);}' ...
 config BUSYBOX_CONFIG_CMP
-	bool "cmp (4.9 kb)"
+	bool "cmp (5.3 kb)"
 	default BUSYBOX_DEFAULT_CMP
 	help
 	cmp is used to compare two files and returns the result
@@ -57,14 +57,14 @@ config BUSYBOX_CONFIG_FEATURE_DIFF_DIR
 	This option enables support for directory and subdirectory
 	comparison.
 config BUSYBOX_CONFIG_ED
-	bool "ed (21 kb)"
+	bool "ed (16 kb)"
 	default BUSYBOX_DEFAULT_ED
 	help
 	The original 1970's Unix text editor, from the days of teletypes.
 	Small, simple, evil. Part of SUSv3. If you're not already using
 	this, you don't need it.
 config BUSYBOX_CONFIG_PATCH
-	bool "patch (9.4 kb)"
+	bool "patch (9.6 kb)"
 	default BUSYBOX_DEFAULT_PATCH
 	help
 	Apply a unified diff formatted patch.
@@ -75,7 +75,7 @@ config BUSYBOX_CONFIG_SED
 	sed is used to perform text transformations on a file
 	or input from a pipeline.
 config BUSYBOX_CONFIG_VI
-	bool "vi (23 kb)"
+	bool "vi (26 kb)"
 	default BUSYBOX_DEFAULT_VI
 	help
 	'vi' is a text editor. More specifically, it is the One True
@@ -109,6 +109,14 @@ config BUSYBOX_CONFIG_FEATURE_VI_COLON
 	help
 	Enable a limited set of colon commands. This does not
 	provide an "ex" mode.
+
+config BUSYBOX_CONFIG_FEATURE_VI_COLON_EXPAND
+	bool "Expand \"%\" and \"#\" in colon commands"
+	default BUSYBOX_DEFAULT_FEATURE_VI_COLON_EXPAND
+	depends on BUSYBOX_CONFIG_FEATURE_VI_COLON
+	help
+	Expand the special characters \"%\" (current filename)
+	and \"#\" (alternate filename) in colon commands.
 
 config BUSYBOX_CONFIG_FEATURE_VI_YANKMARK
 	bool "Enable yank/put commands and mark cmds"
@@ -217,6 +225,14 @@ config BUSYBOX_CONFIG_FEATURE_VI_UNDO_QUEUE_MAX
 	and will generally malloc() larger objects and less frequently.
 	Unless you want more (or less) frequent "undo points" while typing,
 	you should probably leave this unchanged.
+
+config BUSYBOX_CONFIG_FEATURE_VI_VERBOSE_STATUS
+	bool "Enable verbose status reporting"
+	default BUSYBOX_DEFAULT_FEATURE_VI_VERBOSE_STATUS
+	depends on BUSYBOX_CONFIG_VI
+	help
+	Enable more verbose reporting of the results of yank, change,
+	delete, undo and substitution commands.
 
 config BUSYBOX_CONFIG_FEATURE_ALLOW_EXEC
 	bool "Allow vi and awk to execute shell commands"

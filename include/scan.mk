@@ -1,4 +1,5 @@
 include $(TOPDIR)/include/verbose.mk
+include $(TOPDIR)/rules.mk
 TMP_DIR:=$(TOPDIR)/tmp
 
 all: $(TMP_DIR)/.$(SCAN_TARGET)
@@ -10,7 +11,8 @@ TARGET_STAMP:=$(TMP_DIR)/info/.files-$(SCAN_TARGET).stamp
 FILELIST:=$(TMP_DIR)/info/.files-$(SCAN_TARGET)-$(SCAN_COOKIE)
 OVERRIDELIST:=$(TMP_DIR)/info/.overrides-$(SCAN_TARGET)-$(SCAN_COOKIE)
 
-export PATH:=$(TOPDIR)/staging_dir/host/bin:$(PATH)
+export ORIG_PATH:=$(if $(ORIG_PATH),$(ORIG_PATH),$(PATH))
+export PATH:=$(STAGING_DIR_HOST)/bin:$(PATH)
 
 define feedname
 $(if $(patsubst feeds/%,,$(1)),,$(word 2,$(subst /, ,$(1))))
@@ -100,7 +102,7 @@ $(TMP_DIR)/info/.files-$(SCAN_TARGET).mk: $(FILELIST)
 $(TARGET_STAMP)::
 	+( \
 		$(NO_TRACE_MAKE) $(FILELIST); \
-		MD5SUM=$$(cat $(FILELIST) $(OVERRIDELIST) | mkhash md5 | awk '{print $$1}'); \
+		MD5SUM=$$(cat $(FILELIST) $(OVERRIDELIST) | $(MKHASH) md5 | awk '{print $$1}'); \
 		[ -f "$@.$$MD5SUM" ] || { \
 			rm -f $@.*; \
 			touch $@.$$MD5SUM; \

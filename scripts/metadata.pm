@@ -256,6 +256,9 @@ sub parse_package_metadata($) {
 		/^Source: \s*(.+)\s*$/ and $pkg->{source} = $1;
 		/^License: \s*(.+)\s*$/ and $pkg->{license} = $1;
 		/^LicenseFiles: \s*(.+)\s*$/ and $pkg->{licensefiles} = $1;
+		/^CPE-ID: \s*(.+)\s*$/ and $pkg->{cpe_id} = $1;
+		/^URL: \s*(.+)\s*$/ and $pkg->{url} = $1;
+		/^ABI-Version: \s*(.+)\s*$/ and $pkg->{abi_version} = $1;
 		/^Default: \s*(.+)\s*$/ and $pkg->{default} = $1;
 		/^Provides: \s*(.+)\s*$/ and do {
 			my @vpkg = split /\s+/, $1;
@@ -290,6 +293,7 @@ sub parse_package_metadata($) {
 		};
 		/^Config:\s*(.*)\s*$/ and $pkg->{config} = "$1\n".get_multiline(*FILE, "\t");
 		/^Prereq-Check:/ and $pkg->{prereq} = 1;
+		/^Maintainer: \s*(.+)\s*$/ and $pkg->{maintainer} = [ split /, /, $1 ];
 		/^Require-User:\s*(.*?)\s*$/ and do {
 			my @ugspecs = split /\s+/, $1;
 

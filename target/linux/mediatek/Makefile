@@ -13,7 +13,7 @@ KERNEL_TESTING_PATCHVER:=5.4
 
 include $(INCLUDE_DIR)/target.mk
 DEFAULT_PACKAGES += \
-	kmod-leds-gpio kmod-gpio-button-hotplug \
-	autocore-arm uboot-envtool luci-app-wrtbwmon mtk-smp zoneinfo-core zoneinfo-asia
+	autocore-arm gettext-full kmod-leds-gpio kmod-gpio-button-hotplug \
+	libiconv-full mtk-smp uboot-envtools zoneinfo-core zoneinfo-asia
 
 $(eval $(call BuildTarget))

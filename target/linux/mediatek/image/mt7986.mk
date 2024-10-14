@@ -1,4 +1,5 @@
 KERNEL_LOADADDR := 0x48080000
+include ./filogic.mk
 
 MT7986_USB_PKGS := automount blkid blockdev fdisk \
     kmod-nls-cp437 kmod-nls-iso8859-1 kmod-usb2 kmod-usb3 \
@@ -476,8 +477,7 @@ define Device/BPI-R3MINI-EMMC
   DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
   DEVICE_PACKAGES := $(MT7986_USB_PKGS) $(MT7986_WWAN_PKGS) \
         kmod-phy-air-en8811h bpir3_mini-properties pciutils \
-        f2fsck losetup mkf2fs f2fs-tools kmod-fs-f2fs kmod-mmc \
-	luci-app-ksmbd luci-i18n-ksmbd-zh-cn ksmbd-utils 
+        f2fsck losetup mkf2fs f2fs-tools kmod-fs-f2fs kmod-mmc
   SUPPORTED_DEVICES := bananapi,bpi-r3mini-emmc
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
@@ -512,14 +512,12 @@ endef
 TARGET_DEVICES += netcore_n60
 
 define Device/glinet_gl-mt6000
-   DEVICE_VENDOR := GL.iNet
-   DEVICE_MODEL := GL-MT6000
-   DEVICE_DTS := mt7986a-glinet-gl-mt6000
-   DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
-   DEVICE_PACKAGES := $(MT7986_USB_PKGS) f2fsck losetup mkf2fs kmod-fs-f2fs kmod-mmc
-   IMAGES += factory.bin
-   IMAGE/factory.bin := append-kernel | pad-to 32M | append-rootfs
-   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  DEVICE_VENDOR := GL.iNet
+  DEVICE_MODEL := GL-MT6000
+  DEVICE_DTS := mt7986a-glinet-gl-mt6000
+  DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+  DEVICE_PACKAGES := $(MT7986_USB_PKGS) e2fsprogs f2fsck losetup mkf2fs kmod-fs-f2fs kmod-mmc
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-gl-metadata
 endef
 TARGET_DEVICES += glinet_gl-mt6000
 

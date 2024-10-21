@@ -16,7 +16,7 @@ define Package/om-watchdog
   SECTION:=base
   CATEGORY:=Base system
   TITLE:=om watchdog
-  URL:=http://openwrt.org/
+  URL:=https://openwrt.org/
 endef
 
 define Package/om-watchdog/description

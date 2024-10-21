@@ -12,6 +12,8 @@ use warnings;
 use File::Basename;
 use File::Copy;
 use Text::ParseWords;
+use File::Path;
+use JSON::PP;
 
 @ARGV > 2 or die "Syntax: $0 <target dir> <filename> <hash> <url filename> [<mirror> ...]\n";
 
@@ -25,6 +27,8 @@ my @mirrors;
 my $ok;
 
 my $check_certificate = $ENV{DOWNLOAD_CHECK_CERTIFICATE} eq "y";
+my $custom_tool = $ENV{DOWNLOAD_TOOL_CUSTOM};
+my $download_tool;
 
 $url_filename or $url_filename = $filename;
 
@@ -54,12 +58,25 @@ sub localmirrors {
 	return @mlist;
 }
 
+sub projectsmirrors {
+	my $project = shift;
+	my $append = shift;
+
+	open (PM, "$scriptdir/projectsmirrors.json") ||
+		die "Can´t open $scriptdir/projectsmirrors.json: $!\n";
+	local $/;
+	my $mirror_json = <PM>;
+	my $mirror = decode_json $mirror_json;
+
+	foreach (@{$mirror->{$project}}) {
+		push @mirrors, $_ . "/" . ($append or "");
+	}
+}
+
 sub which($) {
 	my $prog = shift;
-	my $res = `which $prog`;
+	my $res = `command -v $prog`;
 	$res or return undef;
-	$res =~ /^no / and return undef;
-	$res =~ /not found/ and return undef;
 	return $res;
 }
 
@@ -67,32 +84,75 @@ sub hash_cmd() {
 	my $len = length($file_hash);
 	my $cmd;
 
-	$len == 64 and return "mkhash sha256";
-	$len == 32 and return "mkhash md5";
+	$len == 64 and return "$ENV{'MKHASH'} sha256";
+	$len == 32 and return "$ENV{'MKHASH'} md5";
 	return undef;
 }
 
-sub download_cmd($) {
-	my $url = shift;
-	my $have_curl = 0;
+sub tool_present {
+	my $tool_name = shift;
+	my $compare_line = shift;
+	my $present = 0;
 
-	if (open CURL, "curl --version 2>/dev/null |") {
-		if (defined(my $line = readline CURL)) {
-			$have_curl = 1 if $line =~ /^curl /;
+	if (open TOOL, "$tool_name --version 2>/dev/null |") {
+		if (defined(my $line = readline TOOL)) {
+			$present = 1 if $line =~ /^$compare_line /;
 		}
-		close CURL;
+		close TOOL;
 	}
 
-	return $have_curl
-		? (qw(curl -f --connect-timeout 20 --retry 5 --location),
+	return $present
+}
+
+sub select_tool {
+	$custom_tool =~ tr/"//d;
+	if ($custom_tool) {
+		return $custom_tool;
+	}
+
+	# Try to use curl if available
+	if (tool_present("curl", "curl")) {
+		return "curl";
+	}
+
+	# No tool found, fallback to wget
+	return "wget";
+}
+
+sub download_cmd {
+	my $url = shift;
+	my $filename = shift;
+
+	if ($download_tool eq "curl") {
+		return (qw(curl -f --connect-timeout 10 --retry 3 --location),
 			$check_certificate ? () : '--insecure',
 			shellwords($ENV{CURL_OPTIONS} || ''),
-			$url)
-		: (qw(wget --tries=5 --timeout=20 --output-document=-),
+			$url);
+	} elsif ($download_tool eq "wget") {
+		return (qw(wget --tries=3 --timeout=10 --output-document=-),
 			$check_certificate ? () : '--no-check-certificate',
 			shellwords($ENV{WGET_OPTIONS} || ''),
-			$url)
-	;
+			$url);
+	} elsif ($download_tool eq "aria2c") {
+		my $additional_mirrors = join(" ", map "$_/$filename", @_);
+		my @chArray = ('a'..'z', 'A'..'Z', 0..9);
+		my $rfn = join '', "${filename}_", map{ $chArray[int rand @chArray] } 0..9;
+
+		@mirrors=();
+
+		return join(" ", "[ -d $ENV{'TMPDIR'}/aria2c ] || mkdir $ENV{'TMPDIR'}/aria2c;",
+			"touch $ENV{'TMPDIR'}/aria2c/${rfn}_spp;",
+			qw(aria2c --stderr -c -x2 -s10 -j10 -k1M), $url, $additional_mirrors,
+			$check_certificate ? () : '--check-certificate=false',
+			"--server-stat-of=$ENV{'TMPDIR'}/aria2c/${rfn}_spp",
+			"--server-stat-if=$ENV{'TMPDIR'}/aria2c/${rfn}_spp",
+			"--daemon=false --no-conf", shellwords($ENV{ARIA2C_OPTIONS} || ''),
+			"-d $ENV{'TMPDIR'}/aria2c -o $rfn;",
+			"cat $ENV{'TMPDIR'}/aria2c/$rfn;",
+			"rm $ENV{'TMPDIR'}/aria2c/$rfn $ENV{'TMPDIR'}/aria2c/${rfn}_spp");
+	} else {
+		return join(" ", $download_tool, $url);
+	}
 }
 
 my $hash_cmd = hash_cmd();
@@ -102,6 +162,7 @@ sub download
 {
 	my $mirror = shift;
 	my $download_filename = shift;
+	my @additional_mirrors = @_;
 
 	$mirror =~ s!/$!!;
 
@@ -113,7 +174,7 @@ sub download
 		}
 
 		if (! -d "$target") {
-			system("mkdir", "-p", "$target/");
+			make_path($target);
 		}
 
 		if (! open TMPDLS, "find $mirror -follow -name $filename 2>/dev/null |") {
@@ -148,9 +209,9 @@ sub download
 			}
 		};
 	} else {
-		my @cmd = download_cmd("$mirror/$download_filename");
+		my @cmd = download_cmd("$mirror/$download_filename", $download_filename, @additional_mirrors);
 		print STDERR "+ ".join(" ",@cmd)."\n";
-		open(FETCH_FD, '-|', @cmd) or die "Cannot launch curl or wget.\n";
+		open(FETCH_FD, '-|', @cmd) or die "Cannot launch aria2c, curl or wget.\n";
 		$hash_cmd and do {
 			open MD5SUM, "| $hash_cmd > '$target/$filename.hash'" or die "Cannot launch $hash_cmd.\n";
 		};
@@ -184,7 +245,7 @@ sub download
 	};
 
 	unlink "$target/$filename";
-	system("mv", "$target/$filename.dl", "$target/$filename");
+	move("$target/$filename.dl", "$target/$filename");
 	cleanup();
 }
 
@@ -234,12 +295,11 @@ foreach my $mirror (@ARGV) {
 		my $dir = $1;
 		my $i = 0;
 		# replace the 2nd '/' with '@' for jsDelivr mirror
-		push @mirrors, "https://cdn.jsdelivr.net/gh/". $dir =~ s{\/}{++$i == 2 ? '@' : $&}ger;
-		push @mirrors, "https://raw.sevencdn.com/$dir";
-		push @mirrors, "https://raw.fastgit.org/$dir";
+		push @mirrors, "https://fastly.jsdelivr.net/gh/". $dir =~ s{\/}{++$i == 2 ? '@' : $&}ger;
+		push @mirrors, "https://raw.gitmirror.com/$1";
 		# give github a few more tries (different mirrors)
 		for (1 .. 5) {
-			push @mirrors, "https://raw.githubusercontent.com/$dir";
+			push @mirrors, "https://raw.githubusercontent.com/$1";
 		}
 	} elsif ($mirror =~ /^\@GNU\/(.+)$/) {
 		push @mirrors, "https://mirrors.tencent.com/gnu/$1";
@@ -326,15 +386,16 @@ if (-f "$target/$filename") {
 	};
 }
 
+$download_tool = select_tool();
+
 while (!-f "$target/$filename") {
 	my $mirror = shift @mirrors;
 	$mirror or die "No more mirrors to try - giving up.\n";
 
-	download($mirror, $url_filename);
+	download($mirror, $url_filename, @mirrors);
 	if (!-f "$target/$filename" && $url_filename ne $filename) {
-		download($mirror, $filename);
+		download($mirror, $filename, @mirrors);
 	}
 }
 
 $SIG{INT} = \&cleanup;
-

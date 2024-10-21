@@ -24,7 +24,7 @@ export SHELL:=/bin/sh
 include $(INCLUDE_DIR)/package.mk
 
 ifeq ($(DUMP),)
-  STAMP_BUILT:=$(STAMP_BUILT)_$(shell $(SCRIPT_DIR)/kconfig.pl $(LINUX_DIR)/.config | mkhash md5)
+  STAMP_BUILT:=$(STAMP_BUILT)_$(shell $(SCRIPT_DIR)/kconfig.pl $(LINUX_DIR)/.config | $(MKHASH) md5)
   -include $(LINUX_DIR)/.config
 endif
 
@@ -48,7 +48,7 @@ define Package/kernel
   DEFAULT:=y
   TITLE:=Virtual kernel package
   VERSION:=$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
-  URL:=http://www.kernel.org/
+  URL:=https://www.kernel.org/
   PKG_FLAGS:=nonshared
 endef
 

@@ -37,7 +37,6 @@ menuconfig TARGET_OPTIONS
 
 		  Most people will answer N.
 
-
 menuconfig EXTERNAL_TOOLCHAIN
 	bool
 	prompt "Use external toolchain"  if DEVEL
@@ -116,6 +115,14 @@ menuconfig EXTERNAL_TOOLCHAIN
 
 	endchoice
 
+	config EXTERNAL_GCC_VERSION
+		string
+		prompt "External Toolchain GCC Version" if DEVEL
+		depends on EXTERNAL_TOOLCHAIN && !NATIVE_TOOLCHAIN
+		help
+		  Manually specify the GCC version used by the selected
+		  external toolchain.
+
 	config TOOLCHAIN_LIBC
 		string
 		depends on EXTERNAL_TOOLCHAIN && !NATIVE_TOOLCHAIN
@@ -163,7 +170,6 @@ menuconfig EXTRA_TARGET_ARCH
 	bool
 	prompt "Enable an extra toolchain target architecture" if TOOLCHAINOPTS
 	depends on !sparc
-	default n
 	help
 	  Some builds may require a 'biarch' toolchain. This option
 	  allows you to specify an additional target arch.
@@ -214,6 +220,13 @@ comment "Binary tools"
 
 source "toolchain/binutils/Config.in"
 
+config DWARVES
+	bool
+	prompt "Build pahole" if TOOLCHAINOPTS
+	depends on !HOST_OS_MACOS
+	help
+	  Enable if you want to build pahole and the dwarves tools.
+
 comment "Compiler"
 	depends on TOOLCHAINOPTS
 
@@ -259,6 +272,14 @@ config GDB
 	default y if !EXTERNAL_TOOLCHAIN
 	help
 	  Enable if you want to build the gdb.
+
+config GDB_PYTHON
+	bool
+	depends on GDB
+	prompt "Build gdb with python binding"
+	
+	help
+	  Enable the python bindings for GDB to allow using python in the gdb shell.
 
 config USE_GLIBC
 	default y if !TOOLCHAINOPTS && !EXTERNAL_TOOLCHAIN && !NATIVE_TOOLCHAIN && (arc)

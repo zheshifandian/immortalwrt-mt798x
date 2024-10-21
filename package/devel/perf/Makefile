@@ -10,9 +10,9 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=perf
 PKG_VERSION:=$(LINUX_VERSION)
-PKG_RELEASE:=4
+PKG_RELEASE:=6
 
-PKG_USE_MIPS16:=0
+PKG_BUILD_FLAGS:=no-mips16 no-lto
 PKG_BUILD_PARALLEL:=1
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_FLAGS:=nonshared
@@ -27,10 +27,11 @@ include $(INCLUDE_DIR)/nls.mk
 define Package/perf
   SECTION:=devel
   CATEGORY:=Development
-  DEPENDS:= +libcap +libelf +libdw +PACKAGE_libunwind:libunwind +libpthread +librt +objdump @!IN_SDK @!TARGET_arc770 @KERNEL_PERF_EVENTS
+  DEPENDS:= +libelf +libdw +PACKAGE_libunwind:libunwind +libpthread +librt +objdump @!IN_SDK @KERNEL_PERF_EVENTS \
+	    +PACKAGE_libbfd:libbfd +PACKAGE_libopcodes:libopcodes +libtraceevent
   TITLE:=Linux performance monitoring tool
   VERSION:=$(LINUX_VERSION)-$(PKG_RELEASE)
-  URL:=http://www.kernel.org
+  URL:=https://www.kernel.org
 endef
 
 define Package/perf/description
@@ -50,6 +51,7 @@ MAKE_FLAGS = \
 	NO_BACKTRACE=1 \
 	NO_LIBNUMA=1 \
 	NO_GTK2=1 \
+	NO_SLANG=1 \
 	NO_LIBAUDIT=1 \
 	NO_LIBCRYPTO=1 \
 	NO_LIBUNWIND=1 \
@@ -62,14 +64,23 @@ MAKE_FLAGS = \
 	LDFLAGS="$(TARGET_LDFLAGS)" \
 	KBUILD_HOSTCFLAGS="$(HOST_CFLAGS)" \
 	$(if $(findstring c,$(OPENWRT_VERBOSE)),V=1,V='') \
+	PKG_CONFIG="$(PKG_CONFIG)" \
+	PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)" \
+	EXCLUDE_EXTLIBS="-lstdc++" \
+	EXTRA_PERFLIBS="$(shell $(TARGET_CC) -print-file-name=libstdc++.a)" \
 	WERROR=0 \
 	O=$(PKG_BUILD_DIR) \
 	prefix=/usr
 
+ifeq ($(LINUX_KARCH),powerpc)
+	MAKE_FLAGS += NO_AUXTRACE=1
+endif
+
 define Build/Compile
-	+$(MAKE_FLAGS) $(MAKE) $(PKG_JOBS) \
+	+$(MAKE) $(PKG_JOBS) $(MAKE_FLAGS) \
 		--no-print-directory \
-		-C $(LINUX_DIR)/tools/perf
+		-C $(LINUX_DIR)/tools/perf \
+		-f Makefile.perf
 endef
 
 define Package/perf/install

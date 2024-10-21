@@ -9,17 +9,17 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=strace
-PKG_VERSION:=5.10
+PKG_VERSION:=6.11
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://strace.io/files/$(PKG_VERSION)
-PKG_HASH:=fe3982ea4cd9aeb3b4ba35f6279f0b577a37175d3282be24b9a5537b56b8f01c
+PKG_HASH:=83262583a3529f02c3501aa8b8ac772b4cbc03dc934e98bab6e4883626e283a5
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=LGPL-2.1-or-later
 PKG_LICENSE_FILES:=COPYING
-PKG_CPE_ID:=cpe:/a:paul_kranenburg:strace
+PKG_CPE_ID:=cpe:/a:strace_project:strace
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -29,6 +29,7 @@ PKG_CONFIG_DEPENDS := \
 	CONFIG_STRACE_LIBUNWIND
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/nls.mk
 
 HOST_CFLAGS += -I$(LINUX_DIR)/user_headers/include
 
@@ -70,7 +71,8 @@ endef
 CONFIGURE_ARGS += \
 	--with-libdw=$(if $(CONFIG_STRACE_LIBDW),yes,no) \
 	--with-libunwind=$(if $(CONFIG_STRACE_LIBUNWIND),yes,no) \
-	--enable-mpers=no
+	--enable-mpers=no \
+	--without-libselinux
 
 MAKE_FLAGS := \
 	CCOPT="$(TARGET_CFLAGS)"

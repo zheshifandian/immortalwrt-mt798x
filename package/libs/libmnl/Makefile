@@ -22,6 +22,7 @@ PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_LICENSE:=LGPL-2.1+
+PKG_CPE_ID:=cpe:/a:netfilter:libmnl
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -29,7 +30,7 @@ define Package/libmnl
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Minimalistic user-space library for Netlink
-  URL:=http://www.netfilter.org/projects/libmnl/
+  URL:=https://www.netfilter.org/projects/libmnl/
   ABI_VERSION:=0
 endef
 

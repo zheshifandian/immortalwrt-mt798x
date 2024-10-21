@@ -19,7 +19,7 @@ define KernelPackage/ltq-deu-template
   CATEGORY:=Kernel modules
   SUBMENU:=Cryptographic API modules
   TITLE:=deu driver for $(1)
-  URL:=http://www.lantiq.com/
+  URL:=https://www.lantiq.com/
   VARIANT:=$(1)
   DEPENDS:=@TARGET_lantiq_$(2) +kmod-crypto-manager
   FILES:=$(PKG_BUILD_DIR)/ltq_deu_$(1).ko

@@ -42,7 +42,7 @@ define Package/ltq-vdsl-mei-test
   SECTION:=net
   CATEGORY:=Network
   TITLE:=Lantiq mei driver test tool
-  URL:=http://www.lantiq.com/
+  URL:=https://www.lantiq.com/
   DEPENDS:=@TARGET_lantiq_xrx200
 endef
 

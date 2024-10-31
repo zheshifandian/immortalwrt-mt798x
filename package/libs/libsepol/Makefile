@@ -6,14 +6,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libsepol
-PKG_VERSION:=3.2
+PKG_VERSION:=3.7
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/SELinuxProject/selinux/releases/download/3.2
-PKG_HASH:=dfc7f662af8000116e56a01de6a0394ed79be1b34b999e551346233c5dd19508
+PKG_SOURCE_URL:=https://github.com/SELinuxProject/selinux/releases/download/$(PKG_VERSION)
+PKG_HASH:=cd741e25244e7ef6cd934d633614131a266c3eaeab33d8bfa45e8a93b45cc901
 
 PKG_MAINTAINER:=Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+PKG_CPE_ID:=cpe:/a:selinuxproject:libsepol
+
+PKG_BUILD_FLAGS:=no-lto
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/host-build.mk
@@ -22,7 +25,7 @@ define Package/libsepol
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=SELinux binary policy manipulation library
-  URL:=http://selinuxproject.org/page/Main_Page
+  URL:=https://selinuxproject.org/page/Main_Page
 endef
 
 define Package/libsepol/description
@@ -35,7 +38,7 @@ define Package/chkcon
   CATEGORY:=Utilities
   DEPENDS:=+libsepol
   TITLE:=libsepol chkcon security context validation tool
-  URL:=http://selinuxproject.org/page/Main_Page
+  URL:=https://selinuxproject.org/page/Main_Page
 endef
 
 define Package/chkcon/description

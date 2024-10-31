@@ -12,15 +12,12 @@ diff --git a/wireless.c b/wireless.c
 index 705d6dd..43c6e3c 100644
 --- a/wireless.c
 +++ b/wireless.c
-@@ -1192,7 +1192,7 @@ struct wireless_interface* wireless_interface_create(struct wireless_device *wde
- 	if (cur && blobmsg_get_bool(cur))
+@@ -1249,7 +1249,7 @@
  		return NULL;
+ */
  
 -	sprintf(name, "%d", wdev->vif_idx++);
 +	sprintf(name, "%02d", wdev->vif_idx++);
  
  	vif = calloc_a(sizeof(*vif),
  		       &name_buf, strlen(name) + 1);
--- 
-2.18.0
-

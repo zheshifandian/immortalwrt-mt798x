@@ -1,38 +1,24 @@
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-Date: Fri, 24 Feb 2023 13:28:52 +0800
-Subject: [PATCH] Revert "device: add support for configuring device link
- speed/duplex"
-
-Fixes auto-negotiate for out-of-tree ethernet drivers.
-
-This reverts commit 1eb0fafaa9865b729509a7d47ecf1f05c2c0595c.
----
- device.c       | 14 --------------
- device.h       |  6 ------
- system-linux.c | 52 --------------------------------------------------
- 3 files changed, 72 deletions(-)
-
 --- a/device.c
 +++ b/device.c
-@@ -61,8 +61,6 @@ static const struct blobmsg_policy dev_a
- 	[DEV_ATTR_DROP_UNSOLICITED_NA] = { .name = "drop_unsolicited_na", .type = BLOBMSG_TYPE_BOOL },
+@@ -64,8 +64,6 @@
  	[DEV_ATTR_ARP_ACCEPT] = { .name = "arp_accept", .type = BLOBMSG_TYPE_BOOL },
  	[DEV_ATTR_AUTH] = { .name = "auth", .type = BLOBMSG_TYPE_BOOL },
+ 	[DEV_ATTR_AUTH_VLAN] = { .name = "auth_vlan", BLOBMSG_TYPE_ARRAY },
 -	[DEV_ATTR_SPEED] = { .name = "speed", .type = BLOBMSG_TYPE_INT32 },
 -	[DEV_ATTR_DUPLEX] = { .name = "duplex", .type = BLOBMSG_TYPE_BOOL },
- };
- 
- const struct uci_blob_param_list device_attr_list = {
-@@ -278,8 +276,6 @@ device_merge_settings(struct device *dev
+ 	[DEV_ATTR_VLAN] = { .name = "vlan", .type = BLOBMSG_TYPE_ARRAY },
+ 	[DEV_ATTR_PAUSE] = { .name = "pause", .type = BLOBMSG_TYPE_BOOL },
+ 	[DEV_ATTR_ASYM_PAUSE] = { .name = "asym_pause", .type = BLOBMSG_TYPE_BOOL },
+@@ -299,8 +297,6 @@
  	n->arp_accept = s->flags & DEV_OPT_ARP_ACCEPT ?
  		s->arp_accept : os->arp_accept;
  	n->auth = s->flags & DEV_OPT_AUTH ? s->auth : os->auth;
 -	n->speed = s->flags & DEV_OPT_SPEED ? s->speed : os->speed;
 -	n->duplex = s->flags & DEV_OPT_DUPLEX ? s->duplex : os->duplex;
- 	n->flags = s->flags | os->flags | os->valid_flags;
- }
- 
-@@ -454,16 +450,6 @@ device_init_settings(struct device *dev,
+ 	n->pause = s->flags & DEV_OPT_PAUSE ? s->pause : os->pause;
+ 	n->asym_pause = s->flags & DEV_OPT_ASYM_PAUSE ? s->asym_pause : os->asym_pause;
+ 	n->rxpause = s->flags & DEV_OPT_RXPAUSE ? s->rxpause : os->rxpause;
+@@ -527,16 +523,6 @@
  		s->flags |= DEV_OPT_AUTH;
  	}
  
@@ -46,103 +32,214 @@ This reverts commit 1eb0fafaa9865b729509a7d47ecf1f05c2c0595c.
 -		s->flags |= DEV_OPT_DUPLEX;
 -	}
 -
- 	device_set_disabled(dev, disabled);
- }
- 
+ 	if ((cur = tb[DEV_ATTR_PAUSE])) {
+ 		s->pause = blobmsg_get_bool(cur);
+ 		s->flags |= DEV_OPT_PAUSE;
 --- a/device.h
 +++ b/device.h
-@@ -60,8 +60,6 @@ enum {
- 	DEV_ATTR_DROP_UNSOLICITED_NA,
+@@ -61,8 +61,6 @@
  	DEV_ATTR_ARP_ACCEPT,
  	DEV_ATTR_AUTH,
+ 	DEV_ATTR_AUTH_VLAN,
 -	DEV_ATTR_SPEED,
 -	DEV_ATTR_DUPLEX,
- 	__DEV_ATTR_MAX,
- };
- 
-@@ -124,8 +122,6 @@ enum {
+ 	DEV_ATTR_VLAN,
+ 	DEV_ATTR_PAUSE,
+ 	DEV_ATTR_ASYM_PAUSE,
+@@ -134,8 +132,6 @@
  	DEV_OPT_DROP_GRATUITOUS_ARP	= (1ULL << 27),
  	DEV_OPT_DROP_UNSOLICITED_NA	= (1ULL << 28),
  	DEV_OPT_ARP_ACCEPT		= (1ULL << 29),
 -	DEV_OPT_SPEED			= (1ULL << 30),
 -	DEV_OPT_DUPLEX			= (1ULL << 31),
- };
- 
- /* events broadcasted to all users of a device */
-@@ -201,8 +197,6 @@ struct device_settings {
+ 	DEV_OPT_PAUSE			= (1ULL << 32),
+ 	DEV_OPT_ASYM_PAUSE		= (1ULL << 33),
+ 	DEV_OPT_RXPAUSE			= (1ULL << 34),
+@@ -219,8 +215,6 @@
  	bool drop_unsolicited_na;
  	bool arp_accept;
  	bool auth;
 -	unsigned int speed;
 -	bool duplex;
- };
- 
- /*
+ 	bool pause;
+ 	bool asym_pause;
+ 	bool rxpause;
 --- a/system-linux.c
 +++ b/system-linux.c
-@@ -1715,57 +1715,6 @@ int system_vlandev_del(struct device *vl
- 	return system_link_del(vlandev->ifname);
+@@ -1890,17 +1890,6 @@
+ }
+ #endif
+ 
+-static void ethtool_link_mode_clear_bit(__s8 nwords, int nr, __u32 *mask)
+-{
+-	if (nr < 0)
+-		return;
+-
+-	if (nr >= (nwords * 32))
+-		return;
+-
+-	mask[nr / 32] &= ~(1U << (nr % 32));
+-}
+-
+ static bool ethtool_link_mode_test_bit(__s8 nwords, int nr, const __u32 *mask)
+ {
+ 	if (nr < 0)
+@@ -1947,150 +1936,6 @@
  }
  
--static void
--system_set_ethtool_settings(struct device *dev, struct device_settings *s)
+ static void
+-system_set_ethtool_pause(struct device *dev, struct device_settings *s)
 -{
--	struct ethtool_cmd ecmd = {
--		.cmd = ETHTOOL_GSET,
--	};
+-	struct ethtool_pauseparam pp;
 -	struct ifreq ifr = {
--		.ifr_data = (caddr_t)&ecmd,
+-		.ifr_data = (caddr_t)&pp,
 -	};
--	static const struct {
--		int speed;
--		uint8_t bit_half;
--		uint8_t bit_full;
--	} speed_mask[] = {
--		{ 10, ETHTOOL_LINK_MODE_10baseT_Half_BIT, ETHTOOL_LINK_MODE_10baseT_Full_BIT },
--		{ 100, ETHTOOL_LINK_MODE_100baseT_Half_BIT, ETHTOOL_LINK_MODE_100baseT_Full_BIT },
--		{ 1000, ETHTOOL_LINK_MODE_1000baseT_Half_BIT, ETHTOOL_LINK_MODE_1000baseT_Full_BIT },
--	};
--	uint32_t adv;
--	int i;
 -
 -	strncpy(ifr.ifr_name, dev->ifname, sizeof(ifr.ifr_name) - 1);
--
--	if (ioctl(sock_ioctl, SIOCETHTOOL, &ifr) != 0)
+-	memset(&pp, 0, sizeof(pp));
+-	pp.cmd = ETHTOOL_GPAUSEPARAM;
+-	if (ioctl(sock_ioctl, SIOCETHTOOL, &ifr))
 -		return;
 -
--	adv = ecmd.supported;
--	for (i = 0; i < ARRAY_SIZE(speed_mask); i++) {
--		if (s->flags & DEV_OPT_DUPLEX) {
--			int bit = s->duplex ? speed_mask[i].bit_half : speed_mask[i].bit_full;
--			adv &= ~(1 << bit);
+-	if (s->flags & DEV_OPT_RXPAUSE || s->flags & DEV_OPT_TXPAUSE) {
+-		pp.autoneg = AUTONEG_DISABLE;
+-
+-		if (s->flags & DEV_OPT_PAUSE) {
+-			if (s->flags & DEV_OPT_RXPAUSE)
+-				pp.rx_pause = s->rxpause && s->pause;
+-			else
+-				pp.rx_pause = s->pause;
+-
+-			if (s->flags & DEV_OPT_TXPAUSE)
+-				pp.tx_pause = s->txpause && s->pause;
+-			else
+-				pp.tx_pause = s->pause;
+-		} else {
+-			if (s->flags & DEV_OPT_RXPAUSE)
+-				pp.rx_pause = s->rxpause;
+-
+-			if (s->flags & DEV_OPT_TXPAUSE)
+-				pp.tx_pause = s->txpause;
 -		}
 -
--		if (!(s->flags & DEV_OPT_SPEED) ||
--		    s->speed == speed_mask[i].speed)
--			continue;
--
--		adv &= ~(1 << speed_mask[i].bit_full);
--		adv &= ~(1 << speed_mask[i].bit_half);
+-		if (s->flags & DEV_OPT_ASYM_PAUSE &&
+-		    !s->asym_pause && (pp.rx_pause != pp.tx_pause))
+-			pp.rx_pause = pp.tx_pause = false;
+-	} else {
+-		pp.autoneg = AUTONEG_ENABLE;
+-		/* Pause and Asym_Pause advertising bits will be set via
+-		 * ETHTOOL_SLINKSETTINGS in system_set_ethtool_settings()
+-		 */
 -	}
 -
--
--	if (ecmd.autoneg && ecmd.advertising == adv)
--		return;
--
--	ecmd.autoneg = 1;
--	ecmd.advertising = adv;
--	ecmd.cmd = ETHTOOL_SSET;
+-	pp.cmd = ETHTOOL_SPAUSEPARAM;
 -	ioctl(sock_ioctl, SIOCETHTOOL, &ifr);
 -}
 -
- void
- system_if_get_settings(struct device *dev, struct device_settings *s)
+-static void
+-system_set_ethtool_eee_settings(struct device *dev, struct device_settings *s)
+-{
+-	struct ethtool_eee eeecmd;
+-	struct ifreq ifr = {
+-		.ifr_data = (caddr_t)&eeecmd,
+-	};
+-
+-	memset(&eeecmd, 0, sizeof(eeecmd));
+-	eeecmd.cmd = ETHTOOL_SEEE;
+-	eeecmd.eee_enabled = s->eee;
+-	strncpy(ifr.ifr_name, dev->ifname, sizeof(ifr.ifr_name) - 1);
+-
+-	if (ioctl(sock_ioctl, SIOCETHTOOL, &ifr) != 0)
+-		netifd_log_message(L_WARNING, "cannot set eee %d for device %s", s->eee, dev->ifname);
+-}
+-
+-static void
+-system_set_ethtool_settings(struct device *dev, struct device_settings *s)
+-{
+-	struct {
+-		struct ethtool_link_settings req;
+-		__u32 link_mode_data[3 * 127];
+-	} ecmd;
+-	struct ifreq ifr = {
+-		.ifr_data = (caddr_t)&ecmd,
+-	};
+-	size_t i;
+-	__s8 nwords;
+-	__u32 *supported, *advertising;
+-
+-	system_set_ethtool_pause(dev, s);
+-
+-	if (s->flags & DEV_OPT_EEE)
+-		system_set_ethtool_eee_settings(dev, s);
+-
+-	memset(&ecmd, 0, sizeof(ecmd));
+-	ecmd.req.cmd = ETHTOOL_GLINKSETTINGS;
+-	strncpy(ifr.ifr_name, dev->ifname, sizeof(ifr.ifr_name) - 1);
+-
+-	if (ioctl(sock_ioctl, SIOCETHTOOL, &ifr) < 0 ||
+-	    ecmd.req.link_mode_masks_nwords >= 0 ||
+-	    ecmd.req.cmd != ETHTOOL_GLINKSETTINGS)
+-		return;
+-
+-	ecmd.req.link_mode_masks_nwords = -ecmd.req.link_mode_masks_nwords;
+-
+-	if (ioctl(sock_ioctl, SIOCETHTOOL, &ifr) < 0 ||
+-	    ecmd.req.link_mode_masks_nwords <= 0 ||
+-	    ecmd.req.cmd != ETHTOOL_GLINKSETTINGS)
+-		return;
+-
+-	nwords = ecmd.req.link_mode_masks_nwords;
+-	supported = &ecmd.link_mode_data[0];
+-	advertising = &ecmd.link_mode_data[nwords];
+-	memcpy(advertising, supported, sizeof(__u32) * nwords);
+-
+-	for (i = 0; i < ARRAY_SIZE(ethtool_modes); i++) {
+-		if (s->flags & DEV_OPT_DUPLEX) {
+-			if (s->duplex)
+-				ethtool_link_mode_clear_bit(nwords, ethtool_modes[i].bit_half, advertising);
+-			else
+-				ethtool_link_mode_clear_bit(nwords, ethtool_modes[i].bit_full, advertising);
+-		}
+-		if (!(s->flags & DEV_OPT_SPEED) ||
+-		    s->speed == ethtool_modes[i].speed)
+-			continue;
+-
+-		ethtool_link_mode_clear_bit(nwords, ethtool_modes[i].bit_full, advertising);
+-		ethtool_link_mode_clear_bit(nwords, ethtool_modes[i].bit_half, advertising);
+-	}
+-
+-	if (s->flags & DEV_OPT_PAUSE)
+-		if (!s->pause)
+-			ethtool_link_mode_clear_bit(nwords, ETHTOOL_LINK_MODE_Pause_BIT, advertising);
+-
+-	if (s->flags & DEV_OPT_ASYM_PAUSE)
+-		if (!s->asym_pause)
+-			ethtool_link_mode_clear_bit(nwords, ETHTOOL_LINK_MODE_Asym_Pause_BIT, advertising);
+-
+-	if (s->flags & DEV_OPT_AUTONEG) {
+-		ecmd.req.autoneg = s->autoneg ? AUTONEG_ENABLE : AUTONEG_DISABLE;
+-		if (!s->autoneg) {
+-			if (s->flags & DEV_OPT_SPEED)
+-				ecmd.req.speed = s->speed;
+-
+-			if (s->flags & DEV_OPT_DUPLEX)
+-				ecmd.req.duplex = s->duplex ? DUPLEX_FULL : DUPLEX_HALF;
+-		}
+-	}
+-
+-	ecmd.req.cmd = ETHTOOL_SLINKSETTINGS;
+-	ioctl(sock_ioctl, SIOCETHTOOL, &ifr);
+-}
+-
+-static void
+ system_set_ethtool_settings_after_up(struct device *dev, struct device_settings *s)
  {
-@@ -1989,7 +1938,6 @@ system_if_apply_settings(struct device *
+ 	if (s->flags & DEV_OPT_GRO)
+@@ -2345,7 +2190,6 @@
  		system_set_drop_unsolicited_na(dev, s->drop_unsolicited_na ? "1" : "0");
  	if (apply_mask & DEV_OPT_ARP_ACCEPT)
  		system_set_arp_accept(dev, s->arp_accept ? "1" : "0");
 -	system_set_ethtool_settings(dev, s);
  }
  
- int system_if_up(struct device *dev)
+ void system_if_apply_settings_after_up(struct device *dev, struct device_settings *s)

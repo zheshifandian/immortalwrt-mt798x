@@ -25,7 +25,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/wireless_tools.$(PKG_VERSION)
 include $(INCLUDE_DIR)/package.mk
 
 define Package/wireless-tools/Default
-  URL:=http://hplabs.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html
+  URL:=https://hplabs.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html
 endef
 
 define Package/wireless-tools

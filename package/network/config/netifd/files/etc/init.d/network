@@ -154,4 +154,3 @@ shutdown() {
 	ifdown -a
 	sleep 1
 }
-

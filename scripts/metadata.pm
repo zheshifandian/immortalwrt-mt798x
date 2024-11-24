@@ -2,7 +2,7 @@ package metadata;
 use base 'Exporter';
 use strict;
 use warnings;
-our @EXPORT = qw(%package %vpackage %srcpackage %category %overrides clear_packages parse_package_metadata parse_target_metadata get_multiline @ignore %usernames %groupnames);
+our @EXPORT = qw(%package %vpackage %srcpackage %category %overrides clear_packages parse_package_metadata parse_package_manifest_metadata parse_target_metadata get_multiline @ignore %usernames %groupnames);
 
 our %package;
 our %vpackage;
@@ -256,6 +256,9 @@ sub parse_package_metadata($) {
 		/^Source: \s*(.+)\s*$/ and $pkg->{source} = $1;
 		/^License: \s*(.+)\s*$/ and $pkg->{license} = $1;
 		/^LicenseFiles: \s*(.+)\s*$/ and $pkg->{licensefiles} = $1;
+		/^CPE-ID: \s*(.+)\s*$/ and $pkg->{cpe_id} = $1;
+		/^URL: \s*(.+)\s*$/ and $pkg->{url} = $1;
+		/^ABI-Version: \s*(.+)\s*$/ and $pkg->{abi_version} = $1;
 		/^Default: \s*(.+)\s*$/ and $pkg->{default} = $1;
 		/^Provides: \s*(.+)\s*$/ and do {
 			my @vpkg = split /\s+/, $1;
@@ -290,22 +293,68 @@ sub parse_package_metadata($) {
 		};
 		/^Config:\s*(.*)\s*$/ and $pkg->{config} = "$1\n".get_multiline(*FILE, "\t");
 		/^Prereq-Check:/ and $pkg->{prereq} = 1;
+		/^Maintainer: \s*(.+)\s*$/ and $pkg->{maintainer} = [ split /, /, $1 ];
 		/^Require-User:\s*(.*?)\s*$/ and do {
 			my @ugspecs = split /\s+/, $1;
 
 			for my $ugspec (@ugspecs) {
-				my @ugspec = split /:/, $ugspec, 2;
+				my @ugspec = split /:/, $ugspec, 3;
 				if ($ugspec[0]) {
 					parse_package_metadata_usergroup($src->{makefile}, "user", \%usernames, \%userids, $ugspec[0]) or return 0;
 				}
 				if ($ugspec[1]) {
 					parse_package_metadata_usergroup($src->{makefile}, "group", \%groupnames, \%groupids, $ugspec[1]) or return 0;
 				}
+				if ($ugspec[2]) {
+					my @addngroups = split /,/, $ugspec[2];
+					for my $addngroup (@addngroups) {
+						parse_package_metadata_usergroup($src->{makefile}, "group", \%groupnames, \%groupids, $addngroup) or return 0;
+					}
+				}
 			}
 		};
 	}
 	close FILE;
 	return 1;
+}
+
+sub parse_package_manifest_metadata($) {
+	my $file = shift;
+	my $pkg;
+	my %pkgs;
+
+	open FILE, "<$file" or do {
+		warn "Cannot open '$file': $!\n";
+		return undef;
+	};
+
+	while (<FILE>) {
+		chomp;
+		/^Package:\s*(.+?)\s*$/ and do {
+			$pkg = {};
+			$pkg->{name} = $1;
+			$pkg->{depends} = [];
+			$pkgs{$1} = $pkg;
+		};
+		/^Version:\s*(.+)\s*$/ and $pkg->{version} = $1;
+		/^Depends:\s*(.+)\s*$/ and $pkg->{depends} = [ split /\s+/, $1 ];
+		/^Source:\s*(.+)\s*$/ and $pkg->{source} = $1;
+		/^SourceName:\s*(.+)\s*$/ and $pkg->{sourcename} = $1;
+		/^License:\s*(.+)\s*$/ and $pkg->{license} = $1;
+		/^LicenseFiles:\s*(.+)\s*$/ and $pkg->{licensefiles} = $1;
+		/^Section:\s*(.+)\s*$/ and $pkg->{section} = $1;
+		/^SourceDateEpoch: \s*(.+)\s*$/ and $pkg->{sourcedateepoch} = $1;
+		/^CPE-ID:\s*(.+)\s*$/ and $pkg->{cpe_id} = $1;
+		/^URL:\s*(.+)\s*$/ and $pkg->{url} = $1;
+		/^Architecture:\s*(.+)\s*$/ and $pkg->{architecture} = $1;
+		/^Installed-Size:\s*(.+)\s*$/ and $pkg->{installedsize} = $1;
+		/^Filename:\s*(.+)\s*$/ and $pkg->{filename} = $1;
+		/^Size:\s*(\d+)\s*$/ and $pkg->{size} = $1;
+		/^SHA256sum:\s*(.*)\s*$/ and $pkg->{sha256sum} = $1;
+	}
+
+	close FILE;
+	return %pkgs;
 }
 
 1;

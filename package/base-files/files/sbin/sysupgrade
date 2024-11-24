@@ -253,6 +253,7 @@ do_save_conffiles() {
 
 	v "Saving config files..."
 	[ "$VERBOSE" -gt 1 ] && TAR_V="v" || TAR_V=""
+	sed -i '/\/etc\/config\/fstab/d; /^\/etc\/wireless\//d' "$CONFFILES"
 	tar c${TAR_V}zf "$conf_tar" -T "$CONFFILES" 2>/dev/null
 	if [ "$?" -ne 0 ]; then
 		echo "Failed to create the configuration backup."
@@ -270,6 +271,7 @@ do_save_conffiles() {
 if [ $CONF_BACKUP_LIST -eq 1 ]; then
 	run_hooks "$CONFFILES" $sysupgrade_init_conffiles
 	[ "$SAVE_INSTALLED_PKGS" -eq 1 ] && echo ${INSTALLED_PACKAGES} >> "$CONFFILES"
+	sed -i '/\/etc\/config\/fstab/d; /^\/etc\/wireless\//d' "$CONFFILES"
 	cat "$CONFFILES"
 	rm -f "$CONFFILES"
 	exit 0

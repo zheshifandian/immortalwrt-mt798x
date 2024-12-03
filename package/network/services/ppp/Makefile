@@ -24,9 +24,10 @@ PKG_RELEASE_VERSION:=2.4.8
 PKG_VERSION:=$(PKG_RELEASE_VERSION).git-$(PKG_SOURCE_DATE)
 
 PKG_BUILD_DEPENDS:=libpcap
-
+PKG_BUILD_FLAGS:=gc-sections lto
 PKG_ASLR_PIE_REGULAR:=1
 PKG_BUILD_PARALLEL:=1
+PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
@@ -172,7 +173,6 @@ define Package/pppoe-discovery/description
 This tool performs the same discovery process as pppoe, but does
 not initiate a session. Can be useful to debug pppoe.
 endef
-
 
 define Build/Configure
 $(call Build/Configure/Default,, \

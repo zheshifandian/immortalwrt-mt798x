@@ -51,7 +51,7 @@ endif
 define Download/git-kernel
   URL:=$(call qstrip,$(CONFIG_KERNEL_GIT_CLONE_URI))
   PROTO:=git
-  VERSION:=$(CONFIG_KERNEL_GIT_REF)
+  SOURCE_VERSION:=$(CONFIG_KERNEL_GIT_REF)
   FILE:=$(LINUX_SOURCE)
   SUBDIR:=linux-$(LINUX_VERSION)
   OPTS:=$(KERNEL_GIT_OPTS)
@@ -63,7 +63,7 @@ ifdef CONFIG_COLLECT_KERNEL_DEBUG
 	mkdir -p $(KERNEL_BUILD_DIR)/debug/modules
 	$(CP) $(LINUX_DIR)/vmlinux $(KERNEL_BUILD_DIR)/debug/
 	-$(CP) \
-		$(STAGING_DIR_ROOT)/lib/modules/$(LINUX_VERSION)/* \
+		$(STAGING_DIR_ROOT)/lib/modules/$(LINUX_VERSION)/*.ko \
 		$(KERNEL_BUILD_DIR)/debug/modules/
 	$(FIND) $(KERNEL_BUILD_DIR)/debug -type f | $(XARGS) $(KERNEL_CROSS)strip --only-keep-debug
 	$(TAR) c -C $(KERNEL_BUILD_DIR) debug \
@@ -153,7 +153,7 @@ define BuildKernel
   download: $(if $(LINUX_SITE),$(DL_DIR)/$(LINUX_SOURCE))
   prepare: $(STAMP_PREPARED)
   compile: $(LINUX_DIR)/.modules
-	$(MAKE) -C image compile TARGET_BUILD=
+	+$(MAKE) -C image compile TARGET_BUILD=
 
   oldconfig menuconfig nconfig xconfig: $(STAMP_PREPARED) $(STAMP_CHECKED) FORCE
 	rm -f $(LINUX_DIR)/.config.prev
@@ -161,7 +161,6 @@ define BuildKernel
 	$(LINUX_RECONF_CMD) > $(LINUX_DIR)/.config
 	$(_SINGLE)$(KERNEL_MAKE) \
 		$(if $(findstring Darwin,$(HOST_OS)), \
-			HOST_LOADLIBES="-L$(STAGING_DIR_HOST)/lib -lncurses" \
 			HOSTLDLIBS_mconf="-L$(STAGING_DIR_HOST)/lib -lncurses" \
 			filechk_conf_cfg="	:" \
 		) \

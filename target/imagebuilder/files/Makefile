@@ -13,6 +13,7 @@ export TOPDIR LC_ALL LANG
 export OPENWRT_VERBOSE=s
 all: help
 
+export ORIG_PATH:=$(if $(ORIG_PATH),$(ORIG_PATH),$(PATH))
 export PATH:=$(TOPDIR)/staging_dir/host/bin:$(PATH)
 
 ifneq ($(OPENWRT_BUILD),1)
@@ -75,6 +76,7 @@ OPKG:=$(call opkg,$(TARGET_DIR)) \
 	--lists-dir $(LISTS_DIR)
 
 include $(INCLUDE_DIR)/target.mk
+include $(INCLUDE_DIR)/package.mk
 -include .profiles.mk
 
 USER_PROFILE ?= $(firstword $(PROFILE_NAMES))

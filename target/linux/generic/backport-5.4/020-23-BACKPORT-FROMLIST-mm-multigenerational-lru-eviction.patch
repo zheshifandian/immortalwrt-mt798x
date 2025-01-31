@@ -621,7 +621,7 @@ Commit-Queue: Yu Zhao <yuzhao@chromium.org>
  	get_scan_count(lruvec, memcg, sc, nr, lru_pages);
  
  	/* Record the original scan target for proportional adjustments later */
-@@ -4560,6 +5080,9 @@ static void snapshot_refaults(struct mem
+@@ -4563,6 +5083,9 @@ static void snapshot_refaults(struct mem
  {
  	struct mem_cgroup *memcg;
  
@@ -631,7 +631,7 @@ Commit-Queue: Yu Zhao <yuzhao@chromium.org>
  	memcg = mem_cgroup_iter(root_memcg, NULL, NULL);
  	do {
  		unsigned long refaults;
-@@ -4922,6 +5445,11 @@ static void age_active_anon(struct pglis
+@@ -4925,6 +5448,11 @@ static void age_active_anon(struct pglis
  {
  	struct mem_cgroup *memcg;
  
@@ -643,7 +643,7 @@ Commit-Queue: Yu Zhao <yuzhao@chromium.org>
  	if (!total_swap_pages)
  		return;
  
-@@ -5615,6 +6143,8 @@ int kswapd_run(int nid)
+@@ -5618,6 +6146,8 @@ int kswapd_run(int nid)
  	if (pgdat->kswapd)
  		return 0;
  
@@ -652,7 +652,7 @@ Commit-Queue: Yu Zhao <yuzhao@chromium.org>
  	pgdat->kswapd = kthread_run(kswapd, pgdat, "kswapd%d", nid);
  	if (IS_ERR(pgdat->kswapd)) {
  		/* failure at boot is fatal */
-@@ -5637,6 +6167,7 @@ void kswapd_stop(int nid)
+@@ -5640,6 +6170,7 @@ void kswapd_stop(int nid)
  	if (kswapd) {
  		kthread_stop(kswapd);
  		NODE_DATA(nid)->kswapd = NULL;

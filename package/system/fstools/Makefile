@@ -11,10 +11,10 @@ PKG_NAME:=fstools
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL=$(PROJECT_GIT)/project/fstools.git
-PKG_MIRROR_HASH:=e9953b038a2c2ed2c4783b66d1c0d0cea0deab2f2bfa6712929243e3197c3bdd
-PKG_SOURCE_DATE:=2023-05-28
-PKG_SOURCE_VERSION:=3a07943e1e60699ba952e605f0cf23c82de356cb
+PKG_SOURCE_URL=https://github.com/openwrt/fstools.git
+PKG_MIRROR_HASH:=b0de38a758cccdb234d909eda3bf4de40d260f75000f27d30e7d1bc4158b1094
+PKG_SOURCE_DATE:=2024-12-02
+PKG_SOURCE_VERSION:=49d36ba2d1ada4ca177612cfbe904beb286dcab7
 CMAKE_INSTALL:=1
 
 PKG_LICENSE:=GPL-2.0
@@ -95,9 +95,10 @@ endef
 define Package/fstools/install
 	$(INSTALL_DIR) $(1)/sbin $(1)/lib
 
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{mount_root,jffs2reset} $(1)/sbin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{mount_root,factoryreset} $(1)/sbin/
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libfstools.so $(1)/lib/
-	$(LN) jffs2reset $(1)/sbin/jffs2mark
+	$(LN) factoryreset $(1)/sbin/jffs2mark
+	$(LN) factoryreset $(1)/sbin/jffs2reset
 endef
 
 define Package/snapshot-tool/install
@@ -126,13 +127,6 @@ define Package/blockd/install
 	$(INSTALL_DIR) $(1)/sbin $(1)/etc/init.d/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/blockd $(1)/sbin/
 	$(INSTALL_BIN) ./files/blockd.init $(1)/etc/init.d/blockd
-endef
-
-define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include/
-	$(INSTALL_DIR) $(1)/usr/lib/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libubi-utils.a $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,fstools))

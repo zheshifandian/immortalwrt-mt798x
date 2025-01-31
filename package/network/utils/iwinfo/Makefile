@@ -10,23 +10,22 @@ PKG_NAME:=libiwinfo
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL=$(PROJECT_GIT)/project/iwinfo.git
-PKG_SOURCE_DATE:=2022-09-22
-PKG_SOURCE_VERSION:=4a43b0d40ba50a21de1d47e7bf0f759be9cf646a
-PKG_MIRROR_HASH:=4df2c5ac8cb60e4df06a4ef9a87c3a5196f0a8739ee39e6a2587c15527612250
+PKG_SOURCE_URL=https://github.com/openwrt/iwinfo.git
+PKG_SOURCE_DATE:=2024-12-06
+PKG_SOURCE_VERSION:=9ff15f7ee3a0cb3a56c3e34561fc8b219cc8b1cc
+PKG_MIRROR_HASH:=ee0bce167707fe78f68a951b7ee1e0e61a92cae281e0e24eb709857ae849777e
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=GPL-2.0
 
-IWINFO_ABI_VERSION:=20210430
+IWINFO_ABI_VERSION:=20230701
 
 include $(INCLUDE_DIR)/package.mk
-
 
 define Package/libiwinfo
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Generalized Wireless Information Library (iwinfo)
-  DEPENDS:=+libnl-tiny +libuci +libubus +libiwinfo-data +liblua
+  DEPENDS:=+libnl-tiny +libuci +libubus +libiwinfo-data
   ABI_VERSION:=$(IWINFO_ABI_VERSION)
 endef
 
@@ -34,7 +33,6 @@ define Package/libiwinfo/description
   Wireless information library with simplified API for nl80211
   and wext driver interfaces.
 endef
-
 
 define Package/libiwinfo-lua
   SUBMENU:=Lua
@@ -49,12 +47,10 @@ define Package/libiwinfo-lua/description
   backends.
 endef
 
-
 define Package/libiwinfo-data
   TITLE:=libiwinfo Lua binding
   HIDDEN:=1
 endef
-
 
 define Package/iwinfo
   SECTION:=utils
@@ -67,14 +63,16 @@ define Package/iwinfo/description
   Command line frontend for the wireless information library.
 endef
 
-
 define Build/Configure
 endef
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include/libnl-tiny \
 	-I$(STAGING_DIR)/usr/include \
-	-D_GNU_SOURCE
+	-D_GNU_SOURCE \
+	$(FPIC)
+
+TARGET_LDFLAGS += $(FPIC)
 
 MAKE_FLAGS += \
 	FPIC="$(FPIC)" \

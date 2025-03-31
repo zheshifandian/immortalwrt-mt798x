@@ -32,7 +32,7 @@ define Package/grub2/Default
   CATEGORY:=Boot Loaders
   SECTION:=boot
   TITLE:=GRand Unified Bootloader ($(1))
-  URL:=http://www.gnu.org/software/grub/
+  URL:=https://www.gnu.org/software/grub/
   DEPENDS:=@TARGET_x86
   VARIANT:=$(1)
 endef
@@ -45,7 +45,7 @@ define Package/grub2-editenv
   SECTION:=utils
   SUBMENU:=Boot Loaders
   TITLE:=Grub2 Environment editor
-  URL:=http://www.gnu.org/software/grub/
+  URL:=https://www.gnu.org/software/grub/
   DEPENDS:=@TARGET_x86
   VARIANT:=pc
 endef

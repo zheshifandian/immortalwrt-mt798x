@@ -1,9 +1,10 @@
 --- a/pppd/chap-new.c
 +++ b/pppd/chap-new.c
-@@ -37,6 +37,8 @@
+@@ -37,6 +37,9 @@
  #include "chap-new.h"
  #include "chap-md5.h"
  
++#include <semaphore.h>
 +#include "syncppp.h"
 +
  #ifdef CHAPMS
@@ -169,16 +170,18 @@
 +
 --- /dev/null
 +++ b/pppd/syncppp.h
-@@ -0,0 +1,3 @@
+@@ -0,0 +1,4 @@
 +#define SEM_BLOCK_NAME  "block"
 +#define SEM_COUNT_NAME  "count"
 +#define SYNCPPP_TIMEOUT 5
++extern int syncppp(int nproc);
 --- a/pppd/upap.c
 +++ b/pppd/upap.c
-@@ -52,6 +52,7 @@
+@@ -52,6 +52,8 @@
  #include "pppd.h"
  #include "upap.h"
  
++#include <semaphore.h>
 +#include "syncppp.h"
  
  static bool hide_password = 1;

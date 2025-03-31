@@ -70,16 +70,16 @@
 			     <GIC_SPI 206 IRQ_TYPE_LEVEL_HIGH>;
 	};
 
-	wed2: wed2@15011000 {
-		compatible = "mediatek,wed2";
-		wed_num = <2>;
-		reg = <0 0x15010000 0 0x1000>,
-		      <0 0x15011000 0 0x1000>;
-		interrupt-parent = <&gic>;
-		interrupts = <GIC_SPI 205 IRQ_TYPE_LEVEL_HIGH>,
-			     <GIC_SPI 206 IRQ_TYPE_LEVEL_HIGH>;
-	};
-
+/*	wed2: wed2@15011000 {
+ *		compatible = "mediatek,wed2";
+ *		wed_num = <2>;
+ *		reg = <0 0x15010000 0 0x1000>,
+ *		      <0 0x15011000 0 0x1000>;
+ *		interrupt-parent = <&gic>;
+ *		interrupts = <GIC_SPI 205 IRQ_TYPE_LEVEL_HIGH>,
+ *			     <GIC_SPI 206 IRQ_TYPE_LEVEL_HIGH>;
+ *	};
+ */
 	wdma: wdma@15104800 {
 		compatible = "mediatek,wed-wdma";
 		reg = <0 0x15104800 0 0x400>,

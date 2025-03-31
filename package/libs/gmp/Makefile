@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gmp
-PKG_VERSION:=6.2.1
+PKG_VERSION:=6.3.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)$(PKG_REVISION).tar.xz
 PKG_SOURCE_URL:=@GNU/gmp/
-PKG_HASH:=fd4829912cddd12f84181c3451cc752be224643e87fac497b69edddadc49b4f2
+PKG_HASH:=a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898
 
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
@@ -21,7 +21,7 @@ PKG_FIXUP:=autoreconf
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_CPE_ID:=cpe:/a:gmplib:gmp
 
-PKG_USE_MIPS16:=0
+PKG_BUILD_FLAGS:=no-mips16
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
@@ -30,7 +30,7 @@ define Package/libgmp
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=GNU multiprecision arithmetic library
-  URL:=http://gmplib.org/
+  URL:=https://gmplib.org/
   ABI_VERSION:=10
 endef
 

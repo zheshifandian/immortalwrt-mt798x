@@ -19,6 +19,7 @@ export CONF_IMAGE=
 export CONF_BACKUP_LIST=0
 export CONF_BACKUP=
 export CONF_RESTORE=
+export IGNORE_MINOR_COMPAT=0
 export NEED_IMAGE=
 export HELP=0
 export FORCE=0
@@ -44,6 +45,7 @@ while [ -n "$1" ]; do
 		-F|--force) export FORCE=1;;
 		-T|--test) export TEST=1;;
 		-h|--help) export HELP=1; break;;
+		--ignore-minor-compat-version) export IGNORE_MINOR_COMPAT=1;;
 		-*)
 			echo "Invalid option: $1" >&2
 			exit 1
@@ -80,6 +82,8 @@ upgrade-option:
 	             Verify image and config .tar.gz but do not actually flash.
 	-F | --force
 	             Flash image even if image checks fail, this is dangerous!
+	--ignore-minor-compat-version
+		     Flash image even if the minor compat version is incompatible.
 	-q           less verbose
 	-v           more verbose
 	-h | --help  display this help
@@ -253,6 +257,7 @@ do_save_conffiles() {
 
 	v "Saving config files..."
 	[ "$VERBOSE" -gt 1 ] && TAR_V="v" || TAR_V=""
+	sed -i '/\/etc\/config\/fstab/d; /^\/etc\/wireless\//d' "$CONFFILES"
 	tar c${TAR_V}zf "$conf_tar" -T "$CONFFILES" 2>/dev/null
 	if [ "$?" -ne 0 ]; then
 		echo "Failed to create the configuration backup."
@@ -270,6 +275,7 @@ do_save_conffiles() {
 if [ $CONF_BACKUP_LIST -eq 1 ]; then
 	run_hooks "$CONFFILES" $sysupgrade_init_conffiles
 	[ "$SAVE_INSTALLED_PKGS" -eq 1 ] && echo ${INSTALLED_PACKAGES} >> "$CONFFILES"
+	sed -i '/\/etc\/config\/fstab/d; /^\/etc\/wireless\//d' "$CONFFILES"
 	cat "$CONFFILES"
 	rm -f "$CONFFILES"
 	exit 0

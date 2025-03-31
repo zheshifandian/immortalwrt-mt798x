@@ -1,0 +1,52 @@
+--- a/jail/seccomp-bpf.h
++++ b/jail/seccomp-bpf.h
+@@ -80,9 +80,6 @@ struct seccomp_data {
+ #elif defined(__i386__)
+ # define REG_SYSCALL	REG_EAX
+ # define ARCH_NR	AUDIT_ARCH_I386
+-#elif defined(__loongarch_lp64)
+-# define REG_SYSCALL	regs[11]
+-# define ARCH_NR	AUDIT_ARCH_LOONGARCH64
+ #elif defined(__mips__)
+ # define REG_SYSCALL	regs[2]
+ # if __BYTE_ORDER == __LITTLE_ENDIAN
+--- a/jail/seccomp-oci.c
++++ b/jail/seccomp-oci.c
+@@ -119,8 +119,6 @@ static uint32_t resolve_architecture(cha
+ 		return AUDIT_ARCH_ARM;
+ 	else if (!strcmp(archname, "SCMP_ARCH_AARCH64"))
+ 		return AUDIT_ARCH_AARCH64;
+-	else if (!strcmp(archname, "SCMP_ARCH_LOONGARCH64"))
+-		return AUDIT_ARCH_LOONGARCH64;
+ 	else if (!strcmp(archname, "SCMP_ARCH_MIPS"))
+ 		return AUDIT_ARCH_MIPS;
+ 	else if (!strcmp(archname, "SCMP_ARCH_MIPS64"))
+--- a/trace/trace.c
++++ b/trace/trace.c
+@@ -48,7 +48,7 @@
+ #define _offsetof(a, b) __builtin_offsetof(a,b)
+ #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+ 
+-#if defined (__aarch64__) || defined(__loongarch_lp64)
++#if defined (__aarch64__)
+ #include <linux/ptrace.h>
+ #elif defined(__amd64__)
+ #define reg_syscall_nr	_offsetof(struct user, regs.orig_rax)
+@@ -226,7 +226,7 @@ static void tracer_cb(struct uloop_proce
+ 	if (WIFSTOPPED(ret) || (ret >> 16)) {
+ 		if (WSTOPSIG(ret) & 0x80) {
+ 			if (!tracee->in_syscall) {
+-#if defined(__aarch64__) || defined(__loongarch_lp64)
++#ifdef __aarch64__
+ 				int syscall = -1;
+ 				struct ptrace_syscall_info ptsi = {.op=PTRACE_SYSCALL_INFO_ENTRY};
+ 				if (ptrace(PTRACE_GET_SYSCALL_INFO, c->pid, sizeof(ptsi), &ptsi) != -1)
+@@ -260,7 +260,7 @@ static void tracer_cb(struct uloop_proce
+ 		} else if ((ret >> 16) == PTRACE_EVENT_STOP) {
+ 			/* Nothing special to do here */
+ 		} else if ((ret >> 8) == (SIGTRAP | (PTRACE_EVENT_SECCOMP << 8))) {
+-#if defined(__aarch64__) || defined(__loongarch_lp64)
++#ifdef __aarch64__
+ 			int syscall = -1;
+ 			struct ptrace_syscall_info ptsi = {.op=PTRACE_SYSCALL_INFO_SECCOMP};
+ 			if (ptrace(PTRACE_GET_SYSCALL_INFO, c->pid, sizeof(ptsi), &ptsi) != -1)

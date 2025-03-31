@@ -208,7 +208,14 @@ define KernelPackage/fs-f2fs
   SUBMENU:=$(FS_MENU)
   TITLE:=F2FS filesystem support
   DEPENDS:= +kmod-crypto-hash +kmod-crypto-crc32 +kmod-nls-base
-  KCONFIG:=CONFIG_F2FS_FS
+  KCONFIG:= \
+	    CONFIG_F2FS_FS \
+	    CONFIG_F2FS_FS_COMPRESSION=y \
+	    CONFIG_F2FS_FS_LZO=y \
+	    CONFIG_F2FS_FS_LZ4=y \
+	    CONFIG_F2FS_FS_LZORLE=y \
+	    CONFIG_F2FS_FS_LZ4HC=y \
+	    CONFIG_F2FS_FS_ZSTD=y
   FILES:=$(LINUX_DIR)/fs/f2fs/f2fs.ko
   AUTOLOAD:=$(call AutoLoad,30,f2fs,1)
 endef
@@ -304,6 +311,7 @@ endef
 
 $(eval $(call KernelPackage,fs-jfs))
 
+
 define KernelPackage/fs-minix
   SUBMENU:=$(FS_MENU)
   TITLE:=Minix filesystem support
@@ -385,12 +393,12 @@ define KernelPackage/fs-nfs-common-rpcsec
 	+kmod-crypto-sha1 \
 	+kmod-crypto-hmac \
 	+kmod-crypto-ecb \
-	+kmod-crypto-arc4
+	+kmod-crypto-arc4 \
+  +kmod-oid-registry
   KCONFIG:= \
 	CONFIG_SUNRPC_GSS \
 	CONFIG_RPCSEC_GSS_KRB5
   FILES:= \
-	$(LINUX_DIR)/lib/oid_registry.ko \
 	$(LINUX_DIR)/net/sunrpc/auth_gss/auth_rpcgss.ko \
 	$(LINUX_DIR)/net/sunrpc/auth_gss/rpcsec_gss_krb5.ko
   AUTOLOAD:=$(call AutoLoad,31,oid_registry auth_rpcgss rpcsec_gss_krb5)

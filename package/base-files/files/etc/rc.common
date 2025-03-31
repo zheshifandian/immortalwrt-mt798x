@@ -55,11 +55,20 @@ enable() {
 
 enabled() {
 	name="$(basename "${initscript}")"
-	[ -x "$IPKG_INSTROOT/etc/rc.d/S${START}${name##S[0-9][0-9]}" ]
+	name="${name##[SK][0-9][0-9]}"
+	{
+		[ -z "${START:-}" ] || [ -L "$IPKG_INSTROOT/etc/rc.d/S${START}$name" ]
+	} && {
+		[ -z "${STOP:-}" ] || [ -L "$IPKG_INSTROOT/etc/rc.d/K${STOP}$name" ]
+	}
 }
 
 depends() {
 	return 0
+}
+
+running() {
+	return 1
 }
 
 ALL_HELP=""
@@ -114,6 +123,7 @@ extra_command "reload" "Reload configuration files (or restart if service does n
 extra_command "enable" "Enable service autostart"
 extra_command "disable" "Disable service autostart"
 extra_command "enabled" "Check if service is started on boot"
+extra_command "running" "Check if service is running"
 
 . "$initscript"
 

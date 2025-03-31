@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-only
 #
-# Copyright (C) 2020 Tobias Maedel
+# Copyright (C) 2020 Sarah Maedel
 
 define Device/firefly_roc-rk3328-cc
   DEVICE_VENDOR := Firefly

@@ -6,11 +6,10 @@
 #
 
 include $(TOPDIR)/rules.mk
-include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=linux-atm
 PKG_VERSION:=2.5.2
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/$(PKG_NAME)
@@ -23,6 +22,7 @@ PKG_CPE_ID:=cpe:/a:linux-atm:linux-atm
 PKG_FIXUP:=autoreconf
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/kernel.mk
 
 ATM_DEBUG_BINS:=aread awrite atmdiag atmdump atmswitch saaldump \
 		sonetdiag svc_recv svc_send ttcp_atm
@@ -108,7 +108,7 @@ unexport PREFIX
 
 define Build/Compile
 	# src/qgen is built with HOSTCC, which does not really like our LDFLAGS
-	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR)/src/qgen \
+	+$(KERNEL_MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR)/src/qgen \
 		LDFLAGS="" \
 		all
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) OBJCOPY=$(TARGET_CROSS)objcopy all

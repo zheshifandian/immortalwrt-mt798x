@@ -64,7 +64,7 @@
  #include <net/netns/generic.h>
  #include <net/rtnetlink.h>
  #include <net/gre.h>
-@@ -901,6 +902,18 @@ static int ipgre_close(struct net_device
+@@ -930,6 +931,18 @@ static int ipgre_close(struct net_device
  }
  #endif
  
@@ -83,7 +83,7 @@
  static const struct net_device_ops ipgre_netdev_ops = {
  	.ndo_init		= ipgre_tunnel_init,
  	.ndo_uninit		= ip_tunnel_uninit,
-@@ -1264,6 +1277,9 @@ static const struct net_device_ops gre_t
+@@ -1297,6 +1310,9 @@ static const struct net_device_ops gre_t
  	.ndo_get_stats64	= ip_tunnel_get_stats64,
  	.ndo_get_iflink		= ip_tunnel_get_iflink,
  	.ndo_fill_metadata_dst	= gre_fill_metadata_dst,

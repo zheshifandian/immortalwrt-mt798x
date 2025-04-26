@@ -28,7 +28,7 @@ define Package/ltq-vdsl-app
   SECTION:=net
   CATEGORY:=Network
   TITLE:=Lantiq VDSL userland tool
-  URL:=http://www.lantiq.com/
+  URL:=https://www.lantiq.com/
   DEPENDS:=@TARGET_lantiq_xrx200 +libpthread +librt +ltq-dsl-base +libubox +libubus
 endef
 

@@ -304,6 +304,7 @@ endef
 
 $(eval $(call KernelPackage,fs-jfs))
 
+
 define KernelPackage/fs-minix
   SUBMENU:=$(FS_MENU)
   TITLE:=Minix filesystem support

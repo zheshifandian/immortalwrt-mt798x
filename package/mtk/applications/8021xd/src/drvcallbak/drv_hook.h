@@ -6,7 +6,7 @@
 #include "ap/wpa.h"
 
 struct sta_info;
-struct apd_data; 
+struct apd_data;
 
 struct wpa_driver_sta_auth_params {
 
@@ -414,7 +414,7 @@ struct wpa_driver_ops {
 	 * Returns: 0 on success, -1 on failure
 	 */
 	 int (*sta_auth)(void *priv,
-			 struct wpa_driver_sta_auth_params *params);	
+			 struct wpa_driver_sta_auth_params *params);
 
 	/**
 	 * sta_assoc - Station association indication
@@ -453,7 +453,7 @@ struct wpa_driver_ops {
   	 int (*set_key)(void *priv, u8 apidx, enum wpa_alg alg,
   				  const u8 *addr, int key_idx,
   				  const u8 *key, size_t key_len);
-};	
+};
 
 /**
  * enum wpa_event_type - Event type for wpa_supplicant_event() calls
@@ -488,11 +488,11 @@ union wpa_event_data {
 			u8 peer[ETH_ALEN];
 			int reassoc;
             const u8 *frame;
-            size_t frame_len;		
+            size_t frame_len;
 
 			u8 apidx;
 			u16 ethertype;
-			int SockNum;			
+			int SockNum;
 		} assoc_info;
 };
 
@@ -682,18 +682,18 @@ int hostapd_sta_auth(struct apd_data *hapd, const u8 *addr,
                      u16 seq, u16 status, const u8 *ie, size_t len);
 
 int hostapd_sta_assoc(struct apd_data *hapd, const u8 *own_addr, const u8 *addr,
-                          int reassoc, u16 status, const u8 *ie, size_t len);  
+                          int reassoc, u16 status, const u8 *ie, size_t len);
 
 void wpa_supplicant_event(struct apd_data *hapd, enum wpa_event_type event,
 									  union wpa_event_data *data);
 
-void Handle_mlme_event(struct apd_data *hapd, u8 *addr, 
+void Handle_mlme_event(struct apd_data *hapd, u8 *addr,
 	u8 *apidx, u16 ethertype, int SockNum, u8 *ie, size_t ie_len);
 
-void Handle_aead_decr_event(struct apd_data *hapd, u8 *addr, 
+void Handle_aead_decr_event(struct apd_data *hapd, u8 *addr,
 	u8 *apidx, u16 ethertype, int SockNum, u8 *ie, size_t ie_len);
 
-void Handle_aead_encr_event(struct apd_data *hapd, u8 *addr, 
+void Handle_aead_encr_event(struct apd_data *hapd, u8 *addr,
 	u8 *apidx, u16 ethertype, int SockNum, u8 *ie, size_t ie_len);
 
 u16 hostapd_ap_capab_info(struct apd_data *hapd, struct sta_info *sta);
@@ -702,10 +702,10 @@ static inline int hostapd_get_seqnum(struct sta_info *sta,
                                       const u8 *addr, int idx, u8 *seq)
 {
 	struct apd_data *hapd = sta->priv;
-	
+
     if (hapd->driver->get_seqnum == NULL)
             return -1;
-	
+
     return hapd->driver->get_seqnum(hapd, sta->ApIdx, addr, idx, seq);
 }
 

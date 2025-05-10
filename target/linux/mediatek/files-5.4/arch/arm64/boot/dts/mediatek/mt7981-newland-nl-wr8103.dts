@@ -114,7 +114,7 @@
 &watchdog {
         status = "okay";
 };
-  
+
 &eth {
     status = "okay";
 

@@ -186,7 +186,7 @@
 	};
 };
 
-&xhci {  
+&xhci {
         status = "okay";
 };
 

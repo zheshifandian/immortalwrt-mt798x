@@ -112,7 +112,7 @@
                         full-duplex;
                         pause;
                 };
-        }; 
+        };
 	gmac1: mac@1 {
                 compatible = "mediatek,eth-mac";
                 reg = <1>;
@@ -130,7 +130,7 @@
                 #size-cells = <0>;
         };
 
-}; 
+};
 
 &hnat {
 	mtketh-wan = "eth1";

@@ -776,7 +776,7 @@ enum FoeIpAct {
 #define BITS_GDM_ALL_FRC_P_PPE                                              \
 	(BITS_GDM_UFRC_P_PPE | BITS_GDM_BFRC_P_PPE | BITS_GDM_MFRC_P_PPE |  \
 	 BITS_GDM_OFRC_P_PPE)
-	 
+
 #define BITS_GDM_UFRC_P_PPE1 (NR_PPE1_PORT << 12)
 #define BITS_GDM_BFRC_P_PPE1 (NR_PPE1_PORT << 8)
 #define BITS_GDM_MFRC_P_PPE1 (NR_PPE1_PORT << 4)
@@ -865,7 +865,7 @@ enum FoeIpAct {
 #define IS_WAN(dev)                                                            \
 	((!strncmp((dev)->name, hnat_priv->wan, strlen(hnat_priv->wan))) || ((!strncmp((dev)->name, "macvlan", 7)) && \
 		(hnat_priv->macvlan_support)))
-#define IS_LAN(dev) (!strncmp(dev->name, LAN_DEV_NAME, strlen(LAN_DEV_NAME))) 
+#define IS_LAN(dev) (!strncmp(dev->name, LAN_DEV_NAME, strlen(LAN_DEV_NAME)))
 #define IS_BR(dev) (!strncmp(dev->name, "br", 2))
 #define IS_WHNAT(dev)								\
 	((hnat_priv->data->whnat &&						\

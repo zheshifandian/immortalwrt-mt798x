@@ -95,7 +95,7 @@
 				label = "ubi";
 				reg = <0x580000 0x4000000>;
 			};
-			
+
 			partition@4580000 {
 				label = "pdt_data";
 				reg = <0x4580000 0x0600000>;

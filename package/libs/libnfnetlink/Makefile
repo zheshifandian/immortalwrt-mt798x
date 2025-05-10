@@ -18,6 +18,7 @@ PKG_SOURCE_URL:= \
 PKG_HASH:=b064c7c3d426efb4786e60a8e6859b82ee2f2c5e49ffeea640cfe4fe33cbc376
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=GPL-2.0+
+PKG_CPE_ID:=cpe:/a:netfilter:libnfnetlink
 
 PKG_FIXUP:=autoreconf
 
@@ -29,7 +30,7 @@ define Package/libnfnetlink
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=A low-level library for netfilter related kernel/userspace communication
-  URL:=http://netfilter.org/projects/libnfnetlink/
+  URL:=https://netfilter.org/projects/libnfnetlink/
   ABI_VERSION:=0
 endef
 

@@ -1,5 +1,5 @@
---- a/drivers/mtd/tests/pagetest.c	2022-11-28 16:08:26.978090509 +0800
-+++ b/drivers/mtd/tests/pagetest.c	2022-11-28 16:10:04.351026850 +0800
+--- a/drivers/mtd/tests/pagetest.c
++++ b/drivers/mtd/tests/pagetest.c
 @@ -25,6 +25,10 @@ static int dev = -EINVAL;
  module_param(dev, int, S_IRUGO);
  MODULE_PARM_DESC(dev, "MTD device number to use");
@@ -34,7 +34,7 @@
  
 -	pr_info("finished with %d errors\n", errcnt);
 +	pr_info("finished with %d errors count:%d\n", errcnt, count);
-+	
++
 +	if (count-- > 0)
 +		goto LOOP;
  out:

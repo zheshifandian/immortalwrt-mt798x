@@ -3,7 +3,7 @@
 /dts-v1/;
 #include "mt7981-ruijie-rg-x30e-pro.dtsi"
 
-/ { 
+/ {
 	model = "Ruijie RG-X30E Pro (firmware2 layout)";
 	compatible = "ruijie,rg-x30e-pro-firmware2", "mediatek,mt7981";
 

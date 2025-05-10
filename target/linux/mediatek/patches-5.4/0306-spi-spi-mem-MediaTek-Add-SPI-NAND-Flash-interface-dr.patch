@@ -930,7 +930,7 @@ Signed-off-by: Xiangsheng Hou <xiangsheng.hou@mediatek.com>
 +	u32 tmpbufsize, txlen = 0, rxlen = 0;
 +	u8 *txbuf, *rxbuf = NULL, *buf;
 +	int i, ret = 0;
-+	
++
 +	ret = mtk_snfi_reset(snfi);
 +	if (ret) {
 +		dev_warn(snfi->dev, "reset spi memory controller fail\n");
@@ -952,14 +952,14 @@ Signed-off-by: Xiangsheng Hou <xiangsheng.hou@mediatek.com>
 +			ret = mtk_snfi_read(mem, op);
 +			if (ret)
 +				dev_warn(snfi->dev, "snfi read fail\n");
-+			
++
 +			return ret;
 +		} else if ((op->cmd.opcode == write_cache->cmd.opcode)
 +			       	|| (op->cmd.opcode == update_cache->cmd.opcode)) {
 +			ret = mtk_snfi_write(mem, op);
 +			if (ret)
 +				dev_warn(snfi->dev, "snfi write fail\n");
-+			
++
 +			return ret;
 +		}
 +	}

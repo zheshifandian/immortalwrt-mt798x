@@ -13,7 +13,7 @@
 		bootargs = "console=ttyS0,115200n1 loglevel=8  \
 				earlycon=uart8250,mmio32,0x11002000";
 	};
-	
+
 	aliases {
 		led-boot = &led_status_green;
 		led-failsafe = &led_status_green;
@@ -48,7 +48,7 @@
 			linux,code = <KEY_WPS_BUTTON>;
 		};
  	};
-	
+
 	leds {
 		compatible = "gpio-leds";
 
@@ -167,7 +167,7 @@
 			speed = <2500>;
 			full-duplex;
 			pause;
-		};	
+		};
 	};
 
 	gmac1: mac@1 {

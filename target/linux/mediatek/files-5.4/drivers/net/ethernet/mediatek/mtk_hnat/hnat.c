@@ -152,7 +152,7 @@ void set_gmac_ppe_fwd(int id, int enable)
  				cr_set_bits(reg, BITS_GDM_ALL_FRC_P_PPE1);
  			else
  				cr_set_bits(reg, BITS_GDM_ALL_FRC_P_PPE);
-			} 
+			}
 		return;
 	}
 

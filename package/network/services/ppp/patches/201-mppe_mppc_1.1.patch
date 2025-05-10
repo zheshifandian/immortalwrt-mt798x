@@ -205,7 +205,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +/*
 + * Functions called from config options
 + */
-+/* 
++/*
 +   MPPE suboptions:
 +	required - require MPPE; disconnect if peer doesn't support it
 +	stateless - use stateless mode
@@ -867,7 +867,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 -#endif
 +#endif /* MPPE */
 +    if (go->lzs && len >= CILEN_LZS && p[0] == CI_LZS && p[1] == CILEN_LZS) {
-+	if (p[2] != go->lzs_hists>>8 || p[3] != (go->lzs_hists&0xff) 
++	if (p[2] != go->lzs_hists>>8 || p[3] != (go->lzs_hists&0xff)
 +	    || p[4] != go->lzs_mode)
 +	    return 0;
 +	try.lzs = 0;
@@ -992,7 +992,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 -		    }
 + 		if (ao->mppe)
 + 		    ho->mppe = 1;
-+ 
++
 + 		if ((p[2] & MPPE_STATELESS)) {
 + 		    if (ao->mppe_stateless) {
 + 			if (wo->mppe_stateless)
@@ -1014,7 +1014,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 + 			p[2] |= MPPE_STATELESS;
 +  		    }
 +  		}
-+  
++
 + 		if ((p[5] & ~MPPE_MPPC) == (MPPE_40BIT|MPPE_56BIT|MPPE_128BIT)) {
 +  		    newret = CONFNAK;
 + 		    if (ao->mppe_128) {
@@ -1151,7 +1151,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 + 		    }
 + 		    p[5] &= ~MPPE_40BIT;
 + 		}
-+ 
++
 + 	    check_mppe:
 + 		if (!ho->mppe_40 && !ho->mppe_56 && !ho->mppe_128) {
 + 		    if (wo->mppe_40 || wo->mppe_56 || wo->mppe_128) {
@@ -1225,7 +1225,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +  		    newret = CONFREJ;
 +  		    break;
 +  		}
-+  
++
 + 		/*
 + 		 * I have commented the code below because according to RFC1547
 + 		 * MTU is only information for higher level protocols about
@@ -1245,7 +1245,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 + 		 * So why not to handle MPPE overhead without changing MTU value?
 + 		 * I am sure that RFC3078, unfortunately silently, assumes that.
 + 		 */
-+ 
++
 + 		/*
 + 		 * We need to decrease the interface MTU by MPPE_PAD
 + 		 * because MPPE frames **grow**.  The kernel [must]
@@ -1265,13 +1265,13 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 + */
 + 		break;
 +  #endif /* MPPE */
-+ 
++
 +	    case CI_LZS:
 + 		if (!ao->lzs || clen != CILEN_LZS) {
 + 		    newret = CONFREJ;
 + 		    break;
 + 		}
-+ 
++
 + 		ho->lzs = 1;
 +		ho->lzs_hists = (p[2] << 8) | p[3];
 + 		ho->lzs_mode = p[4];
@@ -1285,7 +1285,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +	    } else
 + 			break;
 + 		}
-+ 
++
 + 		if (p == p0 && ccp_test(f->unit, p, CILEN_LZS, 1) <= 0) {
 + 		    newret = CONFREJ;
 + 		}

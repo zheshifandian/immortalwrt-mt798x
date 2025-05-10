@@ -1,5 +1,3 @@
-Index: a/drivers/mtd/nand/spi/Makefile
-===================================================================
 --- a/drivers/mtd/nand/spi/Makefile
 +++ b/drivers/mtd/nand/spi/Makefile
 @@ -1,3 +1,3 @@
@@ -7,8 +5,6 @@ Index: a/drivers/mtd/nand/spi/Makefile
 -spinand-objs := core.o gigadevice.o macronix.o micron.o paragon.o toshiba.o winbond.o
 +spinand-objs := core.o gigadevice.o macronix.o micron.o paragon.o toshiba.o winbond.o etron.o
  obj-$(CONFIG_MTD_SPI_NAND) += spinand.o
-Index: a/drivers/mtd/nand/spi/core.c
-===================================================================
 --- a/drivers/mtd/nand/spi/core.c
 +++ b/drivers/mtd/nand/spi/core.c
 @@ -754,6 +754,7 @@ static const struct nand_ops spinand_ops
@@ -19,8 +15,6 @@ Index: a/drivers/mtd/nand/spi/core.c
  	&gigadevice_spinand_manufacturer,
  	&macronix_spinand_manufacturer,
  	&micron_spinand_manufacturer,
-Index: a/drivers/mtd/nand/spi/etron.c
-===================================================================
 --- /dev/null
 +++ b/drivers/mtd/nand/spi/etron.c
 @@ -0,0 +1,180 @@
@@ -204,8 +198,6 @@ Index: a/drivers/mtd/nand/spi/etron.c
 +	.ops = &etron_spinand_manuf_ops,
 +};
 +
-Index: a/include/linux/mtd/spinand.h
-===================================================================
 --- a/include/linux/mtd/spinand.h
 +++ b/include/linux/mtd/spinand.h
 @@ -238,6 +238,7 @@ struct spinand_manufacturer {

@@ -35,7 +35,7 @@ struct rtapd_config {
 	int individual_wep_key_len[MAX_MBSSID_NUM];
 	int	individual_wep_key_idx[MAX_MBSSID_NUM];
 	u8 IEEE8021X_ikey[MAX_MBSSID_NUM][WEP8021X_KEY_LEN];
-	
+
 #define HOSTAPD_MODULE_IEEE80211 BIT(0)
 #define HOSTAPD_MODULE_IEEE8021X BIT(1)
 #define HOSTAPD_MODULE_RADIUS BIT(2)
@@ -56,7 +56,7 @@ struct rtapd_config {
 	struct hostapd_radius_server *auth_servers, *auth_server;
 	int num_auth_servers;
 #endif
-	
+
 	int	 num_eap_if;
 	char eap_if_name[MAX_MBSSID_NUM][IFNAMSIZ];
 
@@ -68,13 +68,13 @@ struct rtapd_config {
 	int session_timeout_set;
 	int session_timeout_interval;
 
-	/* The initialization value used for the quietWhile timer. 
-	   Its default value is 60 s; it can be set by management 
-	   to any value in the range from 0 to 65535 s. 
+	/* The initialization value used for the quietWhile timer.
+	   Its default value is 60 s; it can be set by management
+	   to any value in the range from 0 to 65535 s.
 
-	   NOTE 1 - The Authenticator may increase the value of quietPeriod 
-	   per Port to ignore authorization failures for longer periods 
-	   of time after a number of authorization failures have occurred.*/	
+	   NOTE 1 - The Authenticator may increase the value of quietPeriod
+	   per Port to ignore authorization failures for longer periods
+	   of time after a number of authorization failures have occurred.*/
 	int 	quiet_interval;
 
 	u8		nasId[MAX_MBSSID_NUM][32];

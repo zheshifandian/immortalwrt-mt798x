@@ -4,7 +4,7 @@
 #include "rtdot1x.h"
 
 struct sta_info;
-struct apd_data; 
+struct apd_data;
 struct ieee80211_mgmt;
 
 int fils_set_tk(struct sta_info *sta);
@@ -31,8 +31,8 @@ void handle_auth_fils(struct apd_data *hapd, struct sta_info *sta,
                              struct sta_info *sta, u16 resp,
                              struct wpabuf *data, int pub));
 
-void handle_assoc_fils(struct apd_data *hapd, 
-	 struct sta_info *sta, const struct ieee80211_mgmt *mgmt, 
+void handle_assoc_fils(struct apd_data *hapd,
+	 struct sta_info *sta, const struct ieee80211_mgmt *mgmt,
 	 size_t len, int reassoc);
 
 void fils_config_default(struct apd_data *hapd);

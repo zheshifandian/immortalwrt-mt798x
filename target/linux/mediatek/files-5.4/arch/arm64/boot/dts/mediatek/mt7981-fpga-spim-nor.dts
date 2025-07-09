@@ -4,7 +4,7 @@
 	model = "MediaTek MT7981 FPGA";
 	compatible = "mediatek,mt7981-fpga-nor";
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
+		bootargs = "console=ttyS0,115200n1 loglevel=8 \
 				earlycon=uart8250,mmio32,0x11002000";
 	};
 
@@ -112,7 +112,7 @@
                         full-duplex;
                         pause;
                 };
-        }; 
+        };
 	gmac1: mac@1 {
                 compatible = "mediatek,eth-mac";
                 reg = <1>;
@@ -130,7 +130,7 @@
                 #size-cells = <0>;
         };
 
-}; 
+};
 
 &hnat {
 	mtketh-wan = "eth1";

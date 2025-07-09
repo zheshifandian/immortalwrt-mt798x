@@ -30,7 +30,7 @@ typedef enum {
 	RADIUS_RX_UNKNOWN,
 	/**
 	 * RADIUS_RX_INVALID_AUTHENTICATOR - Message has invalid Authenticator
-	 */	
+	 */
 	RADIUS_RX_INVALID_AUTHENTICATOR
 } RadiusRxResult;
 

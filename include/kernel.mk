@@ -110,13 +110,16 @@ KERNEL_MAKE_FLAGS = \
 	KBUILD_BUILD_HOST="$(call qstrip,$(CONFIG_KERNEL_BUILD_DOMAIN))" \
 	KBUILD_BUILD_TIMESTAMP="$(KBUILD_BUILD_TIMESTAMP)" \
 	KBUILD_BUILD_VERSION="0" \
-	HOST_LOADLIBES="-L$(STAGING_DIR_HOST)/lib" \
-	KBUILD_HOSTLDLIBS="-L$(STAGING_DIR_HOST)/lib" \
+	KBUILD_HOSTLDFLAGS="-L$(STAGING_DIR_HOST)/lib" \
 	CONFIG_SHELL="$(BASH)" \
 	$(if $(findstring c,$(OPENWRT_VERBOSE)),V=1,V='') \
 	$(if $(PKG_BUILD_ID),LDFLAGS_MODULE=--build-id=0x$(PKG_BUILD_ID)) \
 	cmd_syscalls= \
 	$(if $(__package_mk),KBUILD_EXTRA_SYMBOLS="$(wildcard $(PKG_SYMVERS_DIR)/*.symvers)")
+
+ifneq (,$(KERNEL_CC))
+  KERNEL_MAKE_FLAGS += CC="$(KERNEL_CC)"
+endif
 
 KERNEL_NOSTDINC_FLAGS = \
 	-nostdinc $(if $(DUMP),, -isystem $(shell $(TARGET_CC) -print-file-name=include))
@@ -126,15 +129,15 @@ ifeq ($(call qstrip,$(CONFIG_EXTERNAL_KERNEL_TREE))$(call qstrip,$(CONFIG_KERNEL
 	KERNELRELEASE=$(LINUX_VERSION)
 endif
 
+ifneq ($(HOST_OS),Linux)
+  KERNEL_MAKE_FLAGS += CONFIG_STACK_VALIDATION=
+  export SKIP_STACK_VALIDATION:=1
+endif
+
 KERNEL_MAKEOPTS := -C $(LINUX_DIR) $(KERNEL_MAKE_FLAGS)
 
 ifdef CONFIG_USE_SPARSE
   KERNEL_MAKEOPTS += C=1 CHECK=$(STAGING_DIR_HOST)/bin/sparse
-endif
-
-ifneq ($(HOST_OS),Linux)
-  KERNEL_MAKEOPTS += CONFIG_STACK_VALIDATION=
-  export SKIP_STACK_VALIDATION:=1
 endif
 
 PKG_EXTMOD_SUBDIRS ?= .
@@ -235,7 +238,7 @@ $(call KernelPackage/$(1)/config)
   $(call KernelPackage/depends)
   $(call KernelPackage/hooks)
 
-  ifneq ($(if $(filter-out %=y %=n %=m,$(KCONFIG)),$(filter m y,$(foreach c,$(filter-out %=y %=n %=m,$(KCONFIG)),$($(c)))),.),)
+  ifneq ($(if $(filter-out %=y %=n %=m,$(KCONFIG)),$(filter m y,$(foreach c,$(call version_filter,$(filter-out %=y %=n %=m,$(KCONFIG))),$($(c)))),.),)
     define Package/kmod-$(1)/install
 		  @for mod in $$(call version_filter,$$(FILES)); do \
 			if grep -q "$$$$$$$${mod##$(LINUX_DIR)/}" "$(LINUX_DIR)/modules.builtin"; then \

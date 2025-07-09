@@ -198,7 +198,7 @@ enum {
 	SEC_AKM_WAIPSK, /* WAI pre-shared key */
 	SEC_AKM_OWE,
 	SEC_AKM_FILS_SHA256,
-	SEC_AKM_FILS_SHA384,	
+	SEC_AKM_FILS_SHA384,
 	SEC_AKM_MAX /* Not a real mode, defined as upper bound */
 };
 

@@ -20,15 +20,16 @@ PKG_FIXUP:=autoreconf
 PKG_FLAGS:=nonshared
 
 PKG_INSTALL:=1
+PKG_BUILD_FLAGS:=gc-sections no-lto
 PKG_BUILD_PARALLEL:=1
 PKG_LICENSE:=GPL-2.0
-PKG_CPE_ID:=cpe:/a:netfilter_core_team:iptables
+PKG_CPE_ID:=cpe:/a:netfilter:iptables
 
 include $(INCLUDE_DIR)/package.mk
 ifeq ($(DUMP),)
   -include $(LINUX_DIR)/.config
   include $(INCLUDE_DIR)/netfilter.mk
-  STAMP_CONFIGURED:=$(strip $(STAMP_CONFIGURED))_$(shell grep 'NETFILTER' $(LINUX_DIR)/.config | mkhash md5)
+  STAMP_CONFIGURED:=$(strip $(STAMP_CONFIGURED))_$(shell grep 'NETFILTER' $(LINUX_DIR)/.config | $(MKHASH) md5)
 endif
 
 
@@ -380,6 +381,19 @@ iptables extension for triggering a LED.
 
 endef
 
+define Package/iptables-mod-socket
+$(call Package/iptables/Module, +kmod-ipt-socket)
+  TITLE:=Socket match iptables extensions
+endef
+
+define Package/iptables-mod-socket/description
+Socket match iptables extensions.
+
+ Matches:
+  - socket
+
+endef
+
 define Package/iptables-mod-tproxy
 $(call Package/iptables/Module, +kmod-ipt-tproxy)
   TITLE:=Transparent proxy iptables extensions
@@ -387,9 +401,6 @@ endef
 
 define Package/iptables-mod-tproxy/description
 Transparent proxy iptables extensions.
-
- Matches:
-  - socket
 
  Targets:
   - TPROXY
@@ -520,11 +531,7 @@ TARGET_CPPFLAGS := \
 TARGET_CFLAGS += \
 	-I$(PKG_BUILD_DIR)/include \
 	-I$(LINUX_DIR)/user_headers/include \
-	-ffunction-sections -fdata-sections \
 	-DNO_LEGACY
-
-TARGET_LDFLAGS += \
-	-Wl,--gc-sections
 
 CONFIGURE_ARGS += \
 	--enable-shared \
@@ -664,6 +671,7 @@ $(eval $(call BuildPlugin,iptables-mod-clusterip,$(IPT_CLUSTERIP-m)))
 $(eval $(call BuildPlugin,iptables-mod-hashlimit,$(IPT_HASHLIMIT-m)))
 $(eval $(call BuildPlugin,iptables-mod-rpfilter,$(IPT_RPFILTER-m)))
 $(eval $(call BuildPlugin,iptables-mod-led,$(IPT_LED-m)))
+$(eval $(call BuildPlugin,iptables-mod-socket,$(IPT_SOCKET-m)))
 $(eval $(call BuildPlugin,iptables-mod-tproxy,$(IPT_TPROXY-m)))
 $(eval $(call BuildPlugin,iptables-mod-tee,$(IPT_TEE-m)))
 $(eval $(call BuildPlugin,iptables-mod-u32,$(IPT_U32-m)))

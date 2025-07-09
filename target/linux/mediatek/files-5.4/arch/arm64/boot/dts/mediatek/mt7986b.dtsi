@@ -672,7 +672,7 @@
 			reg  = <0x8e0 2>;
 			bits = <7 5>;
 		};
-	};	
+	};
 };
 
 #include "mt7986-clkitg.dtsi"

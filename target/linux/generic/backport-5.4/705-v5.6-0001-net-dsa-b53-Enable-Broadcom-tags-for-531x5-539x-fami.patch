@@ -54,7 +54,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  	/* Enable Broadcom tags for IMP port */
  	b53_read8(dev, B53_MGMT_PAGE, B53_BRCM_HDR, &hdr_ctl);
  	if (tag_en)
-@@ -1910,13 +1924,29 @@ static bool b53_possible_cpu_port(struct
+@@ -1920,13 +1934,29 @@ static bool b53_possible_cpu_port(struct
  	return false;
  }
  
@@ -86,7 +86,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  	return ret;
  }
  
-@@ -1926,12 +1956,10 @@ enum dsa_tag_protocol b53_get_tag_protoc
+@@ -1936,12 +1966,10 @@ enum dsa_tag_protocol b53_get_tag_protoc
  	struct b53_device *dev = ds->priv;
  
  	/* Older models (5325, 5365) support a different tag format that we do

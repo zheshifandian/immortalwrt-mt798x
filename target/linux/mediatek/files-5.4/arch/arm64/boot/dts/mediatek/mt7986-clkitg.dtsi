@@ -61,7 +61,7 @@
 			<&clk40m>,
 			<&infracfg CK_INFRA_F26M_CK0>,
 			<&infracfg_ao CK_INFRA_UART0_SEL>,
-			<&infracfg_ao CK_INFRA_UART1_SEL>,	
+			<&infracfg_ao CK_INFRA_UART1_SEL>,
 			<&infracfg_ao CK_INFRA_UART2_SEL>,
 			<&clk40m>,
 			<&clk40m>,

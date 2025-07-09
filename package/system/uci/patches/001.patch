@@ -1,0 +1,16 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 3.13)
++cmake_minimum_required(VERSION 3.5)
+ INCLUDE(GNUInstallDirs)
+
+ PROJECT(uci C)
+--- a/lua/CMakeLists.txt
++++ b/lua/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.6)
++cmake_minimum_required(VERSION 3.5)
+ 
+ PROJECT(uci C)
+ 

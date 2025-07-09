@@ -136,7 +136,7 @@ static int hostapd_radius_acl_query(rtapd *hapd, u8 *addr,
 				 strlen(buf))) {
 		DBGPRINT(RT_DEBUG_ERROR, "Could not add User-Name\n");
 		goto fail;
-	
+
 	}
 
 #if MULTIPLE_RADIUS
@@ -152,8 +152,8 @@ static int hostapd_radius_acl_query(rtapd *hapd, u8 *addr,
                 msg, (u8 *) buf, strlen(buf),
 		hapd->conf->auth_server->shared_secret,
 		hapd->conf->auth_server->shared_secret_len)) {
-		DBGPRINT(RT_DEBUG_ERROR, "Could not add User-Password\n");	
-	}	
+		DBGPRINT(RT_DEBUG_ERROR, "Could not add User-Password\n");
+	}
 
 #endif
 	if ( /*hapd->conf->own_ip_addr.af == AF_INET &&*/
@@ -208,7 +208,7 @@ static int hostapd_radius_acl_query(rtapd *hapd, u8 *addr,
 	        DBGPRINT(RT_DEBUG_ERROR, "Could not add Connect-Info\n");
 		goto fail;
 	}
- 
+
 	if (Radius_client_send(hapd, msg, RADIUS_AUTH, quApIdx) < 0)
 		goto fail;
 	return 0;
@@ -233,7 +233,7 @@ static int hostapd_radius_acl_query(rtapd *hapd, u8 *addr,
  * Returns: HOSTAPD_ACL_ACCEPT, HOSTAPD_ACL_REJECT, or HOSTAPD_ACL_PENDING
  */
 int hostapd_allowed_address(rtapd *hapd, u8 *addr,
-			    u8 *apidx, u16 ethertype, int SockNum,		
+			    u8 *apidx, u16 ethertype, int SockNum,
 			    const u8 *msg, size_t len, u32 *session_timeout,
 			    u32 *acct_interim_interval, int *vlan_id)
 {
@@ -295,8 +295,8 @@ int hostapd_allowed_address(rtapd *hapd, u8 *addr,
 #endif
 	/* No entry in the cache - query external RADIUS server */
 	query = malloc(sizeof(*query));
-	if (query) memset(query, 0, sizeof(*query));	
-		
+	if (query) memset(query, 0, sizeof(*query));
+
 	if (query == NULL) {
 		DBGPRINT(RT_DEBUG_ERROR, "ACL_REJECT: malloc for query data failed\n");
 		return HOSTAPD_ACL_REJECT;
@@ -328,7 +328,7 @@ int hostapd_allowed_address(rtapd *hapd, u8 *addr,
 static void hostapd_acl_expire_cache(rtapd *hapd, long now)
 {
 	struct hostapd_cached_radius_acl *prev, *entry, *tmp;
-	char macBuf[MAC_ADDR_LEN];	
+	char macBuf[MAC_ADDR_LEN];
 
 	prev = NULL;
 	entry = hapd->acl_cache;
@@ -336,7 +336,7 @@ static void hostapd_acl_expire_cache(rtapd *hapd, long now)
 	while (entry) {
 		if (now - entry->timestamp > hapd->conf->AclCacheTimeout[entry->apIdx]) {
 			DBGPRINT(RT_DEBUG_TRACE, "Cached ACL entry for " MACSTR
-				   " has expired. [%d]\n", MAC2STR(entry->addr), 
+				   " has expired. [%d]\n", MAC2STR(entry->addr),
 					hapd->conf->AclCacheTimeout[entry->apIdx]);
 			if (prev)
 				prev->next = entry->next;
@@ -344,7 +344,7 @@ static void hostapd_acl_expire_cache(rtapd *hapd, long now)
 				hapd->acl_cache = entry->next;
 			/* Notify Driver this Cache has expired */
 			memcpy(macBuf, entry->addr, MAC_ADDR_LEN);
-			RT_ioctl(hapd->ioctl_sock, RT_PRIV_IOCTL, macBuf, MAC_ADDR_LEN, 
+			RT_ioctl(hapd->ioctl_sock, RT_PRIV_IOCTL, macBuf, MAC_ADDR_LEN,
 				 hapd->prefix_wlan_name, entry->apIdx, RT_OID_802_DOT1X_RADIUS_ACL_DEL_CACHE);
 
 			tmp = entry;
@@ -492,7 +492,7 @@ hostapd_acl_recv_radius(rtapd *hapd, struct radius_msg *msg, struct radius_msg *
 	hapd->acl_cache = cache;
 
 	/* Notify Driver the New Cache for Auth Frame */
-	DBGPRINT(RT_DEBUG_TRACE, "From Radius Sever Result ==> \n STA " MACSTR " --> res %d", MAC2STR(cache->addr), cache->accepted); 
+	DBGPRINT(RT_DEBUG_TRACE, "From Radius Sever Result ==> \n STA " MACSTR " --> res %d", MAC2STR(cache->addr), cache->accepted);
 
 	RT_802_11_ACL_ENTRY newDriverCache;
 	memset(&newDriverCache, 0, sizeof(RT_802_11_ACL_ENTRY));

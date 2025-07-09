@@ -457,7 +457,7 @@ Rtl8226b_force_speed_set(
         phydata0 |= BIT_13;
         break;
 
-    
+
 
     default:
         status = FAILURE;
@@ -501,13 +501,13 @@ Rtl8226b_force_speed_get(
     BOOL status = FAILURE;
     UINT16 phydata = 0;
 	BOOL AnEnable = 0;
-	
+
 	status = Rtl8226b_autoNegoEnable_get(hDevice, &AnEnable);
     if (status != SUCCESS)
         goto exit;
-	
 
-  
+
+
     if(AnEnable==0)
 	{
 		status = MmdPhyRead(hDevice, MMD_PMAPMD, 0, &phydata);
@@ -516,12 +516,12 @@ Rtl8226b_force_speed_get(
 
 		if(((phydata & (BIT_6))==0 )&&((phydata & (BIT_13))==0))
 			*force_speed = LINK_SPEED_10M;
-				   
+
 		else if(((phydata &(BIT_6))==0 )&&((phydata & (BIT_13))==BIT_13))
-			*force_speed = LINK_SPEED_100M;		
-		else 
+			*force_speed = LINK_SPEED_100M;
+		else
 			*force_speed = NO_LINK;
-		
+
 	}
 	else
 		status = FAILURE;
@@ -693,7 +693,7 @@ Rtl8226b_PHYmodeEEE_set(IN HANDLE hDevice,int on_off)
     BOOL status = FAILURE;
     UINT16 phydata = 0;
 	if(on_off){
-		
+
 		 status = MmdPhyRead(hDevice, MMD_VEND2, 0xA432, &phydata);
         if (status != SUCCESS)
             goto exit;
@@ -703,8 +703,8 @@ Rtl8226b_PHYmodeEEE_set(IN HANDLE hDevice,int on_off)
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xA432, phydata);
         if (status != SUCCESS)
             goto exit;
-		
-		
+
+
 	}
 	else{
 		 status = MmdPhyRead(hDevice, MMD_VEND2, 0xA432, &phydata);
@@ -716,9 +716,9 @@ Rtl8226b_PHYmodeEEE_set(IN HANDLE hDevice,int on_off)
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xA432, phydata);
         if (status != SUCCESS)
             goto exit;
-		
+
 	}
-	
+
 	  status = MmdPhyRead(hDevice, MMD_VEND2, 0xA400, &phydata);
         if (status != SUCCESS)
             goto exit;
@@ -728,9 +728,9 @@ Rtl8226b_PHYmodeEEE_set(IN HANDLE hDevice,int on_off)
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xA400, phydata);
         if (status != SUCCESS)
             goto exit;
-	
-	
-		
+
+
+
 
 exit:
  return status;
@@ -742,9 +742,9 @@ BOOLEAN
 Rtl8226b_10M_PHYmodeEEEP_set(IN HANDLE hDevice,int on_off)
 {
     BOOL status = FAILURE;
-    UINT16 phydata = 0; 
+    UINT16 phydata = 0;
 	if(on_off){
-		
+
 		 status = MmdPhyRead(hDevice, MMD_VEND2, 0xA432, &phydata);
         if (status != SUCCESS)
             goto exit;
@@ -754,8 +754,8 @@ Rtl8226b_10M_PHYmodeEEEP_set(IN HANDLE hDevice,int on_off)
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xA432, phydata);
         if (status != SUCCESS)
             goto exit;
-		
-		
+
+
 		 status = MmdPhyRead(hDevice, MMD_VEND2, 0xC842, &phydata);
         if (status != SUCCESS)
             goto exit;
@@ -765,11 +765,11 @@ Rtl8226b_10M_PHYmodeEEEP_set(IN HANDLE hDevice,int on_off)
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xC842, phydata);
         if (status != SUCCESS)
             goto exit;
-		
-		
-		
-		
-		
+
+
+
+
+
 	}
 	else{
 		 status = MmdPhyRead(hDevice, MMD_VEND2, 0xA432, &phydata);
@@ -781,7 +781,7 @@ Rtl8226b_10M_PHYmodeEEEP_set(IN HANDLE hDevice,int on_off)
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xA432, phydata);
         if (status != SUCCESS)
             goto exit;
-		
+
 		 status = MmdPhyRead(hDevice, MMD_VEND2, 0xC842, &phydata);
         if (status != SUCCESS)
             goto exit;
@@ -791,11 +791,11 @@ Rtl8226b_10M_PHYmodeEEEP_set(IN HANDLE hDevice,int on_off)
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xC842, phydata);
         if (status != SUCCESS)
             goto exit;
-		
-		
-		
+
+
+
 	}
-	
+
 	  status = MmdPhyRead(hDevice, MMD_VEND2, 0xA400, &phydata);
         if (status != SUCCESS)
             goto exit;
@@ -805,9 +805,9 @@ Rtl8226b_10M_PHYmodeEEEP_set(IN HANDLE hDevice,int on_off)
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xA400, phydata);
         if (status != SUCCESS)
             goto exit;
-	
-	
-		
+
+
+
 
 exit:
  return status;
@@ -1549,7 +1549,7 @@ exit:
 }
 
 
-   
+
 
 BOOLEAN
 Rtl8226b_linkDownPowerSavingEnable_get(

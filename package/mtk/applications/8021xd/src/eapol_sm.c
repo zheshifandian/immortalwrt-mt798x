@@ -160,7 +160,7 @@ SM_STATE(AUTH_PAE, AUTHENTICATED)
 {
 	if (sm->auth_pae.state == AUTH_PAE_AUTHENTICATING && sm->authSuccess)
 		sm->auth_pae.authAuthSuccessesWhileAuthenticating++;
-							
+
 	SM_ENTRY(AUTH_PAE, AUTHENTICATED, auth_pae);
 
 	sm->portStatus = Authorized;
@@ -442,7 +442,7 @@ SM_STEP(BE_AUTH)
 SM_STATE(REAUTH_TIMER, INITIALIZE)
 {
 	SM_ENTRY(REAUTH_TIMER, INITIALIZE, reauth_timer);
- 
+
 	sm->reAuthWhen = sm->reauth_timer.reAuthPeriod;
 }
 
@@ -555,7 +555,7 @@ eapol_sm_alloc(rtapd *rtapd, struct sta_info *sta)
 		sm->reauth_timer.reAuthEnabled = TRUE;
 		DBGPRINT(RT_DEBUG_TRACE,"Set This Session Timeout Interval  %d Seconds. \n",sm->reauth_timer.reAuthPeriod );
 	}
-	else 
+	else
 	{
 		/* didn't set reauth , or  set to not reauth */
 		sm->reauth_timer.reAuthPeriod = REAUTH_TIMER_DEFAULT_reAuthPeriod;

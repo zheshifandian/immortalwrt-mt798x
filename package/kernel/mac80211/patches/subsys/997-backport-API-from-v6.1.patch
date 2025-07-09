@@ -4,7 +4,7 @@
  	u32 unsol_bcast_probe_resp_interval;
  	bool s1g;
  	struct cfg80211_bitrate_mask beacon_tx_rate;
-+	
++
 +	bool csa_active;
  };
  
@@ -149,7 +149,7 @@
  	struct ieee80211_sta_txpwr txpwr;
  
  	struct ieee80211_txq *txq[IEEE80211_NUM_TIDS + 1];
-+	
++
 +	u16 valid_links;
 +	struct ieee80211_link_sta deflink;
 +	struct ieee80211_link_sta __rcu *link[IEEE80211_MLD_MAX_NUM_LINKS];

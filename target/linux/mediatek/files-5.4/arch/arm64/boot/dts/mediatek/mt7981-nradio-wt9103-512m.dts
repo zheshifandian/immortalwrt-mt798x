@@ -6,7 +6,7 @@
 / {
 	model = "NRadio C8-660-512M";
 	compatible = "nradio,wt9103", "mediatek,mt7981";
-	
+
 	aliases {
 		led-boot = &status_blue;
 		led-failsafe = &status_blue;
@@ -15,7 +15,7 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
+		bootargs = "console=ttyS0,115200n1 loglevel=8 \
 				earlycon=uart8250,mmio32,0x11002000";
 	};
 
@@ -43,7 +43,7 @@
 			linux,code = <KEY_RESTART>;
 			gpios = <&pio 1 GPIO_ACTIVE_LOW>;
 		};
-		
+
 		button-wps {
 			label = "wps";
 			linux,code = <KEY_WPS_BUTTON>;

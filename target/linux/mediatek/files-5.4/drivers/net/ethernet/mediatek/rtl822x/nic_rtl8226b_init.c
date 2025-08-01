@@ -145,7 +145,7 @@ static const MMD_REG Rtl8226b_n0_ramcode[] =
     { 31, 0xa438, 0X0fc7, },
     { 31, 0xa436, 0XA008, },
     { 31, 0xa438, 0Xff00, },
-    
+
 
 };
 
@@ -976,17 +976,17 @@ static const MMD_REG Rtl8226b_uc_ramcode[] =
     { 31, 0xa438, 0Xffff, },
     { 31, 0xa436, 0Xb832, },
     { 31, 0xa438, 0X0003, },
-    
+
 };
 
 static const MMD_REG Rtl8226b_data_ramcode[] =
 {
-   
+
 };
 
 static const MMD_REG Rtl8226b_isram_patch[] =
 {
-   
+
 };
 
 static BOOL
@@ -1139,7 +1139,7 @@ Rtl8226b_phy_init(
         for(i=0; i<sizeof(Rtl8226b_uc2_ramcode)/sizeof(MMD_REG); i++)
         {
             status = MmdPhyWrite(hDevice, Rtl8226b_uc2_ramcode[i].dev, Rtl8226b_uc2_ramcode[i].addr, Rtl8226b_uc2_ramcode[i].value);
-            
+
 			if (status != SUCCESS)
                 goto exit;
         }
@@ -1255,28 +1255,28 @@ Rtl8226b_phy_init(
         if (status != SUCCESS)
             goto exit;
 
-      
 
 
-		
+
+
         // Lock Main
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xa46A, 0x0302);
         if (status != SUCCESS)
             goto exit;
 
 
-	
+
 // GPHY REG
   // Patch XG INRX parameters
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xac46, 0xB794);
         if (status != SUCCESS)
-            goto exit;	
-		
-		
-			
-		
-		
-		
+            goto exit;
+
+
+
+
+
+
         // Patch Fnet/ Giga CHNEST
 
         // normal patch
@@ -1491,7 +1491,7 @@ Rtl8226b_phy_init(
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xA4CA, 0x6A50);
         if (status != SUCCESS)
             goto exit;
-		
+
 		status = MmdPhyWrite(hDevice, MMD_VEND2, 0xa436, 0x8FF4);
         if (status != SUCCESS)
             goto exit;
@@ -1563,12 +1563,12 @@ Rtl8226b_phy_init(
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xd146, 0x8000);
         if (status != SUCCESS)
             goto exit;
-		
-		
+
+
 		status = MmdPhyWrite(hDevice, MMD_VEND2, 0xbf84, 0xAC00);
         if (status != SUCCESS)
             goto exit;
-		
+
 		status = MmdPhyWrite(hDevice, MMD_VEND2, 0xa436, 0x8170);
         if (status != SUCCESS)
             goto exit;
@@ -1577,22 +1577,22 @@ Rtl8226b_phy_init(
         if (status != SUCCESS)
             goto exit;
 
-		
-		
+
+
         // Release Lock Main
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xa46A, 0x0300);
         if (status != SUCCESS)
             goto exit;
-		
-	
+
+
 //--------------- SDS patch --------------n
-    
+
        status = MmdPhyWrite(hDevice, MMD_VEND1, 0x75B5, 0xE086);
         if (status != SUCCESS)
             goto exit;
-		
-		
-		
+
+
+
 //ISRAM PATCH
         if (singlephy)
         {
@@ -1626,7 +1626,7 @@ Rtl8226b_phy_init(
         status = MmdPhyWrite(hDevice, MMD_VEND2, 0xA438, phydata);
         if (status != SUCCESS)
             goto exit;
-		
+
 
 
 

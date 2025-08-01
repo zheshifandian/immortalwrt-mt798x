@@ -1,0 +1,16 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.6)
++cmake_minimum_required(VERSION 3.5)
+ 
+ PROJECT(procd C)
+ INCLUDE(GNUInstallDirs)
+--- a/upgraded/CMakeLists.txt
++++ b/upgraded/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 2.6)
++cmake_minimum_required(VERSION 3.5)
+ 
+ PROJECT(upgraded C)
+ FIND_PATH(ubox_include_dir libubox/uloop.h)

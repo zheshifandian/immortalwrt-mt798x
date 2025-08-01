@@ -6,17 +6,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libselinux
-PKG_VERSION:=3.2
+PKG_VERSION:=3.8.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/SELinuxProject/selinux/releases/download/3.2
-PKG_HASH:=df758ef1d9d4811051dd901ea6b029ae334ffd7c671c128beb16bce1e25ac161
-HOST_BUILD_DEPENDS:=libsepol/host pcre/host
+PKG_SOURCE_URL:=https://github.com/SELinuxProject/selinux/releases/download/$(PKG_VERSION)
+PKG_HASH:=ec2d2789f931152d21c1db1eb4bc202ce4eccede34d9be9e360e3b45243cee2c
 
 PKG_LICENSE:=libselinux-1.0
 PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+PKG_CPE_ID:=cpe:/a:selinuxproject:libselinux
+
+HOST_BUILD_DEPENDS:=libsepol/host musl-fts/host pcre2/host
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/host-build.mk
@@ -62,14 +64,14 @@ $(eval $(foreach a,$(LIBSELINUX_ALTS),ALTS_$(a):=300:/usr/sbin/$(a):/usr/sbin/li
 
 define Package/libselinux/Default
   TITLE:=Runtime SELinux library
-  URL:=http://selinuxproject.org/page/Main_Page
+  URL:=https://selinuxproject.org/page/Main_Page
 endef
 
 define Package/libselinux
   $(call Package/libselinux/Default)
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libsepol +libpcre +USE_MUSL:musl-fts
+  DEPENDS:=+libsepol +libpcre2 +USE_MUSL:musl-fts
 endef
 
 define Package/libselinux/description
@@ -101,17 +103,23 @@ endef
 $(foreach a,$(LIBSELINUX_UTILS),$(eval $(call GenUtilPkg,libselinux-$(a),$(a))))
 
 # Needed to link libselinux utilities, which link against
-# libselinux.so, which indirectly depends on libpcre.so, installed in
+# libselinux.so, which indirectly depends on libpcre2.so, installed in
 # $(STAGING_DIR_HOSTPKG).
 HOST_LDFLAGS += -Wl,-rpath="$(STAGING_DIR_HOSTPKG)/lib"
 
 HOST_MAKE_FLAGS += \
 	PREFIX=$(STAGING_DIR_HOSTPKG) \
-	SHLIBDIR=$(STAGING_DIR_HOSTPKG)/lib
+	SHLIBDIR=$(STAGING_DIR_HOSTPKG)/lib \
+	FTS_LDLIBS=-lfts
 
 ifeq ($(CONFIG_USE_MUSL),y)
 MAKE_FLAGS += FTS_LDLIBS=-lfts
+TARGET_CFLAGS += -D_LARGEFILE64_SOURCE
 endif
+
+TARGET_CFLAGS += $(FPIC) -std=gnu17
+
+TARGET_LDFLAGS += $(FPIC)
 
 MAKE_FLAGS += \
 	SHLIBDIR=/usr/lib \

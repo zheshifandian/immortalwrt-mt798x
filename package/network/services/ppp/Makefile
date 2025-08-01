@@ -24,9 +24,10 @@ PKG_RELEASE_VERSION:=2.4.8
 PKG_VERSION:=$(PKG_RELEASE_VERSION).git-$(PKG_SOURCE_DATE)
 
 PKG_BUILD_DEPENDS:=libpcap
-
+PKG_BUILD_FLAGS:=gc-sections lto
 PKG_ASLR_PIE_REGULAR:=1
 PKG_BUILD_PARALLEL:=1
+PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
@@ -39,14 +40,14 @@ endef
 
 define Package/ppp
 $(call Package/ppp/Default)
-  DEPENDS:=+kmod-ppp +libpthread +shellsync +kmod-mppe
+  DEPENDS:= +USE_GLIBC:libcrypt-compat +kmod-ppp +libpthread +shellsync +kmod-mppe
   TITLE:=PPP daemon
   VARIANT:=default
 endef
 
 define Package/ppp-multilink
 $(call Package/ppp/Default)
-  DEPENDS:=+kmod-ppp
+  DEPENDS:= +USE_GLIBC:libcrypt-compat +kmod-ppp
   TITLE:=PPP daemon (with multilink support)
   VARIANT:=multilink
 endef
@@ -173,7 +174,6 @@ This tool performs the same discovery process as pppoe, but does
 not initiate a session. Can be useful to debug pppoe.
 endef
 
-
 define Build/Configure
 $(call Build/Configure/Default,, \
 	UNAME_S="Linux" \
@@ -192,7 +192,7 @@ $(call Build/Configure/Default,, \
 		$(PKG_BUILD_DIR)/pppd/plugins/pppoatm/linux/
 endef
 
-TARGET_CFLAGS += -ffunction-sections -fdata-sections -flto
+TARGET_CFLAGS += -ffunction-sections -fdata-sections -flto -std=gnu17
 TARGET_LDFLAGS += -Wl,--gc-sections -flto -fuse-linker-plugin
 
 MAKE_FLAGS += COPTS="$(TARGET_CFLAGS)" \

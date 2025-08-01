@@ -1,5 +1,5 @@
 /*
- * A hwmon driver for the Gateworks System Controller 
+ * A hwmon driver for the Gateworks System Controller
  * Copyright (C) 2009 Gateworks Corporation
  *
  * Author: Chris Lang <clang@gateworks.com>

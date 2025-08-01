@@ -55,8 +55,9 @@ define Package/bzip2/description
 	data compressor. This package provides the binary.
 endef
 
-TARGET_CFLAGS += \
-	$(FPIC)
+TARGET_CFLAGS += $(FPIC)
+
+TARGET_LDFLAGS += $(FPIC)
 
 CONFIGURE_ARGS += --prefix=/usr
 
@@ -88,8 +89,8 @@ define Package/bzip2/install
 	$(LN) ../usr/bin/bzip2 $(1)/bin/bzip2
 endef
 
-HOST_CFLAGS += \
-	$(FPIC)
+HOST_CFLAGS += $(FPIC)
+HOST_LDFLAGS += $(FPIC)
 
 HOST_MAKE_FLAGS+= \
 	CFLAGS="$(HOST_CFLAGS)" \

@@ -857,7 +857,7 @@ struct hnat_accounting *hnat_get_count(struct mtk_hnat *h, u32 ppe_id,
 
 	h->acct[ppe_id][index].bytes += bytes;
 	h->acct[ppe_id][index].packets += packets;
-	
+
 	if (diff) {
 		diff->bytes = bytes;
 		diff->packets = packets;
@@ -2104,7 +2104,7 @@ static ssize_t hnat_mape_toggle_write(struct file *file, const char __user *buff
 	char buf = 0;
 	int i;
 	u32 ppe_cfg;
-	
+
 	if ((count < 1) || copy_from_user(&buf, buffer, sizeof(buf)))
 		return -EFAULT;
 

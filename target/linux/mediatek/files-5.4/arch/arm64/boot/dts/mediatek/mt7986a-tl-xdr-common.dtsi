@@ -8,7 +8,7 @@
 #include "mt7986a.dtsi"
 #include "mt7986a-pinctrl.dtsi"
 / {
-	
+
  	aliases {
  		serial0 = &uart0;
  		led-boot = &led_status_red;
@@ -18,16 +18,16 @@
  	};
 
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8 
+		bootargs = "console=ttyS0,115200n1 loglevel=8
 		earlycon=uart8250,mmio32,0x11002000";
 	};
-	
+
 
 	memory {
 		reg = <0 0x40000000 0 0x10000000>;
 	};
 
-  	
+
        gpio-keys {
 		compatible = "gpio-keys";
 
@@ -50,8 +50,8 @@
  		};
 	};
 
-	
-	
+
+
 	leds {
 		compatible = "gpio-leds";
 
@@ -86,7 +86,7 @@
 			speed = <2500>;
 			full-duplex;
 			pause;
-		};	
+		};
 	};
 
 	gmac1: mac@1 {
@@ -105,7 +105,7 @@
 		mdio: mdio-bus {
 		#address-cells = <1>;
 		#size-cells = <0>;
- 		
+
 		switch:switch@0 {
 			compatible = "mediatek,mt7531";
 			reg = <31>;

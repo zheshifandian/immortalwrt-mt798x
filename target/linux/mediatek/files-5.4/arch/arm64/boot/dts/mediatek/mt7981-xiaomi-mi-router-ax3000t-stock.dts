@@ -3,7 +3,7 @@
 /dts-v1/;
 #include "mt7981-xiaomi-mi-router.dtsi"
 
-/ { 
+/ {
 	model = "Xiaomi Mi Router AX3000T (stock layout)";
 	compatible = "xiaomi,mi-router-ax3000t-stock", "mediatek,mt7981";
 };
@@ -36,7 +36,7 @@
 		label = "ubi";
 		reg = <0x2800000 0x4e00000>;
 	};
-	
+
 	partition@7600000 {
 		label = "KF";
 		reg = <0x7600000 0x40000>;

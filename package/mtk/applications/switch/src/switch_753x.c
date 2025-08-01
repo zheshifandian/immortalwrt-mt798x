@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
 		if (!err)
 			chip_name = get_chip_name();
 	}
-	
+
 	if (err < 0) {
 		err = switch_ioctl_init();
 		if (!err) {

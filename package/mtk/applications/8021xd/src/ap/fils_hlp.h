@@ -9,7 +9,7 @@
 #ifndef FILS_HLP_H
 #define FILS_HLP_H
 
-struct apd_data; 
+struct apd_data;
 
 int fils_process_hlp(struct apd_data *hapd, struct sta_info *sta,
 		     const u8 *pos, int left);

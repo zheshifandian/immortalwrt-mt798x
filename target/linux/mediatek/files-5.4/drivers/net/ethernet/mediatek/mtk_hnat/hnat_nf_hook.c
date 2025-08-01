@@ -142,7 +142,7 @@ static inline bool extif_prefix_match(const char *name)
 
 	for (i = 0; i < MAX_EXT_PREFIX_NUM && hnat_priv->ext_if_prefix[i]; i++)
 	{
-		if (strlen(hnat_priv->ext_if_prefix[i]) && 
+		if (strlen(hnat_priv->ext_if_prefix[i]) &&
 			!strncmp(name, hnat_priv->ext_if_prefix[i],
 				strlen(hnat_priv->ext_if_prefix[i])))
 			return true;
@@ -1709,7 +1709,7 @@ static unsigned int skb_to_hnat_info(struct sk_buff *skb,
 		qid = 0;
 	if ((IS_HQOS_MODE) && (dscp!=0) &&(hnat_priv->dscp_en))
 		qid = (dscp>>2)& (MTK_QDMA_TX_MASK);
-		
+
 	if (IS_IPV4_GRP(foe)) {
 		entry.ipv4_hnapt.iblk2.dp = gmac;
 		entry.ipv4_hnapt.iblk2.port_mg =
@@ -1827,7 +1827,7 @@ int mtk_sw_nat_hook_tx(struct sk_buff *skb, int gmac_no)
 
 	if (!skb_hnat_is_hashed(skb))
 		return NF_ACCEPT;
-	
+
 	if (skb_hnat_entry(skb) >= hnat_priv->foe_etry_num ||
 	    skb_hnat_ppe(skb) >= CFG_PPE_NUM)
 		return NF_ACCEPT;
@@ -2167,7 +2167,7 @@ static unsigned int mtk_hnat_nf_post_routing(
 
 	if (unlikely(!skb_hnat_is_hashed(skb)))
 		return 0;
-		
+
 	if (unlikely(skb->mark == HNAT_EXCEPTION_TAG))
 		return 0;
 

@@ -11,10 +11,10 @@
 	model = "Netcore N60";
 	compatible = "netcore,n60", "mediatek,mt7986a";
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
+		bootargs = "console=ttyS0,115200n1 loglevel=8 \
 				earlycon=uart8250,mmio32,0x11002000";
 	};
-	
+
 	aliases {
 		led-boot = &led_status_red;
  		led-failsafe = &led_status_red;
@@ -97,7 +97,7 @@
 			};
 		};
 	};
-	
+
 };
 
 &eth {
@@ -145,7 +145,7 @@
  			reset-deassert-us = <20000>;
  			phy-mode = "2500base-x";
  		};
- 		
+
  		switch@0 {
 			compatible = "mediatek,mt7531";
 			reg = <31>;

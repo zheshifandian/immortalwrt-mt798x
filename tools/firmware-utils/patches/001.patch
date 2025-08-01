@@ -1,0 +1,10 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 71c604c..3ce5611 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
++CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
+ 
+ PROJECT(firmware-utils C)
+ INCLUDE(GNUInstallDirs)

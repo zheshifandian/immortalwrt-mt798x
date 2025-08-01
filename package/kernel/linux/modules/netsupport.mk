@@ -42,6 +42,24 @@ endef
 $(eval $(call KernelPackage,atmtcp))
 
 
+define KernelPackage/appletalk
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=Appletalk protocol support
+  KCONFIG:= \
+        CONFIG_ATALK \
+        CONFIG_DEV_APPLETALK \
+        CONFIG_IPDDP=n
+  FILES:=$(LINUX_DIR)/net/appletalk/appletalk.ko
+  AUTOLOAD:=$(call AutoLoad,40,appletalk)
+endef
+
+define KernelPackage/appletalk/description
+  Kernel module for AppleTalk protocol.
+endef
+
+$(eval $(call KernelPackage,appletalk))
+
+
 define KernelPackage/bonding
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=Ethernet bonding driver
@@ -1251,6 +1269,22 @@ endef
 $(eval $(call KernelPackage,inet-diag))
 
 
+define KernelPackage/xdp-sockets-diag
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=PF_XDP sockets monitoring interface support for ss utility
+  DEPENDS:=@KERNEL_XDP_SOCKETS
+  KCONFIG:=CONFIG_XDP_SOCKETS_DIAG
+  FILES:=$(LINUX_DIR)/net/xdp/xsk_diag.ko
+  AUTOLOAD:=$(call AutoLoad,31,xsk_diag)
+endef
+
+define KernelPackage/xdp-sockets-diag/description
+ Support for PF_XDP sockets monitoring interface used by the ss tool
+endef
+
+$(eval $(call KernelPackage,xdp-sockets-diag))
+
+
 define KernelPackage/wireguard
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=WireGuard secure network tunnel
@@ -1276,3 +1310,72 @@ define KernelPackage/wireguard/description
 endef
 
 $(eval $(call KernelPackage,wireguard))
+
+
+define KernelPackage/qrtr
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=Qualcomm IPC Router support
+  HIDDEN:=1
+  KCONFIG:=CONFIG_QRTR
+  FILES:= \
+  $(LINUX_DIR)/net/qrtr/qrtr.ko
+  AUTOLOAD:=$(call AutoProbe,qrtr)
+endef
+
+define KernelPackage/qrtr/description
+ Qualcomm IPC Router support
+endef
+
+$(eval $(call KernelPackage,qrtr))
+
+
+define KernelPackage/qrtr-tun
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=TUN device for Qualcomm IPC Router
+  DEPENDS:=+kmod-qrtr
+  KCONFIG:=CONFIG_QRTR_TUN
+  FILES:= $(LINUX_DIR)/net/qrtr/qrtr-tun.ko
+  AUTOLOAD:=$(call AutoProbe,qrtr-tun)
+endef
+
+define KernelPackage/qrtr-tun/description
+ TUN device for Qualcomm IPC Router
+endef
+
+$(eval $(call KernelPackage,qrtr-tun))
+
+
+define KernelPackage/qrtr-smd
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=SMD IPC Router channels
+  DEPENDS:=+kmod-qrtr @TARGET_qualcommax
+  KCONFIG:=CONFIG_QRTR_SMD
+  FILES:= $(LINUX_DIR)/net/qrtr/qrtr-smd.ko
+  AUTOLOAD:=$(call AutoProbe,qrtr-smd)
+endef
+
+define KernelPackage/qrtr-smd/description
+ SMD IPC Router channels
+endef
+
+$(eval $(call KernelPackage,qrtr-smd))
+
+
+define KernelPackage/unix-diag
+  TITLE:=UNIX socket monitoring interface
+  KCONFIG:=CONFIG_UNIX_DIAG
+  FILES:= $(LINUX_DIR)/net/unix/unix_diag.ko
+  AUTOLOAD:=$(call AutoProbe,unix_diag)
+endef
+
+$(eval $(call KernelPackage,unix-diag))
+
+
+define KernelPackage/packet-diag
+  TITLE:=Packet sockets monitoring interface
+  KCONFIG:=CONFIG_PACKET_DIAG
+  FILES:= $(LINUX_DIR)/net/packet/af_packet_diag.ko
+  AUTOLOAD:=$(call AutoProbe,af_packet_diag)
+endef
+
+$(eval $(call KernelPackage,packet-diag))

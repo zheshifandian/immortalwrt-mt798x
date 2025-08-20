@@ -6,8 +6,7 @@
 	model = "Bananapi BPI-R3MINI";
 	compatible = "bananapi,bpi-r3mini", "mediatek,mt7986a";
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
-				earlycon=uart8250,mmio32,0x11002000";
+		bootargs = "console=ttyS0,115200n1 earlycon=uart8250,mmio32,0x11002000";
 	};
 
 	memory {
@@ -79,7 +78,7 @@
                 address-bits = <8>;
                 page-size = <8>;
                 size = <256>;
-        }; 
+        };
 
 	wm8960: wm8960@1a {
 		compatible = "wlf,wm8960";
@@ -102,7 +101,7 @@
 		compatible = "mediatek,eth-mac";
 		reg = <0>;
 		phy-mode = "2500base-x";
-		
+
 		fixed-link {
 			speed = <2500>;
 			full-duplex;
@@ -114,12 +113,12 @@
 		compatible = "mediatek,eth-mac";
 		reg = <1>;
 		phy-mode = "2500base-x";
-		
+
 		fixed-link {
 			speed = <2500>;
 			full-duplex;
 			pause;
-		}; 
+		};
 	};
 
 	mdio: mdio-bus {

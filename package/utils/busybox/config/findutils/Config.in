@@ -7,7 +7,7 @@
 menu "Finding Utilities"
 
 config BUSYBOX_CONFIG_FIND
-	bool "find (14 kb)"
+	bool "find (16 kb)"
 	default BUSYBOX_DEFAULT_FIND
 	help
 	find is used to search your system to find specified files.
@@ -23,19 +23,51 @@ config BUSYBOX_CONFIG_FEATURE_FIND_PRINT0
 	interpreted by other programs.
 
 config BUSYBOX_CONFIG_FEATURE_FIND_MTIME
-	bool "Enable -mtime: modified time matching"
+	bool "Enable -mtime: modification time matching"
 	default BUSYBOX_DEFAULT_FEATURE_FIND_MTIME
 	depends on BUSYBOX_CONFIG_FIND
 	help
 	Allow searching based on the modification time of
 	files, in days.
 
+config BUSYBOX_CONFIG_FEATURE_FIND_ATIME
+	bool "Enable -atime: access time matching"
+	default BUSYBOX_DEFAULT_FEATURE_FIND_ATIME
+	depends on BUSYBOX_CONFIG_FEATURE_FIND_MTIME
+	help
+	Allow searching based on the access time of
+	files, in days.
+
+config BUSYBOX_CONFIG_FEATURE_FIND_CTIME
+	bool "Enable -ctime: status change timestamp matching"
+	default BUSYBOX_DEFAULT_FEATURE_FIND_CTIME
+	depends on BUSYBOX_CONFIG_FEATURE_FIND_MTIME
+	help
+	Allow searching based on the status change timestamp of
+	files, in days.
+
 config BUSYBOX_CONFIG_FEATURE_FIND_MMIN
-	bool "Enable -mmin: modified time matching by minutes"
+	bool "Enable -mmin: modification time matching by minutes"
 	default BUSYBOX_DEFAULT_FEATURE_FIND_MMIN
 	depends on BUSYBOX_CONFIG_FIND
 	help
 	Allow searching based on the modification time of
+	files, in minutes.
+
+config BUSYBOX_CONFIG_FEATURE_FIND_AMIN
+	bool "Enable -amin: access time matching by minutes"
+	default BUSYBOX_DEFAULT_FEATURE_FIND_AMIN
+	depends on BUSYBOX_CONFIG_FEATURE_FIND_MMIN
+	help
+	Allow searching based on the access time of
+	files, in minutes.
+
+config BUSYBOX_CONFIG_FEATURE_FIND_CMIN
+	bool "Enable -cmin: status change timestamp matching by minutes"
+	default BUSYBOX_DEFAULT_FEATURE_FIND_CMIN
+	depends on BUSYBOX_CONFIG_FEATURE_FIND_MMIN
+	help
+	Allow searching based on the status change timestamp of
 	files, in minutes.
 
 config BUSYBOX_CONFIG_FEATURE_FIND_PERM
@@ -79,6 +111,13 @@ config BUSYBOX_CONFIG_FEATURE_FIND_INUM
 	default BUSYBOX_DEFAULT_FEATURE_FIND_INUM
 	depends on BUSYBOX_CONFIG_FIND
 
+config BUSYBOX_CONFIG_FEATURE_FIND_SAMEFILE
+	bool "Enable -samefile: reference file matching"
+	default BUSYBOX_DEFAULT_FEATURE_FIND_SAMEFILE
+	depends on BUSYBOX_CONFIG_FIND
+	help
+	Support the 'find -samefile' option for searching by a reference file.
+
 config BUSYBOX_CONFIG_FEATURE_FIND_EXEC
 	bool "Enable -exec: execute commands"
 	default BUSYBOX_DEFAULT_FEATURE_FIND_EXEC
@@ -96,6 +135,13 @@ config BUSYBOX_CONFIG_FEATURE_FIND_EXEC_PLUS
 	for all matched files at once.
 	Without this option, -exec + is a synonym for -exec ;
 	(IOW: it works correctly, but without expected speedup)
+
+config BUSYBOX_CONFIG_FEATURE_FIND_EXEC_OK
+	bool "Enable -ok: execute confirmed commands"
+	default BUSYBOX_DEFAULT_FEATURE_FIND_EXEC_OK
+	depends on BUSYBOX_CONFIG_FEATURE_FIND_EXEC
+	help
+	Support the 'find -ok' option which prompts before executing.
 
 config BUSYBOX_CONFIG_FEATURE_FIND_USER
 	bool "Enable -user: username/uid matching"
@@ -195,19 +241,19 @@ config BUSYBOX_CONFIG_FEATURE_FIND_LINKS
 	help
 	Support the 'find -links' option for matching number of links.
 config BUSYBOX_CONFIG_GREP
-	bool "grep (8.6 kb)"
+	bool "grep (8.9 kb)"
 	default BUSYBOX_DEFAULT_GREP
 	help
 	grep is used to search files for a specified pattern.
 
 config BUSYBOX_CONFIG_EGREP
-	bool "egrep (7.8 kb)"
+	bool "egrep (8 kb)"
 	default BUSYBOX_DEFAULT_EGREP
 	help
 	Alias to "grep -E".
 
 config BUSYBOX_CONFIG_FGREP
-	bool "fgrep (7.8 kb)"
+	bool "fgrep (8 kb)"
 	default BUSYBOX_DEFAULT_FGREP
 	help
 	Alias to "grep -F".
@@ -221,7 +267,7 @@ config BUSYBOX_CONFIG_FEATURE_GREP_CONTEXT
 	context surrounding our matching lines.
 	Print the specified number of context lines (-C).
 config BUSYBOX_CONFIG_XARGS
-	bool "xargs (7.2 kb)"
+	bool "xargs (7.6 kb)"
 	default BUSYBOX_DEFAULT_XARGS
 	help
 	xargs is used to execute a specified command for

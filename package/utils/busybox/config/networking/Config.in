@@ -47,6 +47,32 @@ config BUSYBOX_CONFIG_VERBOSE_RESOLUTION_ERRORS
 	"can't resolve 'hostname.com'" and want to know more.
 	This may increase size of your executable a bit.
 
+config BUSYBOX_CONFIG_FEATURE_ETC_NETWORKS
+	bool "Support /etc/networks"
+	default BUSYBOX_DEFAULT_FEATURE_ETC_NETWORKS
+	help
+	Enable support for network names in /etc/networks. This is
+	a rarely used feature which allows you to use names
+	instead of IP/mask pairs in route command.
+
+config BUSYBOX_CONFIG_FEATURE_ETC_SERVICES
+	bool "Consult /etc/services even for well-known ports"
+	default BUSYBOX_DEFAULT_FEATURE_ETC_SERVICES
+	help
+	Look up e.g. "telnet" and "http" in /etc/services file
+	instead of assuming ports 23 and 80.
+	This is almost never necessary (everybody uses standard ports),
+	and it makes sense to avoid reading this file.
+	If you disable this option, in the cases where port is explicitly
+	specified as a service name (e.g. "telnet HOST PORTNAME"),
+	it will still be looked up in /etc/services.
+
+config BUSYBOX_CONFIG_FEATURE_HWIB
+	bool "Support infiniband HW"
+	default BUSYBOX_DEFAULT_FEATURE_HWIB
+	help
+	Support for printing infiniband addresses in network applets.
+
 config BUSYBOX_CONFIG_FEATURE_TLS_SHA1
 	bool "In TLS code, support ciphers which use deprecated SHA1"
 	depends on BUSYBOX_CONFIG_TLS
@@ -64,12 +90,12 @@ config BUSYBOX_CONFIG_ARP
 	help
 	Manipulate the system ARP cache.
 config BUSYBOX_CONFIG_ARPING
-	bool "arping (9 kb)"
+	bool "arping (9.1 kb)"
 	default BUSYBOX_DEFAULT_ARPING
 	help
 	Ping hosts by ARP packets.
 config BUSYBOX_CONFIG_BRCTL
-	bool "brctl (4.7 kb)"
+	bool "brctl (9.9 kb)"
 	default BUSYBOX_DEFAULT_BRCTL
 	help
 	Manage ethernet bridges.
@@ -94,12 +120,12 @@ config BUSYBOX_CONFIG_FEATURE_BRCTL_SHOW
 	Add support for option which prints the current config:
 		show
 config BUSYBOX_CONFIG_DNSD
-	bool "dnsd (9.8 kb)"
+	bool "dnsd (10 kb)"
 	default BUSYBOX_DEFAULT_DNSD
 	help
 	Small and static DNS server daemon.
 config BUSYBOX_CONFIG_ETHER_WAKE
-	bool "ether-wake (4.9 kb)"
+	bool "ether-wake (5.2 kb)"
 	default BUSYBOX_DEFAULT_ETHER_WAKE
 	help
 	Send a magic packet to wake up sleeping machines.
@@ -141,13 +167,13 @@ config BUSYBOX_CONFIG_FEATURE_FTPD_AUTHENTICATION
 	of the user it was started under, and does not require login.
 	Take care to not launch it under root.
 config BUSYBOX_CONFIG_FTPGET
-	bool "ftpget (7.8 kb)"
+	bool "ftpget (7.9 kb)"
 	default BUSYBOX_DEFAULT_FTPGET
 	help
 	Retrieve a remote file via FTP.
 
 config BUSYBOX_CONFIG_FTPPUT
-	bool "ftpput (7.5 kb)"
+	bool "ftpput (7.6 kb)"
 	default BUSYBOX_DEFAULT_FTPPUT
 	help
 	Store a remote file via FTP.
@@ -157,13 +183,13 @@ config BUSYBOX_CONFIG_FEATURE_FTPGETPUT_LONG_OPTIONS
 	default BUSYBOX_DEFAULT_FEATURE_FTPGETPUT_LONG_OPTIONS
 	depends on BUSYBOX_CONFIG_LONG_OPTS && (BUSYBOX_CONFIG_FTPGET || BUSYBOX_CONFIG_FTPPUT)
 config BUSYBOX_CONFIG_HOSTNAME
-	bool "hostname (5.5 kb)"
+	bool "hostname (5.8 kb)"
 	default BUSYBOX_DEFAULT_HOSTNAME
 	help
 	Show or set the system's host name.
 
 config BUSYBOX_CONFIG_DNSDOMAINNAME
-	bool "dnsdomainname (3.6 kb)"
+	bool "dnsdomainname (3.8 kb)"
 	default BUSYBOX_DEFAULT_DNSDOMAINNAME
 	help
 	Alias to "hostname -d".
@@ -172,6 +198,12 @@ config BUSYBOX_CONFIG_HTTPD
 	default BUSYBOX_DEFAULT_HTTPD
 	help
 	HTTP server.
+
+config BUSYBOX_CONFIG_FEATURE_HTTPD_PORT_DEFAULT
+	int "Default port"
+	default BUSYBOX_DEFAULT_FEATURE_HTTPD_PORT_DEFAULT
+	range 1 65535
+	depends on BUSYBOX_CONFIG_HTTPD
 
 config BUSYBOX_CONFIG_FEATURE_HTTPD_RANGES
 	bool "Support 'Ranges:' header"
@@ -376,7 +408,7 @@ config BUSYBOX_CONFIG_IFENSLAVE
 	Userspace application to bind several interfaces
 	to a logical interface (use with kernel bonding driver).
 config BUSYBOX_CONFIG_IFPLUGD
-	bool "ifplugd (10 kb)"
+	bool "ifplugd (11 kb)"
 	default BUSYBOX_DEFAULT_IFPLUGD
 	help
 	Network interface plug detection daemon.
@@ -537,7 +569,7 @@ config BUSYBOX_CONFIG_IP
 	trying to be portable, it's better to use "ip CMD" forms.
 
 config BUSYBOX_CONFIG_IPADDR
-	bool "ipaddr (14 kb)"
+	bool "ipaddr (15 kb)"
 	default BUSYBOX_DEFAULT_IPADDR
 	select BUSYBOX_CONFIG_FEATURE_IP_ADDRESS
 	help
@@ -558,7 +590,7 @@ config BUSYBOX_CONFIG_IPROUTE
 	Short form of "ip route"
 
 config BUSYBOX_CONFIG_IPTUNNEL
-	bool "iptunnel (9.6 kb)"
+	bool "iptunnel (9.8 kb)"
 	default BUSYBOX_DEFAULT_IPTUNNEL
 	select BUSYBOX_CONFIG_FEATURE_IP_TUNNEL
 	help
@@ -572,7 +604,7 @@ config BUSYBOX_CONFIG_IPRULE
 	Short form of "ip rule"
 
 config BUSYBOX_CONFIG_IPNEIGH
-	bool "ipneigh (8.3 kb)"
+	bool "ipneigh (8.6 kb)"
 	default BUSYBOX_DEFAULT_IPNEIGH
 	select BUSYBOX_CONFIG_FEATURE_IP_NEIGH
 	help
@@ -591,6 +623,12 @@ config BUSYBOX_CONFIG_FEATURE_IP_LINK
 	depends on BUSYBOX_CONFIG_IP || BUSYBOX_CONFIG_IPLINK
 	help
 	Configure network devices with "ip".
+
+config BUSYBOX_CONFIG_FEATURE_IP_LINK_CAN
+	bool "ip link set type can"
+	default BUSYBOX_DEFAULT_FEATURE_IP_LINK_CAN
+	help
+	Configure CAN devices with "ip".
 
 config BUSYBOX_CONFIG_FEATURE_IP_ROUTE
 	bool "ip route"
@@ -637,7 +675,7 @@ config BUSYBOX_CONFIG_FEATURE_IP_RARE_PROTOCOLS
 	Ethernet, wireless, infrared, ppp/slip, ip tunnelling
 	link types are supported without this option selected.
 config BUSYBOX_CONFIG_IPCALC
-	bool "ipcalc (4.4 kb)"
+	bool "ipcalc (4.6 kb)"
 	default BUSYBOX_DEFAULT_IPCALC
 	help
 	ipcalc takes an IP address and netmask and calculates the
@@ -656,14 +694,14 @@ config BUSYBOX_CONFIG_FEATURE_IPCALC_FANCY
 	Adds the options hostname, prefix and silent to the output of
 	"ipcalc".
 config BUSYBOX_CONFIG_FAKEIDENTD
-	bool "fakeidentd (8.7 kb)"
+	bool "fakeidentd (9 kb)"
 	default BUSYBOX_DEFAULT_FAKEIDENTD
 	select BUSYBOX_CONFIG_FEATURE_SYSLOG
 	help
 	fakeidentd listens on the ident port and returns a predefined
 	fake value on any query.
 config BUSYBOX_CONFIG_NAMEIF
-	bool "nameif (6.6 kb)"
+	bool "nameif (6.9 kb)"
 	default BUSYBOX_DEFAULT_NAMEIF
 	select BUSYBOX_CONFIG_FEATURE_SYSLOG
 	help
@@ -691,7 +729,7 @@ config BUSYBOX_CONFIG_FEATURE_NAMEIF_EXTENDED
 		new_interface_name  mac=00:80:C8:38:91:B5
 		new_interface_name  00:80:C8:38:91:B5
 config BUSYBOX_CONFIG_NBDCLIENT
-	bool "nbd-client (6 kb)"
+	bool "nbd-client (6.3 kb)"
 	default BUSYBOX_DEFAULT_NBDCLIENT
 	help
 	Network block device client
@@ -760,7 +798,7 @@ config BUSYBOX_CONFIG_FEATURE_NETSTAT_PRG
 	Add support for -p flag to print out PID and program name.
 	+700 bytes of code.
 config BUSYBOX_CONFIG_NSLOOKUP
-	bool "nslookup (9.7 kb)"
+	bool "nslookup (10 kb)"
 	default BUSYBOX_DEFAULT_NSLOOKUP
 	help
 	nslookup is a tool to query Internet name servers.
@@ -774,21 +812,8 @@ config BUSYBOX_CONFIG_FEATURE_NSLOOKUP_LONG_OPTIONS
 	bool "Enable long options"
 	default BUSYBOX_DEFAULT_FEATURE_NSLOOKUP_LONG_OPTIONS
 	depends on BUSYBOX_CONFIG_FEATURE_NSLOOKUP_BIG && BUSYBOX_CONFIG_LONG_OPTS
-config BUSYBOX_CONFIG_NSLOOKUP_OPENWRT
-	bool "nslookup_openwrt"
-	depends on !BUSYBOX_CONFIG_NSLOOKUP
-	default BUSYBOX_DEFAULT_NSLOOKUP_OPENWRT
-	help
-	  nslookup is a tool to query Internet name servers (LEDE flavor).
-
-config BUSYBOX_CONFIG_FEATURE_NSLOOKUP_OPENWRT_LONG_OPTIONS
-       bool "Enable long options"
-       default BUSYBOX_DEFAULT_FEATURE_NSLOOKUP_OPENWRT_LONG_OPTIONS
-       depends on BUSYBOX_CONFIG_NSLOOKUP_OPENWRT && BUSYBOX_CONFIG_LONG_OPTS
-       help
-         Support long options for the nslookup applet.
 config BUSYBOX_CONFIG_NTPD
-	bool "ntpd (22 kb)"
+	bool "ntpd (23 kb)"
 	default BUSYBOX_DEFAULT_NTPD
 	help
 	The NTP client/server daemon.
@@ -836,22 +861,22 @@ config BUSYBOX_CONFIG_FEATURE_FANCY_PING
 	or terminate with SIGALRM in 5 seconds otherwise.
 	No command-line options will be recognized.
 config BUSYBOX_CONFIG_PSCAN
-	bool "pscan (6 kb)"
+	bool "pscan (6.2 kb)"
 	default BUSYBOX_DEFAULT_PSCAN
 	help
 	Simple network port scanner.
 config BUSYBOX_CONFIG_ROUTE
-	bool "route (8.7 kb)"
+	bool "route (9 kb)"
 	default BUSYBOX_DEFAULT_ROUTE
 	help
 	Route displays or manipulates the kernel's IP routing tables.
 config BUSYBOX_CONFIG_SLATTACH
-	bool "slattach (6.2 kb)"
+	bool "slattach (6.3 kb)"
 	default BUSYBOX_DEFAULT_SLATTACH
 	help
 	slattach configures serial line as SLIP network interface.
 config BUSYBOX_CONFIG_SSL_CLIENT
-	bool "ssl_client (25 kb)"
+	bool "ssl_client (28 kb)"
 	default BUSYBOX_DEFAULT_SSL_CLIENT
 	select BUSYBOX_CONFIG_TLS
 	help
@@ -910,7 +935,7 @@ config BUSYBOX_CONFIG_FEATURE_TELNET_WIDTH
 	default BUSYBOX_DEFAULT_FEATURE_TELNET_WIDTH
 	depends on BUSYBOX_CONFIG_TELNET
 config BUSYBOX_CONFIG_TELNETD
-	bool "telnetd (12 kb)"
+	bool "telnetd (13 kb)"
 	default BUSYBOX_DEFAULT_TELNETD
 	select BUSYBOX_CONFIG_FEATURE_SYSLOG
 	help
@@ -956,6 +981,12 @@ config BUSYBOX_CONFIG_FEATURE_TELNETD_STANDALONE
 	depends on BUSYBOX_CONFIG_TELNETD
 	help
 	Selecting this will make telnetd able to run standalone.
+
+config BUSYBOX_CONFIG_FEATURE_TELNETD_PORT_DEFAULT
+	int "Default port"
+	default BUSYBOX_DEFAULT_FEATURE_TELNETD_PORT_DEFAULT
+	range 1 65535
+	depends on BUSYBOX_CONFIG_FEATURE_TELNETD_STANDALONE
 
 config BUSYBOX_CONFIG_FEATURE_TELNETD_INETD_WAIT
 	bool "Support -w SEC option (inetd wait mode)"
@@ -1051,7 +1082,7 @@ config BUSYBOX_CONFIG_TRACEROUTE
 	Utility to trace the route of IP packets.
 
 config BUSYBOX_CONFIG_TRACEROUTE6
-	bool "traceroute6 (13 kb)"
+	bool "traceroute6 (12 kb)"
 	default BUSYBOX_DEFAULT_TRACEROUTE6
 	depends on BUSYBOX_CONFIG_FEATURE_IPV6
 	help
@@ -1070,7 +1101,7 @@ config BUSYBOX_CONFIG_FEATURE_TRACEROUTE_USE_ICMP
 	default BUSYBOX_DEFAULT_FEATURE_TRACEROUTE_USE_ICMP
 	depends on BUSYBOX_CONFIG_TRACEROUTE || BUSYBOX_CONFIG_TRACEROUTE6
 config BUSYBOX_CONFIG_TUNCTL
-	bool "tunctl (6.2 kb)"
+	bool "tunctl (6.4 kb)"
 	default BUSYBOX_DEFAULT_TUNCTL
 	help
 	tunctl creates or deletes tun devices.
@@ -1083,12 +1114,12 @@ config BUSYBOX_CONFIG_FEATURE_TUNCTL_UG
 	Allow to specify owner and group of newly created interface.
 	340 bytes of pure bloat. Say no here.
 config BUSYBOX_CONFIG_VCONFIG
-	bool "vconfig (2.3 kb)"
+	bool "vconfig (2.6 kb)"
 	default BUSYBOX_DEFAULT_VCONFIG
 	help
 	Creates, removes, and configures VLAN interfaces
 config BUSYBOX_CONFIG_WGET
-	bool "wget (38 kb)"
+	bool "wget (41 kb)"
 	default BUSYBOX_DEFAULT_WGET
 	help
 	wget is a utility for non-interactive download of files from HTTP
@@ -1103,6 +1134,13 @@ config BUSYBOX_CONFIG_FEATURE_WGET_STATUSBAR
 	bool "Enable progress bar (+2k)"
 	default BUSYBOX_DEFAULT_FEATURE_WGET_STATUSBAR
 	depends on BUSYBOX_CONFIG_WGET
+
+config BUSYBOX_CONFIG_FEATURE_WGET_FTP
+	bool "Enable FTP protocol (+1k)"
+	default BUSYBOX_DEFAULT_FEATURE_WGET_FTP
+	depends on BUSYBOX_CONFIG_WGET
+	help
+	To support FTPS, enable FEATURE_WGET_HTTPS as well.
 
 config BUSYBOX_CONFIG_FEATURE_WGET_AUTHENTICATION
 	bool "Enable HTTP authentication"
@@ -1132,6 +1170,7 @@ config BUSYBOX_CONFIG_FEATURE_WGET_HTTPS
 	select BUSYBOX_CONFIG_TLS
 	help
 	wget will use internal TLS code to connect to https:// URLs.
+	It also enables FTPS support, but it's not well tested yet.
 	Note:
 	On NOMMU machines, ssl_helper applet should be available
 	in the $PATH for this to work. Make sure to select that applet.
@@ -1200,12 +1239,12 @@ config BUSYBOX_CONFIG_FEATURE_WGET_OPENSSL
 	By default TLS verification is performed, unless
 	--no-check-certificate option is passed.
 config BUSYBOX_CONFIG_WHOIS
-	bool "whois (6.3 kb)"
+	bool "whois (6.5 kb)"
 	default BUSYBOX_DEFAULT_WHOIS
 	help
 	whois is a client for the whois directory service
 config BUSYBOX_CONFIG_ZCIP
-	bool "zcip (8.4 kb)"
+	bool "zcip (8.7 kb)"
 	default BUSYBOX_DEFAULT_ZCIP
 	select BUSYBOX_CONFIG_FEATURE_SYSLOG
 	help

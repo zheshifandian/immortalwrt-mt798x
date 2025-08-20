@@ -49,7 +49,7 @@
 #define WPA_PROTO_OSEN BIT(3)
 
 struct sta_info;
-struct apd_data; 
+struct apd_data;
 
 enum wpa_alg {
         WPA_ALG_NONE,

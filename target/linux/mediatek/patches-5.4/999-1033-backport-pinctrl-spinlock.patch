@@ -10,7 +10,7 @@
  	pins = devm_kmalloc_array(&pdev->dev, hw->soc->npins, sizeof(*pins),
 --- a/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.c
 +++ b/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.c
-@@ -55,11 +55,16 @@ static u32 mtk_r32(struct mtk_pinctrl *p
+@@ -56,11 +56,16 @@ static u32 mtk_r32(struct mtk_pinctrl *p
  void mtk_rmw(struct mtk_pinctrl *pctl, u8 i, u32 reg, u32 mask, u32 set)
  {
  	u32 val;
@@ -29,7 +29,7 @@
  static int mtk_hw_pin_field_lookup(struct mtk_pinctrl *hw,
 --- a/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.h
 +++ b/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.h
-@@ -246,6 +246,8 @@ struct mtk_pinctrl {
+@@ -251,6 +251,8 @@ struct mtk_pinctrl {
  	struct mtk_eint			*eint;
  	struct mtk_pinctrl_group	*groups;
  	const char          **grp_names;

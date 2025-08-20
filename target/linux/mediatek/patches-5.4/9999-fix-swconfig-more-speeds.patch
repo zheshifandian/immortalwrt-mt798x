@@ -1,10 +1,9 @@
 --- a/drivers/net/phy/swconfig.c
 +++ b/drivers/net/phy/swconfig.c
-@@ -138,11 +138,60 @@ swconfig_set_link(struct switch_dev *dev, const struct switch_attr *attr,
- 	return dev->ops->set_port_link(dev, val->port_vlan, val->value.link);
+@@ -139,10 +139,59 @@ swconfig_set_link(struct switch_dev *dev
  }
  
-+static int
+ static int
 +swconfig_set_reg(struct switch_dev *dev, const struct switch_attr *attr, struct switch_val *val)
 +{
 +	if (val->port_vlan < 0)
@@ -51,7 +50,7 @@
 +	return "unknown";
 +}
 +
- static int
++static int
  swconfig_get_link(struct switch_dev *dev, const struct switch_attr *attr,
  			struct switch_val *val)
  {
@@ -62,7 +61,7 @@
  
  	if (val->port_vlan >= dev->ports)
  		return -EINVAL;
-@@ -150,8 +199,30 @@ swconfig_get_link(struct switch_dev *dev, const struct switch_attr *attr,
+@@ -150,8 +199,30 @@ swconfig_get_link(struct switch_dev *dev
  	if (!dev->ops->get_port_link)
  		return -EOPNOTSUPP;
  
@@ -106,7 +105,7 @@
  static struct switch_attr default_global[] = {
  	[GLOBAL_APPLY] = {
  		.type = SWITCH_TYPE_NOVAL,
-@@ -214,7 +289,7 @@ static struct switch_attr default_port[] = {
+@@ -214,7 +289,7 @@ static struct switch_attr default_port[]
  		.get = swconfig_get_pvid,
  	},
  	[PORT_LINK] = {
@@ -115,7 +114,7 @@
  		.name = "link",
  		.description = "Get port link information",
  		.set = swconfig_set_link,
-@@ -232,6 +307,16 @@ static struct switch_attr default_vlan[] = {
+@@ -232,6 +307,16 @@ static struct switch_attr default_vlan[]
  	},
  };
  
@@ -132,7 +131,7 @@
  static const struct switch_attr *
  swconfig_find_attr_by_name(const struct switch_attrlist *alist,
  				const char *name)
-@@ -252,6 +337,7 @@ static void swconfig_defaults_init(struct switch_dev *dev)
+@@ -252,6 +337,7 @@ static void swconfig_defaults_init(struc
  	dev->def_global = 0;
  	dev->def_vlan = 0;
  	dev->def_port = 0;
@@ -140,7 +139,7 @@
  
  	if (ops->get_vlan_ports || ops->set_vlan_ports)
  		set_bit(VLAN_PORTS, &dev->def_vlan);
-@@ -259,6 +345,9 @@ static void swconfig_defaults_init(struct switch_dev *dev)
+@@ -259,6 +345,9 @@ static void swconfig_defaults_init(struc
  	if (ops->get_port_pvid || ops->set_port_pvid)
  		set_bit(PORT_PVID, &dev->def_port);
  
@@ -150,7 +149,7 @@
  	if (ops->get_port_link &&
  	    !swconfig_find_attr_by_name(&ops->attr_port, "link"))
  		set_bit(PORT_LINK, &dev->def_port);
-@@ -279,6 +368,7 @@ static const struct nla_policy switch_policy[SWITCH_ATTR_MAX+1] = {
+@@ -279,6 +368,7 @@ static const struct nla_policy switch_po
  	[SWITCH_ATTR_OP_VALUE_INT] = { .type = NLA_U32 },
  	[SWITCH_ATTR_OP_VALUE_STR] = { .type = NLA_NUL_STRING },
  	[SWITCH_ATTR_OP_VALUE_PORTS] = { .type = NLA_NESTED },
@@ -158,7 +157,7 @@
  	[SWITCH_ATTR_TYPE] = { .type = NLA_U32 },
  };
  
-@@ -293,6 +383,12 @@ static struct nla_policy link_policy[SWITCH_LINK_ATTR_MAX] = {
+@@ -293,6 +383,12 @@ static struct nla_policy link_policy[SWI
  	[SWITCH_LINK_SPEED] = { .type = NLA_U32 },
  };
  
@@ -184,7 +183,7 @@
  done:
  	return dev;
  }
-@@ -452,6 +548,12 @@ swconfig_list_attrs(struct sk_buff *skb, struct genl_info *info)
+@@ -452,6 +548,12 @@ swconfig_list_attrs(struct sk_buff *skb,
  		def_active = &dev->def_port;
  		n_def = ARRAY_SIZE(default_port);
  		break;
@@ -197,7 +196,7 @@
  	default:
  		WARN_ON(1);
  		goto out;
-@@ -542,6 +644,18 @@ swconfig_lookup_attr(struct switch_dev *dev, struct genl_info *info,
+@@ -542,6 +644,18 @@ swconfig_lookup_attr(struct switch_dev *
  		if (val->port_vlan >= dev->ports)
  			goto done;
  		break;
@@ -216,11 +215,10 @@
  	default:
  		WARN_ON(1);
  		goto done;
-@@ -623,12 +737,54 @@ swconfig_parse_link(struct sk_buff *msg, struct nlattr *nla,
- 	return 0;
+@@ -624,11 +738,53 @@ swconfig_parse_link(struct sk_buff *msg,
  }
  
-+static int
+ static int
 +swconfig_parse_ext(struct sk_buff *msg, struct nlattr *head,
 +		struct switch_val *val, int max)
 +{
@@ -261,7 +259,7 @@
 +	return 0;
 +}
 +
- static int
++static int
  swconfig_set_attr(struct sk_buff *skb, struct genl_info *info)
  {
  	const struct switch_attr *attr;
@@ -271,7 +269,7 @@
  	int err = -EINVAL;
  
  	if (!capable(CAP_NET_ADMIN))
-@@ -691,12 +847,38 @@ swconfig_set_attr(struct sk_buff *skb, struct genl_info *info)
+@@ -691,12 +847,38 @@ swconfig_set_attr(struct sk_buff *skb, s
  			err = 0;
  		}
  		break;
@@ -310,42 +308,42 @@
  	swconfig_put_dev(dev);
  	return err;
  }
-@@ -999,6 +1181,11 @@ static struct genl_ops swconfig_ops[] = {
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+@@ -1000,6 +1182,11 @@ static struct genl_ops swconfig_ops[] =
  		.doit = swconfig_list_attrs,
  	},
-+	{
+ 	{
 +		.cmd = SWITCH_CMD_LIST_REG,
 +		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
 +		.doit = swconfig_list_attrs,
 +	},
- 	{
++	{
  		.cmd = SWITCH_CMD_LIST_PORT,
  		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
-@@ -1009,6 +1208,11 @@ static struct genl_ops swconfig_ops[] = {
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+ 		.doit = swconfig_list_attrs,
+@@ -1010,6 +1197,11 @@ static struct genl_ops swconfig_ops[] =
  		.doit = swconfig_get_attr,
  	},
-+	{
+ 	{
 +		.cmd = SWITCH_CMD_GET_REG,
 +		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
 +		.doit = swconfig_get_attr,
 +	},
- 	{
++	{
  		.cmd = SWITCH_CMD_GET_VLAN,
  		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
-@@ -1019,6 +1219,11 @@ static struct genl_ops swconfig_ops[] = {
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+ 		.doit = swconfig_get_attr,
+@@ -1020,6 +1212,11 @@ static struct genl_ops swconfig_ops[] =
  		.doit = swconfig_get_attr,
  	},
-+	{
+ 	{
 +		.cmd = SWITCH_CMD_SET_REG,
 +		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
 +		.doit = swconfig_set_attr,
 +	},
- 	{
++	{
  		.cmd = SWITCH_CMD_SET_GLOBAL,
  		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
+ 		.flags = GENL_ADMIN_PERM,
 --- a/drivers/net/phy/swconfig_leds.c
 +++ b/drivers/net/phy/swconfig_leds.c
 @@ -24,10 +24,16 @@
@@ -366,7 +364,7 @@
  
  #define SWCONFIG_LED_MODE_LINK		0x01
  #define SWCONFIG_LED_MODE_TX		0x02
-@@ -478,6 +484,18 @@ swconfig_led_work_func(struct work_struct *work)
+@@ -478,6 +484,18 @@ swconfig_led_work_func(struct work_struc
  					sw_trig->link_speed[i] =
  						SWCONFIG_LED_PORT_SPEED_1000;
  					break;
@@ -500,7 +498,7 @@
  
 --- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
 +++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -550,7 +550,8 @@ static void mtk_validate(struct
+@@ -540,7 +540,8 @@ static void mtk_validate(struct phylink_
  	case PHY_INTERFACE_MODE_2500BASEX:
  		phylink_set(mask, 1000baseX_Full);
  		phylink_set(mask, 2500baseX_Full);
@@ -512,7 +510,7 @@
  	case PHY_INTERFACE_MODE_RGMII_ID:
 --- a/drivers/net/phy/mtk/mt753x/mt753x_swconfig.c
 +++ b/drivers/net/phy/mtk/mt753x/mt753x_swconfig.c
-@@ -265,8 +265,8 @@ static int mt753x_get_port_link(struct
+@@ -265,8 +265,8 @@ static int mt753x_get_port_link(struct s
  		link->speed = SWITCH_PORT_SPEED_1000;
  		break;
  	case MAC_SPD_2500:
@@ -525,18 +523,16 @@
  
 --- a/drivers/net/phy/mtk/mt753x/mt7531.c
 +++ b/drivers/net/phy/mtk/mt753x/mt7531.c
-@@ -471,7 +471,9 @@ static int mt7531_mac_port_setup(
+@@ -474,6 +474,8 @@ static int mt7531_mac_port_setup(struct
  			 */
  			speed = port_cfg->speed;
  			if (port_cfg->speed == MAC_SPD_2500)
--				speed = MAC_SPD_1000;
 +				speed = MAC_SPD_2500;
 +			else
-+				speed = MAC_SPD_1000;
+ 				speed = MAC_SPD_1000;
  
  			pmcr |= FORCE_MODE_LNK | FORCE_LINK |
- 				FORCE_MODE_SPD | FORCE_MODE_DPX |
-@@ -491,6 +493,7 @@ static int mt7531_mac_port_setup(
+@@ -494,6 +496,7 @@ static int mt7531_mac_port_setup(struct
  		mt7531_set_port_rgmii(gsw, port);
  		break;
  	case PHY_INTERFACE_MODE_SGMII:

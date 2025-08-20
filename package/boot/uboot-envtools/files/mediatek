@@ -1,6 +1,5 @@
-#!/bin/sh
 #
-# Copyright (C) 2011-2012 OpenWrt.org
+# Copyright (C) 2021 OpenWrt.org
 #
 
 [ -e /etc/config/ubootenv ] && exit 0
@@ -13,46 +12,55 @@ touch /etc/config/ubootenv
 board=$(board_name)
 
 case "$board" in
-cmcc,rax3000m-emmc |\
-cmcc,xr30-emmc |\
-glinet,gl-mt6000 |\
-jdcloud,re-cp-03)
-	env_dev=$(find_mmc_part "u-boot-env")
-	[ -n "$env_dev" ] && ubootenv_add_uci_config "$env_dev" "0" "0x80000"
+bananapi,bpi-r3|\
+bananapi,bpi-r4|\
+bananapi,bpi-r4-poe)
+	case "$(cmdline_get_var root)" in
+	/dev/mmc*)
+		local envdev=$(find_mmc_part "ubootenv" $rootdev)
+		ubootenv_add_uci_config "$envdev" "0x0" "0x40000" "0x40000" "1"
+		ubootenv_add_uci_config "$envdev" "0x40000" "0x40000" "0x40000" "1"
+		;;
+	/dev/mtd*)
+		local envdev=/dev/mtd$(find_mtd_index "u-boot-env")
+		ubootenv_add_uci_config "$envdev" "0x0" "0x20000" "0x20000" "1"
+		ubootenv_add_uci_config "$envdev" "0x20000" "0x20000" "0x20000" "1"
+		;;
+	/dev/ubi*)
+		. /lib/upgrade/nand.sh
+		local envubi=$(nand_find_ubi ubi)
+		local envdev=/dev/$(nand_find_volume $envubi ubootenv)
+		local envdev2=/dev/$(nand_find_volume $envubi ubootenv2)
+		ubootenv_add_uci_config "$envdev" "0x0" "0x1f000" "0x1f000" "1"
+		ubootenv_add_uci_config "$envdev2" "0x0" "0x1f000" "0x1f000" "1"
+		;;
+	esac
 	;;
-*360,t7* |\
-ruijie,rg-x30e* |\
-*newland,nl-wr8103* |\
-newland,nl-wr9103 |\
-livinet,zr-3020*)
-	ubootenv_add_uci_config "/dev/mtd2" "0x0" "0x20000" "0x20000" "1"
+cetron,ct3003|\
+imou,lc-hx3001)
+	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x20000" "0x20000"
 	;;
-h3c,nx30pro |\
-*clt,r30b1* |\
-ruijie,rg-x60-pro* |\
-cmcc,xr30 |\
-cmcc,rax3000m)
-	ubootenv_add_uci_config "/dev/mtd2" "0x0" "0x80000" "0x20000" "4"
+glinet,gl-mt2500|\
+glinet,gl-mt6000)
+	local envdev=$(find_mmc_part "u-boot-env")
+	ubootenv_add_uci_config "$envdev" "0x0" "0x80000"
 	;;
-*honor,fur-602* |\
-*imou,lc-hx3001*)
-	ubootenv_add_uci_config "/dev/mtd2" "0x0" "0x80000" "0x80000" "1"
+glinet,gl-mt3000)
+	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x80000" "0x20000"
 	;;
-xiaomi,mi-router-ax3000t* |\
-xiaomi,mi-router-wr30u* |\
-xiaomi,redmi-router-ax6000*)
-	ubootenv_add_uci_config "/dev/mtd2" "0x0" "0x10000" "0x20000" "1"
+openembed,som7981)
+	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x80000" "0x80000"
+	ubootenv_add_uci_sys_config "/dev/mtd3" "0x0" "0x100000" "0x100000"
 	;;
-nradio,wt9103 |\
-*konka,komi-a31*)
-	ubootenv_add_uci_config "/dev/mtd2" "0x0" "0x20000" "0x80000" "1"
-	;;
-zyxel,ex5700)
-	ubootenv_add_uci_config "/dev/mtd2" "0x0" "0x4000" "0x80000" "1"
+xiaomi,mi-router-wr30u|\
+xiaomi,mi-router-ax3000t|\
+xiaomi,redmi-router-ax6000)
+	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x10000" "0x20000"
+	ubootenv_add_uci_sys_config "/dev/mtd2" "0x0" "0x10000" "0x20000"
 	;;
 esac
 
 config_load ubootenv
-config_foreach ubootenv_add_app_config ubootenv
+config_foreach ubootenv_add_app_config
 
 exit 0

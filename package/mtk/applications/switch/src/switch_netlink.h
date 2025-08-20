@@ -1,6 +1,6 @@
 /*
  * switch_netlink.h: switch(netlink) set API
- * 
+ *
  * Author: Sirui Zhao <Sirui.Zhao@mediatek.com>
  */
 #ifndef MT753X_NETLINK_H

@@ -7,6 +7,8 @@ if ! uci -q get system.@imm_init[0].system_chn > "/dev/null"; then
 		set system.@system[0].timezone="CST-8"
 		set system.@system[0].zonename="Asia/Shanghai"
 
+		set system.@system[0].conloglevel="5"
+		set system.@system[0].cronloglevel="9"
 		delete system.ntp.server
 		add_list system.ntp.server="ntp.tencent.com"
 		add_list system.ntp.server="ntp1.aliyun.com"
@@ -18,6 +20,15 @@ if ! uci -q get system.@imm_init[0].system_chn > "/dev/null"; then
 	EOF
 fi
 
-sed -i.bak "s,downloads.immortalwrt.org,mirrors.vsean.net/openwrt,g" "/etc/opkg/distfeeds.conf"
+opkg_mirror="$(uci -q get system.@imm_init[0].opkg_mirror)"
+if [ -z "$opkg_mirror" ]; then
+	opkg_mirror="https://mirrors.vsean.net/openwrt"
+	uci -q batch <<-EOF
+		set system.@imm_init[0].opkg_mirror="$opkg_mirror"
+		commit system
+	EOF
+fi
+
+sed -i.bak "s,https://downloads.immortalwrt.org,$opkg_mirror,g" "/etc/opkg/distfeeds.conf"
 
 exit 0

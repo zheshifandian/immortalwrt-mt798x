@@ -15,7 +15,7 @@
 -	lastTxRate.field.MODE = rTxStatResult.rEntryTxRate.MODE;
 +	phy_mode = rTxStatResult.rEntryTxRate.MODE;
 +	if (phy_mode >> 3)
-+		phy_mode >>= 3;	
++		phy_mode >>= 3;
 +	lastTxRate.field.MODE = phy_mode;
  	lastTxRate.field.BW = rTxStatResult.rEntryTxRate.BW;
  	lastTxRate.field.ldpc = rTxStatResult.rEntryTxRate.ldpc ? 1 : 0;

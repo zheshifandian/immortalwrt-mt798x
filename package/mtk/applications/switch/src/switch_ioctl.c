@@ -332,7 +332,7 @@ int mii_mgr_cl45_read(unsigned int port_num, unsigned int dev,
 		} else {
 			printf("MDIO cl45 set dev opeartion timeout\n");
 			reg_value = 0;
-			ret = -1; 
+			ret = -1;
 			goto out;
 		}
 	}
@@ -351,7 +351,7 @@ int mii_mgr_cl45_read(unsigned int port_num, unsigned int dev,
 		} else {
 			printf("MDIO cl45 read reg opeartion timeout\n");
 			reg_value = 0;
-			ret = -1; 
+			ret = -1;
 			break;
 		}
 	}
@@ -384,7 +384,7 @@ int mii_mgr_cl45_write(unsigned int port_num, unsigned int dev,
 			loop_cnt++;
 		else {
 			printf("MDIO cl45 set dev opeartion timeout\n");
-			ret = -1; 
+			ret = -1;
 			goto out;
 		}
 	}
@@ -401,7 +401,7 @@ int mii_mgr_cl45_write(unsigned int port_num, unsigned int dev,
 			loop_cnt++;
 		else {
 			printf("MDIO cl45 write reg opeartion timeout\n");
-			ret = -1; 
+			ret = -1;
 			break;
 		}
 	}

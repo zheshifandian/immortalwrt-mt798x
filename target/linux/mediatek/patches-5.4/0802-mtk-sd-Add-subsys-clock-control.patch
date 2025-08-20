@@ -17,7 +17,7 @@
  	u32 mclk;		/* mmc subsystem clock frequency */
  	u32 src_clk_freq;	/* source clock frequency */
  	unsigned char timing;
-@@ -745,6 +748,7 @@ static void msdc_set_timeout(struct msdc
+@@ -747,6 +750,7 @@ static void msdc_set_timeout(struct msdc
  
  static void msdc_gate_clock(struct msdc_host *host)
  {
@@ -25,7 +25,7 @@
  	clk_disable_unprepare(host->src_clk_cg);
  	clk_disable_unprepare(host->src_clk);
  	clk_disable_unprepare(host->bus_clk);
-@@ -753,10 +757,18 @@ static void msdc_gate_clock(struct msdc_
+@@ -755,10 +759,18 @@ static void msdc_gate_clock(struct msdc_
  
  static void msdc_ungate_clock(struct msdc_host *host)
  {
@@ -44,7 +44,7 @@
  	while (!(readl(host->base + MSDC_CFG) & MSDC_CFG_CKSTB))
  		cpu_relax();
  }
-@@ -2195,6 +2207,50 @@ static void msdc_of_property_parse(struc
+@@ -2208,6 +2220,50 @@ static void msdc_of_property_parse(struc
  		host->hs400_cmd_resp_sel_rising = false;
  }
  
@@ -95,7 +95,7 @@
  static int msdc_drv_probe(struct platform_device *pdev)
  {
  	struct mmc_host *mmc;
-@@ -2235,25 +2291,9 @@ static int msdc_drv_probe(struct platfor
+@@ -2248,25 +2304,9 @@ static int msdc_drv_probe(struct platfor
  	if (ret)
  		goto host_free;
  

@@ -175,8 +175,8 @@
  		     NAND_MEMORG(1, 2048, 64, 64, 2048, 40, 2, 1, 1),
  		     NAND_ECCREQ(4, 512),
  		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
-@@ -118,33 +120,13 @@ static const struct spinand_info macroni
- 		     SPINAND_ECCINFO(&mx35lfxge4ab_ooblayout, NULL)),
+@@ -233,33 +235,13 @@ static const struct spinand_info macroni
+ 				     mx35lf1ge4ab_ecc_get_status)),
  };
  
 -static int macronix_spinand_detect(struct spinand_device *spinand)

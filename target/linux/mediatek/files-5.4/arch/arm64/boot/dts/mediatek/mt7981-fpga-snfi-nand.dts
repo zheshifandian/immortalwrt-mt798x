@@ -4,13 +4,14 @@
 	model = "MediaTek MT7981 FPGA";
 	compatible = "mediatek,mt7981-fpga-snfi-nand";
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
-				earlycon=uart8250,mmio32,0x11002000";
+		bootargs = "console=ttyS0,115200n1 loglevel=8 \
+					earlycon=uart8250,mmio32,0x11002000";
 	};
 
-	memory {
+	memory@40000000 {
 		// fpga ddr2: 128MB*2
 		reg = <0 0x40000000 0 0x10000000>;
+		device_type = "memory";
 	};
 
 	nmbm_snfi {
@@ -117,36 +118,35 @@
 };
 
 &eth {
-        status = "okay";
+	status = "okay";
 
-        gmac0: mac@0 {
-                compatible = "mediatek,eth-mac";
-                reg = <0>;
-                phy-mode = "rgmii";
+	gmac0: mac@0 {
+		compatible = "mediatek,eth-mac";
+		reg = <0>;
+		phy-mode = "rgmii";
 
-                fixed-link {
-                        speed = <100>;
-                        full-duplex;
-                        pause;
-                };
-        };
+		fixed-link {
+			speed = <100>;
+			full-duplex;
+			pause;
+		};
+	};
 	gmac1: mac@1 {
-                compatible = "mediatek,eth-mac";
-                reg = <1>;
-                phy-mode = "rgmii";
+		compatible = "mediatek,eth-mac";
+		reg = <1>;
+		phy-mode = "rgmii";
 
-                fixed-link {
-                        speed = <100>;
-                        full-duplex;
-                        pause;
-                };
-        };
+		fixed-link {
+			speed = <100>;
+			full-duplex;
+			pause;
+		};
+	};
 
-        mdio: mdio-bus {
-                #address-cells = <1>;
-                #size-cells = <0>;
-        };
-
+	mdio: mdio-bus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
 };
 
 &hnat {

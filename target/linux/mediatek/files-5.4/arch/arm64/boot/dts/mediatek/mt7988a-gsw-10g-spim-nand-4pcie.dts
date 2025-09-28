@@ -10,13 +10,13 @@
 / {
 	model = "MediaTek MT7988 GSW 10G SPIM-NAND 4PCIe RFB";
 	compatible = "mediatek,mt7988a-gsw-10g-spim-snand-4pcie",
-		     /* Reserve this for DVFS if creating new dts */
-		     "mediatek,mt7988";
+				 /* Reserve this for DVFS if creating new dts */
+				 "mediatek,mt7988";
 
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
-			    earlycon=uart8250,mmio32,0x11000000 \
-			    pci=pcie_bus_perf";
+		bootargs = "console=ttyS0,115200n1 loglevel=8 \
+					earlycon=uart8250,mmio32,0x11000000 \
+					pci=pcie_bus_perf";
 	};
 
 	gsw: gsw@0 {
@@ -26,8 +26,9 @@
 		#size-cells = <0>;
 	};
 
-	memory {
+	memory@40000000 {
 		reg = <0 0x40000000 0 0x10000000>;
+		device_type = "memory";
 	};
 
 	nmbm_spim_nand {

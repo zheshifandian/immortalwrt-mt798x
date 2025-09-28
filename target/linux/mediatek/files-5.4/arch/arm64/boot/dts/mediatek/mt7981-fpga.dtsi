@@ -41,7 +41,7 @@
 
 	auxadc: adc@1100d000 {
 		compatible = "mediatek,mt7981-auxadc",
-			     "mediatek,mt7622-auxadc";
+					 "mediatek,mt7622-auxadc";
 		reg = <0 0x1100d000 0 0x1000>;
 		clocks = <&system_clk>;
 		clock-names = "main";
@@ -54,26 +54,26 @@
 		/* add this property for wed get the pci slot number. */
 		pci_slot_map = <0>, <1>;
 		reg = <0 0x15010000 0 0x1000>,
-		      <0 0x15011000 0 0x1000>;
+			  <0 0x15011000 0 0x1000>;
 		interrupt-parent = <&gic>;
 		interrupts = <GIC_SPI 205 IRQ_TYPE_LEVEL_HIGH>,
-			     <GIC_SPI 206 IRQ_TYPE_LEVEL_HIGH>;
+					 <GIC_SPI 206 IRQ_TYPE_LEVEL_HIGH>;
 	};
 
 	wdma: wdma@15104800 {
 		compatible = "mediatek,wed-wdma";
 		reg = <0 0x15104800 0 0x400>,
-		      <0 0x15104c00 0 0x400>;
+			  <0 0x15104c00 0 0x400>;
 	};
 
 	ap2woccif: ap2woccif@151A5000 {
 		compatible = "mediatek,ap2woccif";
 		reg = <0 0x151A5000 0 0x1000>,
-		      <0 0x151AD000 0 0x1000>;
+			  <0 0x151AD000 0 0x1000>;
 		interrupt-parent = <&gic>;
 		interrupts = <GIC_SPI 211 IRQ_TYPE_LEVEL_HIGH>,
-			     <GIC_SPI 212 IRQ_TYPE_LEVEL_HIGH>;
-        };
+					 <GIC_SPI 212 IRQ_TYPE_LEVEL_HIGH>;
+		};
 
 	wocpu0_ilm: wocpu0_ilm@151E0000 {
 		compatible = "mediatek,wocpu0_ilm";
@@ -83,7 +83,7 @@
 	wocpu_dlm: wocpu_dlm@151E8000 {
 		compatible = "mediatek,wocpu_dlm";
 		reg = <0 0x151E8000 0 0x2000>,
-		      <0 0x151F8000 0 0x2000>;
+			  <0 0x151F8000 0 0x2000>;
 
 		resets = <&ethsysrst 0>;
 		reset-names = "wocpu_rst";
@@ -127,8 +127,8 @@
 	};
 
 	psci {
-		compatible  = "arm,psci-0.2";
-		method      = "smc";
+		compatible = "arm,psci-0.2";
+		method = "smc";
 	};
 
 	system_clk: dummy13m {
@@ -160,15 +160,15 @@
 		interrupt-parent = <&gic>;
 		clock-frequency = <12000000>;
 		interrupts = <GIC_PPI 13 IRQ_TYPE_LEVEL_LOW>,
-			     <GIC_PPI 14 IRQ_TYPE_LEVEL_LOW>,
-			     <GIC_PPI 11 IRQ_TYPE_LEVEL_LOW>,
-			     <GIC_PPI 10 IRQ_TYPE_LEVEL_LOW>;
+					 <GIC_PPI 14 IRQ_TYPE_LEVEL_LOW>,
+					 <GIC_PPI 11 IRQ_TYPE_LEVEL_LOW>,
+					 <GIC_PPI 10 IRQ_TYPE_LEVEL_LOW>;
 
 	};
 
 	watchdog: watchdog@1001c000 {
 		compatible = "mediatek,mt7622-wdt",
-			     "mediatek,mt6589-wdt";
+					 "mediatek,mt6589-wdt";
 		reg = <0 0x1001c000 0 0x1000>;
 		interrupts = <GIC_SPI 110 IRQ_TYPE_LEVEL_HIGH>;
 		#reset-cells = <1>;
@@ -180,14 +180,14 @@
 		interrupt-parent = <&gic>;
 		interrupt-controller;
 		reg = <0 0x0c000000 0 0x40000>,  /* GICD */
-		      <0 0x0c080000 0 0x200000>; /* GICR */
+			  <0 0x0c080000 0 0x200000>; /* GICR */
 
 		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
 	};
 
 	uart0: serial@11002000 {
 		compatible = "mediatek,mt7986-uart",
-			     "mediatek,mt6577-uart";
+					 "mediatek,mt6577-uart";
 		reg = <0 0x11002000 0 0x400>;
 		interrupts = <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&uart_clk>;
@@ -196,7 +196,7 @@
 
 	uart1: serial@11003000 {
 		compatible = "mediatek,mt7986-uart",
-			     "mediatek,mt6577-uart";
+					 "mediatek,mt6577-uart";
 		reg = <0 0x11003000 0 0x400>;
 		interrupts = <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&uart_clk>;
@@ -205,7 +205,7 @@
 
 	uart2: serial@11004000 {
 		compatible = "mediatek,mt7986-uart",
-			     "mediatek,mt6577-uart";
+					 "mediatek,mt6577-uart";
 		reg = <0 0x11004000 0 0x400>;
 		interrupts = <GIC_SPI 125 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&uart_clk>;
@@ -214,7 +214,7 @@
 
 	pcie: pcie@11280000 {
 		compatible = "mediatek,mt7981-pcie",
-			     "mediatek,mt7986-pcie";
+					 "mediatek,mt7986-pcie";
 		device_type = "pci";
 		reg = <0 0x11280000 0 0x4000>;
 		reg-names = "pcie-mac";
@@ -242,17 +242,17 @@
 	pio: pinctrl@11d00000 {
 		compatible = "mediatek,mt7981-pinctrl";
 		reg = <0 0x11d00000 0 0x1000>,
-		      <0 0x11c00000 0 0x1000>,
-		      <0 0x11c10000 0 0x1000>,
-		      <0 0x11d20000 0 0x1000>,
-		      <0 0x11e00000 0 0x1000>,
-		      <0 0x11e20000 0 0x1000>,
-		      <0 0x11f00000 0 0x1000>,
-		      <0 0x11f10000 0 0x1000>,
-		      <0 0x1000b000 0 0x1000>;
+			  <0 0x11c00000 0 0x1000>,
+			  <0 0x11c10000 0 0x1000>,
+			  <0 0x11d20000 0 0x1000>,
+			  <0 0x11e00000 0 0x1000>,
+			  <0 0x11e20000 0 0x1000>,
+			  <0 0x11f00000 0 0x1000>,
+			  <0 0x11f10000 0 0x1000>,
+			  <0 0x1000b000 0 0x1000>;
 		reg-names = "gpio_base", "iocfg_rt_base", "iocfg_rm_base",
-			    "iocfg_rb_base", "iocfg_lb_base", "iocfg_bl_base",
-			    "iocfg_tm_base", "iocfg_tl_base", "eint";
+					"iocfg_rb_base", "iocfg_lb_base", "iocfg_bl_base",
+					"iocfg_tm_base", "iocfg_tl_base", "eint";
 		gpio-controller;
 		#gpio-cells = <2>;
 		gpio-ranges = <&pio 0 0 56>;
@@ -262,36 +262,35 @@
 		#interrupt-cells = <2>;
 	};
 
-        ethsys: syscon@15000000 {
-                #address-cells = <1>;
-                #size-cells = <1>;
-                compatible = "mediatek,mt7986-ethsys",
-                             "syscon";
-                reg = <0 0x15000000 0 0x1000>;
-                #clock-cells = <1>;
-                #reset-cells = <1>;
-
-		ethsysrst: reset-controller {
-			compatible = "ti,syscon-reset";
+		ethsys: syscon@15000000 {
+			#address-cells = <1>;
+			#size-cells = <1>;
+			compatible = "mediatek,mt7986-ethsys","syscon";
+			reg = <0 0x15000000 0 0x1000>;
+			#clock-cells = <1>;
 			#reset-cells = <1>;
-			ti,reset-bits = <0x34 4 0x34 4 0x34 4 (ASSERT_SET | DEASSERT_CLEAR | STATUS_SET)>;
-		};
-        };
 
-        eth: ethernet@15100000 {
-                compatible = "mediatek,mt7981-eth";
-                reg = <0 0x15100000 0 0x80000>;
-                interrupts = <GIC_SPI 196 IRQ_TYPE_LEVEL_HIGH>,
-                             <GIC_SPI 197 IRQ_TYPE_LEVEL_HIGH>,
-                             <GIC_SPI 198 IRQ_TYPE_LEVEL_HIGH>,
-                             <GIC_SPI 199 IRQ_TYPE_LEVEL_HIGH>;
-                mediatek,ethsys = <&ethsys>;
-		mediatek,infracfg = <&ethsys>;
-                #reset-cells = <1>;
-                #address-cells = <1>;
-                #size-cells = <0>;
-                status = "disabled";
-        };
+			ethsysrst: reset-controller {
+				compatible = "ti,syscon-reset";
+				#reset-cells = <1>;
+				ti,reset-bits = <0x34 4 0x34 4 0x34 4 (ASSERT_SET | DEASSERT_CLEAR | STATUS_SET)>;
+			};
+		};
+
+		eth: ethernet@15100000 {
+			compatible = "mediatek,mt7981-eth";
+			reg = <0 0x15100000 0 0x80000>;
+			interrupts = <GIC_SPI 196 IRQ_TYPE_LEVEL_HIGH>,
+						 <GIC_SPI 197 IRQ_TYPE_LEVEL_HIGH>,
+						 <GIC_SPI 198 IRQ_TYPE_LEVEL_HIGH>,
+						 <GIC_SPI 199 IRQ_TYPE_LEVEL_HIGH>;
+			mediatek,ethsys = <&ethsys>;
+			mediatek,infracfg = <&ethsys>;
+			#reset-cells = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
 
 	hnat: hnat@15000000 {
 		compatible = "mediatek,mtk-hnat_v4";
@@ -316,15 +315,15 @@
 	};
 
 	mmc0: mmc@11230000 {
-                  compatible = "mediatek,mt7986-mmc";
-                  reg = <0 0x11230000 0 0x1000>, <0 0x11c20000 0 0x1000>;
-                  interrupts = <GIC_SPI 143 IRQ_TYPE_LEVEL_HIGH>;
-                  clocks = <&system_clk>,
-                           <&system_clk>,
-                           <&system_clk>;
-                  clock-names = "source", "hclk", "source_cg";
-                  status = "disabled";
-        };
+		compatible = "mediatek,mt7986-mmc";
+		reg = <0 0x11230000 0 0x1000>, <0 0x11c20000 0 0x1000>;
+		interrupts = <GIC_SPI 143 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&system_clk>,
+				 <&system_clk>,
+				 <&system_clk>;
+		clock-names = "source", "hclk", "source_cg";
+		status = "disabled";
+	};
 
 	wed_pcie: wed_pcie@10003000 {
 		compatible = "mediatek,wed_pcie";
@@ -385,22 +384,22 @@
 
 	xhci: xhci@11200000 {
 		compatible = "mediatek,mt7981-xhci",
-			     "mediatek,mtk-xhci";
+					 "mediatek,mtk-xhci";
 		reg = <0 0x11200000 0 0x2e00>,
-		      <0 0x11203e00 0 0x0100>;
+			  <0 0x11203e00 0 0x0100>;
 		reg-names = "mac", "ippc";
 		interrupts = <GIC_SPI 173 IRQ_TYPE_LEVEL_HIGH>;
 		phys = <&u2port0 PHY_TYPE_USB2>;
 		clocks = <&system_clk>,
-		         <&system_clk>,
-			 <&system_clk>,
-			 <&system_clk>,
-			 <&system_clk>;
+				 <&system_clk>,
+				 <&system_clk>,
+				 <&system_clk>,
+				 <&system_clk>;
 		clock-names = "sys_ck",
-			      "xhci_ck",
-			      "ref_ck",
-			      "mcu_ck",
-			      "dma_ck";
+					  "xhci_ck",
+					  "ref_ck",
+					  "mcu_ck",
+					  "dma_ck";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		mediatek,u3p-dis-msk=<0x01>;
@@ -409,8 +408,8 @@
 
 	usbtphy: usb-phy@11203e00 {
 		compatible = "mediatek,a60810-u2phy",
-			     "mediatek,a60931-u3phy",
-			     "mediatek,a60xxx-usbphy";
+					 "mediatek,a60931-u3phy",
+					 "mediatek,a60xxx-usbphy";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;

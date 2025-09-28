@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ipset
-PKG_VERSION:=7.6
+PKG_VERSION:=7.24
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
-PKG_SOURCE_URL:=http://ipset.netfilter.org
-PKG_HASH:=0e7d44caa9c153d96a9b5f12644fbe35a632537a5a7f653792b72e53d9d5c2db
+PKG_SOURCE_URL:=https://ipset.netfilter.org
+PKG_HASH:=fbe3424dff222c1cb5e5c34d38b64524b2217ce80226c14fdcbb13b29ea36112
 
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=GPL-2.0
@@ -30,7 +30,7 @@ define Package/ipset/Default
   CATEGORY:=Network
   DEPENDS+= +kmod-ipt-ipset +libmnl
   TITLE:=IPset administration utility
-  URL:=http://ipset.netfilter.org/
+  URL:=https://ipset.netfilter.org/
 endef
 
 define Package/ipset
@@ -63,6 +63,7 @@ endef
 define Package/ipset/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/ipset $(1)/usr/sbin/
+	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/ipset-translate $(1)/usr/sbin/
 endef
 
 define Package/libipset/install

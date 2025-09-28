@@ -22,7 +22,7 @@ enum {
 	HOSTAPD_ACL_ACCEPT_TIMEOUT = 3
 };
 
-int hostapd_allowed_address(rtapd *hapd, u8 *addr, 
+int hostapd_allowed_address(rtapd *hapd, u8 *addr,
 			    u8 *apidx, u16 ethertype, int SockNum,
 			    const u8 *msg, size_t len, u32 *session_timeout,
 			    u32 *acct_interim_interval, int *vlan_id);

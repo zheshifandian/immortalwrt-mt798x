@@ -10,10 +10,10 @@
  	compatible = "zyxel,ex5700", "mediatek,mt7986a";
 
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
-				earlycon=uart8250,mmio32,0x11002000";
+		bootargs = "console=ttyS0,115200n1 loglevel=8 \
+					earlycon=uart8250,mmio32,0x11002000";
 	};
-	
+
 	aliases {
 		led-boot = &led_status_green;
 		led-failsafe = &led_status_green;
@@ -21,8 +21,9 @@
 		led-upgrade = &led_status_amber;
 	};
 
-	memory {
+	memory@40000000 {
 		reg = <0 0x40000000 0 0x40000000>;
+		device_type = "memory";
 	};
 
 	gsw: gsw@0 {
@@ -48,7 +49,7 @@
 			linux,code = <KEY_WPS_BUTTON>;
 		};
  	};
-	
+
 	leds {
 		compatible = "gpio-leds";
 
@@ -167,7 +168,7 @@
 			speed = <2500>;
 			full-duplex;
 			pause;
-		};	
+		};
 	};
 
 	gmac1: mac@1 {

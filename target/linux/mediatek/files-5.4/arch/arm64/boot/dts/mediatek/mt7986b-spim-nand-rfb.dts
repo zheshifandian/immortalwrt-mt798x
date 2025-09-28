@@ -6,12 +6,13 @@
 	model = "MediaTek MT7986b RFB";
 	compatible = "mediatek,mt7986b-spim-snand-rfb";
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
-				earlycon=uart8250,mmio32,0x11002000";
+		bootargs = "console=ttyS0,115200n1 loglevel=8 \
+					earlycon=uart8250,mmio32,0x11002000";
 	};
 
-	memory {
+	memory@40000000 {
 		reg = <0 0x40000000 0 0x10000000>;
+		device_type = "memory";
 	};
 };
 

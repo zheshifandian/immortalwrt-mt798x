@@ -109,7 +109,7 @@ enum {
 
 #define IEEE80211_MAX_MMPDU_SIZE 2304
 
-struct apd_data; 
+struct apd_data;
 
 struct sta_sec_info {
 	enum {
@@ -122,9 +122,9 @@ struct sta_sec_info {
 	int pairwise;
 	int wpa_group;
 	int mgmt_frame_prot;
-	
+
 	u8 *wpa_ie;
-	size_t wpa_ie_len;	
+	size_t wpa_ie_len;
 };
 
 #if HOTSPOT_R3
@@ -180,13 +180,13 @@ struct sta_info {
 
 	// From which raw socket
 	int						SockNum;
-	
-#if HOTSPOT_R2	
+
+#if HOTSPOT_R2
 	/* Hotspot-R2 related data */
 	u8						hs_version;
 	u8						hs_ie_exist;
 	u16						ppsmo_id;
-#endif	
+#endif
 
 #if HOTSPOT_R3
 	/* Hotspot-R3 related data */
@@ -196,7 +196,7 @@ struct sta_info {
 #ifdef CONFIG_FILS
 	u16 auth_alg;
 
-    u8 fils_snonce[FILS_NONCE_LEN];	
+    u8 fils_snonce[FILS_NONCE_LEN];
     u8 fils_anonce[FILS_NONCE_LEN];
     u8 fils_session[FILS_SESSION_LEN];
     u8 fils_erp_pmkid[PMKID_LEN];

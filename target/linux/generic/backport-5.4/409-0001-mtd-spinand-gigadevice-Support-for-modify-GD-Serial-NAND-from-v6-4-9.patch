@@ -1,7 +1,5 @@
-Index: linux-5.4.246/drivers/mtd/nand/spi/gigadevice.c
-===================================================================
---- linux-5.4.246.orig/drivers/mtd/nand/spi/gigadevice.c
-+++ linux-5.4.246/drivers/mtd/nand/spi/gigadevice.c
+--- a/drivers/mtd/nand/spi/gigadevice.c
++++ b/drivers/mtd/nand/spi/gigadevice.c
 @@ -13,7 +13,10 @@
  #define GD5FXGQ4XA_STATUS_ECC_1_7_BITFLIPS	(1 << 4)
  #define GD5FXGQ4XA_STATUS_ECC_8_BITFLIPS	(3 << 4)

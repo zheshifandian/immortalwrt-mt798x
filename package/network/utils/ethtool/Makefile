@@ -8,22 +8,21 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ethtool
-PKG_VERSION:=5.10
+PKG_VERSION:=6.14
 PKG_RELEASE:=1
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/software/network/ethtool
-PKG_HASH:=817d5396a9307b4c637b435d4c558b8f5f964a1464a035ca3c0180f4cc93cfcf
+PKG_HASH:=9338bb00e492878d3bbe3cd2894e60db35813634c208db0b20f5c7ee84da69b1
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:kernel:ethtool
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
-
-PKG_CONFIG_DEPENDS:=CONFIG_ETHTOOL_PRETTY_DUMP
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -32,6 +31,17 @@ define Package/ethtool
   CATEGORY:=Network
   TITLE:=Display or change ethernet card settings
   URL:=http://www.kernel.org/pub/software/network/ethtool/
+  VARIANT:=tiny
+  CONFLICTS:=ethtool-full
+endef
+
+define Package/ethtool-full
+  $(Package/ethtool)
+  TITLE += (full)
+  VARIANT:=full
+  PROVIDES:=ethtool
+  DEPENDS:=+libmnl
+  CONFLICTS:=
 endef
 
 define Package/ethtool/description
@@ -39,18 +49,17 @@ define Package/ethtool/description
  network interface
 endef
 
-define Package/ethtool/config
-	config ETHTOOL_PRETTY_DUMP
-		depends on PACKAGE_ethtool
-		bool "Enable pretty printing"
-endef
+Package/ethtool-full/description:=$(Package/ethtool/description)
 
-CONFIGURE_ARGS += --disable-netlink
-
-ifeq ($(CONFIG_ETHTOOL_PRETTY_DUMP),y)
-CONFIGURE_ARGS += --enable-pretty-dump
+ifeq ($(BUILD_VARIANT),full)
+CONFIGURE_ARGS += --enable-netlink --enable-pretty-dump
 else
-CONFIGURE_ARGS += --disable-pretty-dump
+CONFIGURE_ARGS += --disable-netlink --disable-pretty-dump
+endif
+
+# enable support for input_xfrm with kernels newer than 6.6
+ifeq ($(CONFIG_LINUX_6_6),)
+CONFIGURE_ARGS += --enable-rss-input-xfrm
 endif
 
 define Package/ethtool/install
@@ -58,4 +67,7 @@ define Package/ethtool/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ethtool $(1)/usr/sbin
 endef
 
+Package/ethtool-full/install=$(Package/ethtool/install)
+
 $(eval $(call BuildPackage,ethtool))
+$(eval $(call BuildPackage,ethtool-full))

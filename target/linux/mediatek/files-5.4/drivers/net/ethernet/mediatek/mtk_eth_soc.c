@@ -1411,9 +1411,9 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
 				mac = (trxd.rxd4 & RX_DMA_SPECIAL_TAG) ?
 				      0 : RX_DMA_GET_SPORT(trxd.rxd4) - 1;
 		}
-		
+
 		if (mac == 4) mac = 0;
-		
+
 		if (unlikely(mac < 0 || mac >= MTK_MAC_COUNT ||
 			     !eth->netdev[mac]))
 			goto release_desc;
@@ -3645,21 +3645,21 @@ static int mtk_probe(struct platform_device *pdev)
 			of_node_put(mac_np);
 			goto err_deinit_hw;
 			}
-			
+
 		ext_reset_pin = of_get_named_gpio(mac_np, "ext-phy-reset-gpios", 0);
 		if (ext_reset_pin >= 0){
 			dev_info(&pdev->dev, "Ext-phy gpio : %d\n", ext_reset_pin);
 			ret = devm_gpio_request(&pdev->dev, ext_reset_pin, "mt753x-reset");
 			if (!ret)
 			{
-				
+
 				gpio_direction_output(ext_reset_pin, 0);
 				msleep(300);
 				gpio_set_value(ext_reset_pin, 1);
 				msleep(500);
 			}
 		}
-		
+
 	}
 
 	err = mtk_napi_init(eth);
@@ -3760,11 +3760,11 @@ static int mtk_probe(struct platform_device *pdev)
 		unsigned int ext_phy_reg = 0;
 		int err = -1;
 		err = of_property_read_u32_index(mac_np, "ext-phy-reg", 0, &ext_phy_reg);
-		
+
 		if (err >= 0){
 			dev_info(&pdev->dev, "Ext-phy reg : %d\n", ext_phy_reg);
 			mtk_soc_extphy_init(eth, ext_phy_reg);
-		}	
+		}
 	}
         ext_init = 1;
 	}

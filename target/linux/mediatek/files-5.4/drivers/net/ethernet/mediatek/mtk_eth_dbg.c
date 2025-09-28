@@ -107,7 +107,7 @@ static int mtketh_debug_show(struct seq_file *m, void *private)
 				   mac->phy_dev->addr, j, d);
 			j++;
 		}
-#endif		
+#endif
 	}
 	return 0;
 }

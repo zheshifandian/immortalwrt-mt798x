@@ -5,8 +5,7 @@
 	compatible = "glinet,x3000-emmc", "mediatek,mt7981";
 
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
-				earlycon=uart8250,mmio32,0x11002000 \
+		bootargs = "console=ttyS0,115200n1 earlycon=uart8250,mmio32,0x11002000 \
 				root=PARTLABEL=rootfs rootwait rootfstype=squashfs,f2fs \
 				block2mtd.block2mtd=/dev/mmcblk0p1,65536,log;/dev/mmcblk0p5,65536,custom";
 	};
@@ -172,15 +171,15 @@
 };
 
 &mmc0 {
-         pinctrl-names = "default", "state_uhs";
-         pinctrl-0 = <&mmc0_pins_default>;
-         pinctrl-1 = <&mmc0_pins_uhs>;
-         bus-width = <8>;
-         max-frequency = <52000000>;
-         cap-mmc-highspeed;
-         vmmc-supply = <&reg_3p3v>;
-         non-removable;
-         status = "okay";
+	pinctrl-names = "default", "state_uhs";
+	pinctrl-0 = <&mmc0_pins_default>;
+	pinctrl-1 = <&mmc0_pins_uhs>;
+	bus-width = <8>;
+	max-frequency = <52000000>;
+	cap-mmc-highspeed;
+	vmmc-supply = <&reg_3p3v>;
+	non-removable;
+	status = "okay";
 };
 
 &eth {

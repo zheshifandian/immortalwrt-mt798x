@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018 Chion Tang <tech@chionlab.moe>
+# Copyright (C) 2022 Chion Tang <tech@chionlab.moe>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,13 +9,13 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=fullconenat
-PKG_RELEASE:=1
+PKG_RELEASE:=10
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/Chion82/netfilter-full-cone-nat.git
-PKG_SOURCE_DATE:=2019-10-21
-PKG_SOURCE_VERSION:=0cf3b48fd7d2fa81d0297d1fff12bbd0580fc435
-PKG_MIRROR_HASH:=e7bb77d9916d190b3c02975faf62d1794557d4a4a774cd0cf1f3a6ddb7403e3e
+PKG_SOURCE_URL:=https://github.com/llccd/netfilter-full-cone-nat.git
+PKG_SOURCE_DATE:=2022-02-13
+PKG_SOURCE_VERSION:=108a36cbdca17e68c9e6e7fd5e26156a88f738e8
+PKG_MIRROR_HASH:=db90c3be92ec1b8b7b3034e0ea37f10124ac6c5d0f1ee30145f32d35c6410f03
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=LICENSE
@@ -29,7 +29,7 @@ define Package/iptables-mod-fullconenat
   SECTION:=net
   CATEGORY:=Network
   TITLE:=FULLCONENAT iptables extension
-  DEPENDS:=+iptables +kmod-ipt-fullconenat
+  DEPENDS:=+libxtables +kmod-ipt-fullconenat
 endef
 
 define Package/iptables-mod-fullconenat/install
@@ -45,6 +45,7 @@ define KernelPackage/ipt-fullconenat
 	CONFIG_NF_CONNTRACK_EVENTS=y \
 	CONFIG_NF_CONNTRACK_CHAIN_EVENTS=y
   FILES:=$(PKG_BUILD_DIR)/xt_FULLCONENAT.ko
+  AUTOLOAD:=$(call AutoProbe,xt_FULLCONENAT)
 endef
 
 include $(INCLUDE_DIR)/kernel-defaults.mk

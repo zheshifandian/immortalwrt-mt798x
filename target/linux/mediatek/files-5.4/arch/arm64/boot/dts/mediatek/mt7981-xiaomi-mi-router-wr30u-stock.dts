@@ -3,7 +3,7 @@
 /dts-v1/;
 #include "mt7981-xiaomi-mi-router.dtsi"
 
-/ { 
+/ {
 	model = "Xiaomi Mi Router WR30U (stock layout)";
 	compatible = "xiaomi,mi-router-wr30u-stock", "mediatek,mt7981";
 };

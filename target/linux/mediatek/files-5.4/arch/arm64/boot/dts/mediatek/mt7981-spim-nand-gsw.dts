@@ -4,13 +4,14 @@
 	model = "MediaTek MT7981 RFB";
 	compatible = "mediatek,mt7981-spim-snand-gsw-rfb";
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
-				earlycon=uart8250,mmio32,0x11002000";
+		bootargs = "console=ttyS0,115200n1 loglevel=8 \
+					earlycon=uart8250,mmio32,0x11002000";
 	};
 
-	memory {
+	memory@40000000 {
 		// fpga ddr2: 128MB*2
 		reg = <0 0x40000000 0 0x10000000>;
+		device_type = "memory";
 	};
 
 	gpio-keys {
@@ -88,12 +89,12 @@
 		status = "disabled";
 	};
 
-        gsw: gsw@0 {
-                compatible = "mediatek,mt753x";
-                mediatek,ethsys = <&ethsys>;
-                #address-cells = <1>;
-                #size-cells = <0>;
-        };
+	gsw: gsw@0 {
+		compatible = "mediatek,mt753x";
+		mediatek,ethsys = <&ethsys>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
 };
 
 &afe {
@@ -122,67 +123,67 @@
 };
 
 &eth {
-        status = "okay";
+	status = "okay";
 
-        gmac0: mac@0 {
-                compatible = "mediatek,eth-mac";
-                reg = <0>;
-                phy-mode = "2500base-x";
+	gmac0: mac@0 {
+		compatible = "mediatek,eth-mac";
+		reg = <0>;
+		phy-mode = "2500base-x";
 
-                fixed-link {
-                        speed = <2500>;
-                        full-duplex;
-                        pause;
-                };
-        };
+		fixed-link {
+			speed = <2500>;
+			full-duplex;
+			pause;
+		};
+	};
 
-        gmac1: mac@1 {
-                compatible = "mediatek,eth-mac";
-                reg = <1>;
-                phy-mode = "gmii";
-                phy-handle = <&phy0>;
-        };
+	gmac1: mac@1 {
+		compatible = "mediatek,eth-mac";
+		reg = <1>;
+		phy-mode = "gmii";
+		phy-handle = <&phy0>;
+	};
 
-        mdio: mdio-bus {
-                #address-cells = <1>;
-                #size-cells = <0>;
+	mdio: mdio-bus {
+		#address-cells = <1>;
+		#size-cells = <0>;
 
-                phy0: ethernet-phy@0 {
-                        compatible = "ethernet-phy-id03a2.9461";
-                        reg = <0>;
-                        phy-mode = "gmii";
-                        nvmem-cells = <&phy_calibration>;
-                        nvmem-cell-names = "phy-cal-data";
-                };
+		phy0: ethernet-phy@0 {
+			compatible = "ethernet-phy-id03a2.9461";
+			reg = <0>;
+			phy-mode = "gmii";
+			nvmem-cells = <&phy_calibration>;
+			nvmem-cell-names = "phy-cal-data";
+		};
 
-        };
+	};
 };
 
 &gsw {
-        mediatek,mdio = <&mdio>;
-        mediatek,portmap = "llllw";
-        mediatek,mdio_master_pinmux = <1>;
-        reset-gpios = <&pio 39 0>;
-        interrupt-parent = <&pio>;
-        interrupts = <38 IRQ_TYPE_LEVEL_HIGH>;
-        status = "okay";
+	mediatek,mdio = <&mdio>;
+	mediatek,portmap = "llllw";
+	mediatek,mdio_master_pinmux = <1>;
+	reset-gpios = <&pio 39 0>;
+	interrupt-parent = <&pio>;
+	interrupts = <38 IRQ_TYPE_LEVEL_HIGH>;
+	status = "okay";
 
-        port6: port@6 {
-                compatible = "mediatek,mt753x-port";
-                reg = <6>;
-                phy-mode = "sgmii";
-                fixed-link {
-                        speed = <2500>;
-                        full-duplex;
-                };
-        };
+	port6: port@6 {
+		compatible = "mediatek,mt753x-port";
+		reg = <6>;
+		phy-mode = "sgmii";
+		fixed-link {
+			speed = <2500>;
+			full-duplex;
+		};
+	};
 };
 
 &hnat {
-        mtketh-wan = "eth1";
-        mtketh-lan = "eth0";
-        mtketh-max-gmac = <2>;
-        status = "okay";
+	mtketh-wan = "eth1";
+	mtketh-lan = "eth0";
+	mtketh-max-gmac = <2>;
+	status = "okay";
 };
 
 &spi0 {
@@ -212,48 +213,48 @@
 		spi-cpha = <1>;
 		spi-cpol = <1>;
 		channel_count = <1>;
-		debug_level = <4>;       /* 1 = TRC, 2 = DBG, 4 = ERR */
+		debug_level = <4>;	   /* 1 = TRC, 2 = DBG, 4 = ERR */
 		reset_gpio = <&pio 15 0>;
-		ig,enable-spi = <1>;     /* 1: Enable, 0: Disable */
+		ig,enable-spi = <1>;	 /* 1: Enable, 0: Disable */
 	};
 };
 
 &pio {
 
 	i2c_pins: i2c-pins-g0 {
-                mux {
-                        function = "i2c";
-                        groups = "i2c0_0";
-                };
-        };
+		mux {
+			function = "i2c";
+			groups = "i2c0_0";
+		};
+	};
 
-        pcm_pins: pcm-pins-g0 {
-                mux {
-                        function = "pcm";
-                        groups = "pcm";
-                };
-        };
+	pcm_pins: pcm-pins-g0 {
+		mux {
+			function = "pcm";
+			groups = "pcm";
+		};
+	};
 
-        pwm0_pin: pwm0-pin-g0 {
-                mux {
-                        function = "pwm";
-                        groups = "pwm0_0";
-                };
-        };
+	pwm0_pin: pwm0-pin-g0 {
+		mux {
+			function = "pwm";
+			groups = "pwm0_0";
+		};
+	};
 
-        pwm1_pin: pwm1-pin-g0 {
-                mux {
-                        function = "pwm";
-                        groups = "pwm1_0";
-                };
-        };
+	pwm1_pin: pwm1-pin-g0 {
+		mux {
+			function = "pwm";
+			groups = "pwm1_0";
+		};
+	};
 
-        pwm2_pin: pwm2-pin {
-                mux {
-                        function = "pwm";
-                        groups = "pwm2";
-                };
-        };
+	pwm2_pin: pwm2-pin {
+		mux {
+			function = "pwm";
+			groups = "pwm2";
+		};
+	};
 
 	spi0_flash_pins: spi0-pins {
 		mux {
@@ -282,23 +283,23 @@
 	};
 
 	uart1_pins: uart1-pins-g1 {
-                mux {
-                        function = "uart";
-                        groups = "uart1_1";
-                };
-        };
+		mux {
+			function = "uart";
+			groups = "uart1_1";
+		};
+	};
 
 	uart2_pins: uart2-pins-g1 {
 		mux {
-                        function = "uart";
-                        groups = "uart2_1";
-                };
-        };
+			function = "uart";
+			groups = "uart2_1";
+		};
+	};
 };
 
 &xhci {
 	mediatek,u3p-dis-msk = <0x0>;
 	phys = <&u2port0 PHY_TYPE_USB2>,
-	       <&u3port0 PHY_TYPE_USB3>;
+		   <&u3port0 PHY_TYPE_USB3>;
 	status = "okay";
 };

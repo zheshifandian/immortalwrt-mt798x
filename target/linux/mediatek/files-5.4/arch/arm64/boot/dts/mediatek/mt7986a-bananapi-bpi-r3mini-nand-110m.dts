@@ -6,12 +6,12 @@
 	model = "Bananapi BPI-R3MINI 110M Layout";
 	compatible = "bananapi,bpi-r3mini", "mediatek,mt7986a";
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
-				earlycon=uart8250,mmio32,0x11002000";
+		bootargs = "console=ttyS0,115200n1 earlycon=uart8250,mmio32,0x11002000";
 	};
 
-	memory {
+	memory@40000000 {
 		reg = <0 0x40000000 0 0x10000000>;
+		device_type = "memory";
 	};
 
 	reg_1p8v: regulator-1p8v {
@@ -36,9 +36,9 @@
 		compatible = "mediatek,mt7986-wm8960-machine";
 		mediatek,platform = <&afe>;
 		audio-routing = "Headphone", "HP_L",
-				"Headphone", "HP_R",
-				"LINPUT1", "AMIC",
-				"RINPUT1", "AMIC";
+						"Headphone", "HP_R",
+						"LINPUT1", "AMIC",
+						"RINPUT1", "AMIC";
 		mediatek,audio-codec = <&wm8960>;
 		status = "okay";
 	};
@@ -72,14 +72,14 @@
 	status = "okay";
 
 	/* MAC Address EEPROM */
-        eeprom@50 {
-                compatible = "atmel,24c02";
-                reg = <0x50>;
+	eeprom@50 {
+		compatible = "atmel,24c02";
+		reg = <0x50>;
 
-                address-bits = <8>;
-                page-size = <8>;
-                size = <256>;
-        }; 
+		address-bits = <8>;
+		page-size = <8>;
+		size = <256>;
+	};
 
 	wm8960: wm8960@1a {
 		compatible = "wlf,wm8960";
@@ -102,7 +102,7 @@
 		compatible = "mediatek,eth-mac";
 		reg = <0>;
 		phy-mode = "2500base-x";
-		
+
 		fixed-link {
 			speed = <2500>;
 			full-duplex;
@@ -114,12 +114,12 @@
 		compatible = "mediatek,eth-mac";
 		reg = <1>;
 		phy-mode = "2500base-x";
-		
+
 		fixed-link {
 			speed = <2500>;
 			full-duplex;
 			pause;
-		}; 
+		};
 	};
 
 	mdio: mdio-bus {
@@ -195,21 +195,21 @@
 };
 
 &mmc0 {
-        pinctrl-names = "default", "state_uhs";
-        pinctrl-0 = <&mmc0_pins_default>;
-        pinctrl-1 = <&mmc0_pins_uhs>;
-        bus-width = <8>;
-        max-frequency = <200000000>;
-        cap-mmc-highspeed;
-        mmc-hs200-1_8v;
-        mmc-hs400-1_8v;
-        hs400-ds-delay = <0x14014>;
-        vmmc-supply = <&reg_3p3v>;
-        vqmmc-supply = <&reg_1p8v>;
-        non-removable;
-        no-sd;
-        no-sdio;
-        status = "okay";
+	pinctrl-names = "default", "state_uhs";
+	pinctrl-0 = <&mmc0_pins_default>;
+	pinctrl-1 = <&mmc0_pins_uhs>;
+	bus-width = <8>;
+	max-frequency = <200000000>;
+	cap-mmc-highspeed;
+	mmc-hs200-1_8v;
+	mmc-hs400-1_8v;
+	hs400-ds-delay = <0x14014>;
+	vmmc-supply = <&reg_3p3v>;
+	vqmmc-supply = <&reg_1p8v>;
+	non-removable;
+	no-sd;
+	no-sdio;
+	status = "okay";
 };
 
 &pcie0 {
@@ -227,63 +227,63 @@
 };
 
 &pio {
-        mmc0_pins_default: mmc0-pins-50-to-61-default {
-                mux {
-                        function = "flash";
-                        groups = "emmc_51";
-                };
-                conf-cmd-dat {
-                        pins = "EMMC_DATA_0", "EMMC_DATA_1", "EMMC_DATA_2",
-                               "EMMC_DATA_3", "EMMC_DATA_4", "EMMC_DATA_5",
-                               "EMMC_DATA_6", "EMMC_DATA_7", "EMMC_CMD";
-                        input-enable;
-                        drive-strength = <MTK_DRIVE_4mA>;
-                        mediatek,pull-up-adv = <1>;     /* pull-up 10K */
-                };
-                conf-clk {
-                        pins = "EMMC_CK";
-                        drive-strength = <MTK_DRIVE_6mA>;
-                        mediatek,pull-down-adv = <2>;   /* pull-down 50K */
-                };
-                conf-ds {
-                        pins = "EMMC_DSL";
-                        mediatek,pull-down-adv = <2>;   /* pull-down 50K */
-                };
-                conf-rst {
-                        pins = "EMMC_RSTB";
-                        drive-strength = <MTK_DRIVE_4mA>;
-                        mediatek,pull-up-adv = <1>;     /* pull-up 10K */
-                };
-        };
+	mmc0_pins_default: mmc0-pins-50-to-61-default {
+		mux {
+			function = "flash";
+			groups = "emmc_51";
+		};
+		conf-cmd-dat {
+			pins = "EMMC_DATA_0", "EMMC_DATA_1", "EMMC_DATA_2",
+				   "EMMC_DATA_3", "EMMC_DATA_4", "EMMC_DATA_5",
+				   "EMMC_DATA_6", "EMMC_DATA_7", "EMMC_CMD";
+			input-enable;
+			drive-strength = <MTK_DRIVE_4mA>;
+			mediatek,pull-up-adv = <1>;     /* pull-up 10K */
+		};
+		conf-clk {
+			pins = "EMMC_CK";
+			drive-strength = <MTK_DRIVE_6mA>;
+			mediatek,pull-down-adv = <2>;     /* pull-down 50K */
+		};
+		conf-ds {
+			pins = "EMMC_DSL";
+			mediatek,pull-down-adv = <2>;     /* pull-down 50K */
+		};
+		conf-rst {
+			pins = "EMMC_RSTB";
+			drive-strength = <MTK_DRIVE_4mA>;
+			mediatek,pull-up-adv = <1>;     /* pull-up 10K */
+		};
+	};
 
-        mmc0_pins_uhs: mmc0-pins-50-to-61-uhs {
-                mux {
-                        function = "flash";
-                        groups = "emmc_51";
-                };
-                conf-cmd-dat {
-                        pins = "EMMC_DATA_0", "EMMC_DATA_1", "EMMC_DATA_2",
-                               "EMMC_DATA_3", "EMMC_DATA_4", "EMMC_DATA_5",
-                               "EMMC_DATA_6", "EMMC_DATA_7", "EMMC_CMD";
-                        input-enable;
-                        drive-strength = <MTK_DRIVE_4mA>;
-                        mediatek,pull-up-adv = <1>;     /* pull-up 10K */
-                };
-                conf-clk {
-                        pins = "EMMC_CK";
-                        drive-strength = <MTK_DRIVE_6mA>;
-                        mediatek,pull-down-adv = <2>;   /* pull-down 50K */
-                };
-                conf-ds {
-                        pins = "EMMC_DSL";
-                        mediatek,pull-down-adv = <2>;   /* pull-down 50K */
-                };
-                conf-rst {
-                        pins = "EMMC_RSTB";
-                        drive-strength = <MTK_DRIVE_4mA>;
-                        mediatek,pull-up-adv = <1>;     /* pull-up 10K */
-                };
-        };
+	mmc0_pins_uhs: mmc0-pins-50-to-61-uhs {
+		mux {
+			function = "flash";
+			groups = "emmc_51";
+		};
+		conf-cmd-dat {
+			pins = "EMMC_DATA_0", "EMMC_DATA_1", "EMMC_DATA_2",
+				   "EMMC_DATA_3", "EMMC_DATA_4", "EMMC_DATA_5",
+				   "EMMC_DATA_6", "EMMC_DATA_7", "EMMC_CMD";
+			input-enable;
+			drive-strength = <MTK_DRIVE_4mA>;
+			mediatek,pull-up-adv = <1>;     /* pull-up 10K */
+		};
+		conf-clk {
+			pins = "EMMC_CK";
+			drive-strength = <MTK_DRIVE_6mA>;
+			mediatek,pull-down-adv = <2>;     /* pull-down 50K */
+		};
+		conf-ds {
+			pins = "EMMC_DSL";
+			mediatek,pull-down-adv = <2>;     /* pull-down 50K */
+		};
+		conf-rst {
+			pins = "EMMC_RSTB";
+			drive-strength = <MTK_DRIVE_4mA>;
+			mediatek,pull-up-adv = <1>;     /* pull-up 10K */
+		};
+	};
 
 	spi_flash_pins: spi-flash-pins-33-to-38 {
 		mux {
@@ -309,12 +309,12 @@
 		};
 		conf {
 			pins = "WF0_HB1", "WF0_HB2", "WF0_HB3", "WF0_HB4",
-			       "WF0_HB0", "WF0_HB0_B", "WF0_HB5", "WF0_HB6",
-			       "WF0_HB7", "WF0_HB8", "WF0_HB9", "WF0_HB10",
-			       "WF0_TOP_CLK", "WF0_TOP_DATA", "WF1_HB1",
-			       "WF1_HB2", "WF1_HB3", "WF1_HB4", "WF1_HB0",
-			       "WF1_HB5", "WF1_HB6", "WF1_HB7", "WF1_HB8",
-			       "WF1_TOP_CLK", "WF1_TOP_DATA";
+				   "WF0_HB0", "WF0_HB0_B", "WF0_HB5", "WF0_HB6",
+				   "WF0_HB7", "WF0_HB8", "WF0_HB9", "WF0_HB10",
+				   "WF0_TOP_CLK", "WF0_TOP_DATA", "WF1_HB1",
+				   "WF1_HB2", "WF1_HB3", "WF1_HB4", "WF1_HB0",
+				   "WF1_HB5", "WF1_HB6", "WF1_HB7", "WF1_HB8",
+				   "WF1_TOP_CLK", "WF1_TOP_DATA";
 			drive-strength = <MTK_DRIVE_4mA>;
 		};
 	};
@@ -326,12 +326,12 @@
 		};
 		conf {
 			pins = "WF0_HB1", "WF0_HB2", "WF0_HB3", "WF0_HB4",
-			       "WF0_HB0", "WF0_HB0_B", "WF0_HB5", "WF0_HB6",
-			       "WF0_HB7", "WF0_HB8", "WF0_HB9", "WF0_HB10",
-			       "WF0_TOP_CLK", "WF0_TOP_DATA", "WF1_HB1",
-			       "WF1_HB2", "WF1_HB3", "WF1_HB4", "WF1_HB0",
-			       "WF1_HB5", "WF1_HB6", "WF1_HB7", "WF1_HB8",
-			       "WF1_TOP_CLK", "WF1_TOP_DATA";
+				   "WF0_HB0", "WF0_HB0_B", "WF0_HB5", "WF0_HB6",
+				   "WF0_HB7", "WF0_HB8", "WF0_HB9", "WF0_HB10",
+				   "WF0_TOP_CLK", "WF0_TOP_DATA", "WF1_HB1",
+				   "WF1_HB2", "WF1_HB3", "WF1_HB4", "WF1_HB0",
+				   "WF1_HB5", "WF1_HB6", "WF1_HB7", "WF1_HB8",
+				   "WF1_TOP_CLK", "WF1_TOP_DATA";
 			drive-strength = <MTK_DRIVE_4mA>;
 		};
 	};

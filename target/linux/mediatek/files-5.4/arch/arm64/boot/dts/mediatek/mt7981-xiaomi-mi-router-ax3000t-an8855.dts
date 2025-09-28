@@ -3,7 +3,7 @@
 /dts-v1/;
 #include "mt7981-xiaomi-mi-router-ax3000t.dts"
 
-/ { 
+/ {
 	model = "Xiaomi Mi Router AX3000T with AN8855";
 	compatible = "xiaomi,mi-router-ax3000t-an8855", "mediatek,mt7981";
 };

@@ -5,13 +5,14 @@
 	model = "MediaTek MT7986a RFB";
 	compatible = "mediatek,mt7986a-emmc-rfb";
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
-				earlycon=uart8250,mmio32,0x11002000 \
-				root=PARTLABEL=rootfs rootwait rootfstype=squashfs,f2fs";
+		bootargs = "console=ttyS0,115200n1 loglevel=8 \
+					earlycon=uart8250,mmio32,0x11002000 \
+					root=PARTLABEL=rootfs rootwait rootfstype=squashfs,f2fs";
 	};
 
-	memory {
+	memory@40000000 {
 		reg = <0 0x40000000 0 0x10000000>;
+		device_type = "memory";
 	};
 
 	reg_1p8v: regulator-1p8v {

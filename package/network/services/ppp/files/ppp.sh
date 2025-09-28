@@ -82,13 +82,15 @@ ppp_generic_init_config() {
 	proto_config_add_boolean persist
 	proto_config_add_int maxfail
 	proto_config_add_int holdoff
+	proto_config_add_boolean sourcefilter
+	proto_config_add_boolean delegate
 }
 
 ppp_generic_setup() {
 	local config="$1"; shift
 	local localip
 
-	json_get_vars ipv6 ip6table demand keepalive keepalive_adaptive username password pppd_options pppname unnumbered persist maxfail holdoff peerdns
+	json_get_vars ipv6 ip6table demand keepalive keepalive_adaptive username password pppd_options pppname unnumbered persist maxfail holdoff peerdns sourcefilter delegate
 
 	if [ "$ipv6" = 0 ]; then
 		ipv6=""
@@ -131,6 +133,8 @@ ppp_generic_setup() {
 	[ "${keepalive_adaptive:-1}" -lt 1 ] && lcp_adaptive=""
 	[ -n "$connect" ] || json_get_var connect connect
 	[ -n "$disconnect" ] || json_get_var disconnect disconnect
+	[ "$sourcefilter" = "0" ] || sourcefilter=""
+	[ "$delegate" != "0" ] && delegate=""
 
 	proto_run_command "$config" /usr/sbin/pppd \
 		nodetach ipparam "$config" \
@@ -138,10 +142,11 @@ ppp_generic_setup() {
 		${localip:+$localip:} \
 		${lcp_failure:+lcp-echo-interval $lcp_interval lcp-echo-failure $lcp_failure $lcp_adaptive} \
 		${ipv6:++ipv6} \
-		${ipv6:-noipv6} \
 		${autoipv6:+set AUTOIPV6=1} \
 		${ip6table:+set IP6TABLE=$ip6table} \
 		${peerdns:+set PEERDNS=$peerdns} \
+		${sourcefilter:+set NOSOURCEFILTER=1} \
+		${delegate:+set DELEGATE=0} \
 		nodefaultroute \
 		usepeerdns \
 		$demand $persist maxfail $maxfail \
@@ -219,9 +224,7 @@ proto_pppoe_setup() {
 	local config="$1"
 	local iface="$2"
 
-	for module in slhc ppp_generic pppox pppoe; do
-		/sbin/insmod $module 2>&- >&-
-	done
+	/sbin/modprobe -qa slhc ppp_generic pppox pppoe
 
 	json_get_var mtu mtu
 	mtu="${mtu:-1492}"
@@ -242,7 +245,7 @@ proto_pppoe_setup() {
 
 	ppp_generic_setup "$config" \
 		$syncppp_option \
-		plugin rp-pppoe.so \
+		plugin pppoe.so \
 		${ac:+rp_pppoe_ac "$ac"} \
 		${service:+rp_pppoe_service "$service"} \
 		${host_uniq:+host-uniq "$host_uniq"} \
@@ -270,9 +273,7 @@ proto_pppoa_setup() {
 	local config="$1"
 	local iface="$2"
 
-	for module in slhc ppp_generic pppox pppoatm; do
-		/sbin/insmod $module 2>&- >&-
-	done
+	/sbin/modprobe -qa slhc ppp_generic pppox pppoatm
 
 	json_get_vars atmdev vci vpi encaps
 
@@ -319,13 +320,8 @@ proto_pptp_setup() {
 		exit 1
 	}
 
-	local load
-	for module in slhc ppp_generic ppp_async ppp_mppe ip_gre gre pptp; do
-		grep -q "^$module " /proc/modules && continue
-		/sbin/insmod $module 2>&- >&-
-		load=1
-	done
-	[ "$load" = "1" ] && sleep 1
+	/sbin/modprobe -qa slhc ppp_generic ppp_async ppp_mppe ip_gre gre pptp
+	sleep 1
 
 	ppp_generic_setup "$config" \
 		plugin pptp.so \
@@ -339,8 +335,7 @@ proto_pptp_teardown() {
 
 [ -n "$INCLUDE_ONLY" ] || {
 	add_protocol ppp
-	[ -f /usr/lib/pppd/*/rp-pppoe.so ] && add_protocol pppoe
+	[ -f /usr/lib/pppd/*/pppoe.so ] && add_protocol pppoe
 	[ -f /usr/lib/pppd/*/pppoatm.so ] && add_protocol pppoa
 	[ -f /usr/lib/pppd/*/pptp.so ] && add_protocol pptp
 }
-

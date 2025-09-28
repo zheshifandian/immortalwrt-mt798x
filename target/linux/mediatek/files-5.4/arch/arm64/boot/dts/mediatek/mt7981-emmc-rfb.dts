@@ -4,14 +4,15 @@
 	model = "MediaTek MT7981 RFB";
 	compatible = "mediatek,mt7981-emmc-rfb";
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
-				earlycon=uart8250,mmio32,0x11002000 \
-				root=PARTLABEL=rootfs rootfstype=squashfs,f2fs";
+		bootargs = "console=ttyS0,115200n1 loglevel=8 \
+					earlycon=uart8250,mmio32,0x11002000 \
+					root=PARTLABEL=rootfs rootfstype=squashfs,f2fs";
 	};
 
-	memory {
+	memory@40000000 {
 		// fpga ddr2: 128MB*2
 		reg = <0 0x40000000 0 0x10000000>;
+		device_type = "memory";
 	};
 
 	reg_3p3v: regulator-3p3v {
@@ -33,15 +34,15 @@
 };
 
 &mmc0 {
-         pinctrl-names = "default", "state_uhs";
-         pinctrl-0 = <&mmc0_pins_default>;
-         pinctrl-1 = <&mmc0_pins_uhs>;
-         bus-width = <8>;
-         max-frequency = <52000000>;
-         cap-mmc-highspeed;
-         vmmc-supply = <&reg_3p3v>;
-         non-removable;
-         status = "okay";
+	pinctrl-names = "default", "state_uhs";
+	pinctrl-0 = <&mmc0_pins_default>;
+	pinctrl-1 = <&mmc0_pins_uhs>;
+	bus-width = <8>;
+	max-frequency = <52000000>;
+	cap-mmc-highspeed;
+	vmmc-supply = <&reg_3p3v>;
+	non-removable;
+	status = "okay";
 };
 
 &eth {

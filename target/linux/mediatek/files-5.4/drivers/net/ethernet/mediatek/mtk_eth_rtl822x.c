@@ -141,7 +141,7 @@ void mtk_soc_mmd_write(int phyad, int devad, int regad, int val)
 static int rtl822x_init(struct mtk_eth *eth, int addr)
 {
 	u32 val;
-	
+
 	val = mtk_mmd_read(eth, addr, 30, 0x75F3);
 	val &= ~(1 << 0);
 	mtk_mmd_write(eth, addr, 30, 0x75F3, val);
@@ -168,7 +168,7 @@ static int rtl822x_init(struct mtk_eth *eth, int addr)
 	mtk_mmd_write(eth, addr, 31, 0xd044, 0xf8);
 
 	msleep(500);
-    	
+
 	dev_info(eth->dev, "RTL822x init success!\n");
 
 	Rtl8226b_phy_init((HANDLE){eth, addr}, NULL, 1);
@@ -235,20 +235,20 @@ int mtk_soc_extphy_init(struct mtk_eth *eth, int addr)
 	{
 		extphy = &extphy_tbl[i];
 		if (extphy->is_c45)
-		{	
+		{
 			phy_id = get_cl45_phy_id(eth, addr);
-		
+
 		}
 		else
-		{	
+		{
 			phy_id = get_cl22_phy_id(eth, addr);
-			
+
 		}
 
 		if (phy_id_is_match(phy_id, extphy))
 			{extphy->init(eth, addr);}
-		
-	 	
+
+
 	}
 
 	return 0;

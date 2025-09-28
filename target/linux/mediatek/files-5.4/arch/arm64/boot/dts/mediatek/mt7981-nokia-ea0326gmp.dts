@@ -18,11 +18,13 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8 earlycon=uart8250,mmio32,0x11002000";
+		bootargs = "console=ttyS0,115200n1 loglevel=8 \
+		earlycon=uart8250,mmio32,0x11002000";
 	};
 
 	memory@40000000 {
 		reg = <0 0x40000000 0 0x10000000>;
+		device_type = "memory";
 	};
 
 	gpio-keys {
@@ -194,10 +196,10 @@
 };
 
 &hnat {
-        mtketh-wan = "eth1";
-        mtketh-lan = "eth0";
-        mtketh-max-gmac = <2>;
-        status = "okay";
+	mtketh-wan = "eth1";
+	mtketh-lan = "eth0";
+	mtketh-max-gmac = <2>;
+	status = "okay";
 };
 
 &spi0 {

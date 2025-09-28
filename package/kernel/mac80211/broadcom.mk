@@ -43,7 +43,7 @@ ifneq ($(CONFIG_B43_FW_6_30),)
   PKG_B43_FWV4_VERSION:=6.30.163.46
   PKG_B43_FWV4_OBJECT:=$(PKG_B43_FWV4_NAME)-$(PKG_B43_FWV4_VERSION).wl_apsta.o
   PKG_B43_FWV4_SOURCE:=$(PKG_B43_FWV4_NAME)-$(PKG_B43_FWV4_VERSION).tar.bz2
-  PKG_B43_FWV4_SOURCE_URL:=http://www.lwfinger.com/b43-firmware/
+  PKG_B43_FWV4_SOURCE_URL:=https://www.lwfinger.com/b43-firmware/
   PKG_B43_FWV4_HASH:=a07c3b6b277833c7dbe61daa511f908cd66c5e2763eb7a0859abc36cd9335c2d
 else
 ifneq ($(CONFIG_B43_FW_5_10),)
@@ -67,7 +67,7 @@ ifneq ($(CONFIG_B43_FW_5_100_138),)
   PKG_B43_FWV4_VERSION:=5.100.138
   PKG_B43_FWV4_OBJECT:=$(PKG_B43_FWV4_NAME)-$(PKG_B43_FWV4_VERSION)/linux/wl_apsta.o
   PKG_B43_FWV4_SOURCE:=$(PKG_B43_FWV4_NAME)-$(PKG_B43_FWV4_VERSION).tar.bz2
-  PKG_B43_FWV4_SOURCE_URL:=http://www.lwfinger.com/b43-firmware/
+  PKG_B43_FWV4_SOURCE_URL:=https://www.lwfinger.com/b43-firmware/
   PKG_B43_FWV4_HASH:=f1e7067aac5b62b67b8b6e4c517990277804339ac16065eb13c731ff909ae46f
 else
   PKG_B43_FWV4_NAME:=broadcom-wl
@@ -85,7 +85,7 @@ ifneq ($(CONFIG_B43_OPENFIRMWARE),)
   PKG_B43_FWV4_VERSION:=5.2
   PKG_B43_FWV4_OBJECT:=openfwwf-$(PKG_B43_FWV4_VERSION)
   PKG_B43_FWV4_SOURCE:=openfwwf-$(PKG_B43_FWV4_VERSION).tar.gz
-  PKG_B43_FWV4_SOURCE_URL:=http://netweb.ing.unibs.it/~openfwwf/firmware
+  PKG_B43_FWV4_SOURCE_URL:=https://netweb.ing.unibs.it/~openfwwf/firmware
   PKG_B43_FWV4_HASH:=9de03320083201080b2e94b81637ac07a159cf4e6f3481383e1a217e627bc0dc
 endif
 
@@ -387,7 +387,7 @@ PKG_BRCMSMAC_FW_NAME:=broadcom-wl
 PKG_BRCMSMAC_FW_VERSION:=5.100.138
 PKG_BRCMSMAC_FW_OBJECT:=$(PKG_BRCMSMAC_FW_NAME)-$(PKG_BRCMSMAC_FW_VERSION)/linux/wl_apsta.o
 PKG_BRCMSMAC_FW_SOURCE:=$(PKG_BRCMSMAC_FW_NAME)-$(PKG_BRCMSMAC_FW_VERSION).tar.bz2
-PKG_BRCMSMAC_FW_SOURCE_URL:=http://www.lwfinger.com/b43-firmware/
+PKG_BRCMSMAC_FW_SOURCE_URL:=https://www.lwfinger.com/b43-firmware/
 PKG_BRCMSMAC_FW_HASH:=f1e7067aac5b62b67b8b6e4c517990277804339ac16065eb13c731ff909ae46f
 
 define Download/brcmsmac

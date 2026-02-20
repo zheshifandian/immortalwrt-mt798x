@@ -36,33 +36,33 @@
 
 #include "LzmaDecode.h"
 
-#define KSEG0			0x80000000
-#define KSEG1			0xa0000000
+#define KSEG0 0x80000000
+#define KSEG1 0xa0000000
 
-#define KSEG1ADDR(a)		((((unsigned)(a)) & 0x1fffffffU) | KSEG1)
+#define KSEG1ADDR(a) ((((unsigned)(a)) & 0x1fffffffU) | KSEG1)
 
-#define Index_Invalidate_I	0x00
-#define Index_Writeback_Inv_D   0x01
+#define Index_Invalidate_I 0x00
+#define Index_Writeback_Inv_D 0x01
 
-#define cache_unroll(base,op)	\
-	__asm__ __volatile__(		\
-		".set noreorder;\n"		\
-		".set mips3;\n"			\
-		"cache %1, (%0);\n"		\
-		".set mips0;\n"			\
-		".set reorder\n"		\
-		:						\
-		: "r" (base),			\
-		  "i" (op));
-
+#define cache_unroll(base, op) \
+	__asm__ __volatile__(      \
+		".set noreorder;\n"    \
+		".set mips3;\n"        \
+		"cache %1, (%0);\n"    \
+		".set mips0;\n"        \
+		".set reorder\n"       \
+		:                      \
+		: "r"(base),           \
+		  "i"(op));
 
 static __inline__ void blast_icache(unsigned long size, unsigned long lsize)
 {
 	unsigned long start = KSEG0;
 	unsigned long end = (start + size);
 
-	while(start < end) {
-		cache_unroll(start,Index_Invalidate_I);
+	while (start < end)
+	{
+		cache_unroll(start, Index_Invalidate_I);
 		start += lsize;
 	}
 }
@@ -72,8 +72,9 @@ static __inline__ void blast_dcache(unsigned long size, unsigned long lsize)
 	unsigned long start = KSEG0;
 	unsigned long end = (start + size);
 
-	while(start < end) {
-		cache_unroll(start,Index_Writeback_Inv_D);
+	while (start < end)
+	{
+		cache_unroll(start, Index_Writeback_Inv_D);
 		start += lsize;
 	}
 }
@@ -92,11 +93,11 @@ static __inline__ unsigned char get_byte(void)
 {
 	unsigned char *buffer;
 	UInt32 fake;
-	
+
 	return read_byte(0, &buffer, &fake), *buffer;
 }
 
-/* This puts lzma workspace 128k below RAM end. 
+/* This puts lzma workspace 128k below RAM end.
  * That should be enough for both lzma and stack
  */
 static char *buffer = (char *)(RAMSTART + RAMSIZE - 0x00020000);
@@ -104,18 +105,18 @@ extern char lzma_start[];
 extern char lzma_end[];
 
 /* should be the first function */
-void entry(unsigned long icache_size, unsigned long icache_lsize, 
-	unsigned long dcache_size, unsigned long dcache_lsize)
+void entry(unsigned long icache_size, unsigned long icache_lsize,
+		   unsigned long dcache_size, unsigned long dcache_lsize)
 {
-	unsigned int i;  /* temp value */
+	unsigned int i;		/* temp value */
 	unsigned int osize; /* uncompressed size */
 	volatile unsigned int arg0, arg1, arg2, arg3;
 
 	/* restore argument registers */
-	__asm__ __volatile__ ("ori %0, $12, 0":"=r"(arg0));
-	__asm__ __volatile__ ("ori %0, $13, 0":"=r"(arg1));
-	__asm__ __volatile__ ("ori %0, $14, 0":"=r"(arg2));
-	__asm__ __volatile__ ("ori %0, $15, 0":"=r"(arg3));
+	__asm__ __volatile__("ori %0, $12, 0" : "=r"(arg0));
+	__asm__ __volatile__("ori %0, $13, 0" : "=r"(arg1));
+	__asm__ __volatile__("ori %0, $14, 0" : "=r"(arg2));
+	__asm__ __volatile__("ori %0, $15, 0" : "=r"(arg3));
 
 	ILzmaInCallback callback;
 	CLzmaDecoderState vs;
@@ -136,22 +137,22 @@ void entry(unsigned long icache_size, unsigned long icache_lsize,
 
 	/* read the lower half of uncompressed size in the header */
 	osize = ((unsigned int)get_byte()) +
-		((unsigned int)get_byte() << 8) +
-		((unsigned int)get_byte() << 16) +
-		((unsigned int)get_byte() << 24);
+			((unsigned int)get_byte() << 8) +
+			((unsigned int)get_byte() << 16) +
+			((unsigned int)get_byte() << 24);
 
 	/* skip rest of the header (upper half of uncompressed size) */
-	for (i = 0; i < 4; i++) 
+	for (i = 0; i < 4; i++)
 		get_byte();
 
 	/* decompress kernel */
 	if ((i = LzmaDecode(&vs, &callback,
-	(unsigned char*)KERNEL_ENTRY, osize, &osize)) == LZMA_RESULT_OK)
+						(unsigned char *)KERNEL_ENTRY, osize, &osize)) == LZMA_RESULT_OK)
 	{
 		blast_dcache(dcache_size, dcache_lsize);
 		blast_icache(icache_size, icache_lsize);
 
 		/* Jump to load address */
-		((void (*)(int a0, int a1, int a2, int a3)) KERNEL_ENTRY)(arg0, arg1, arg2, arg3);
+		((void (*)(int a0, int a1, int a2, int a3))KERNEL_ENTRY)(arg0, arg1, arg2, arg3);
 	}
 }

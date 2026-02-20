@@ -1,6 +1,6 @@
 --- a/mt_wifi/embedded/common/cmm_info.c
 +++ b/mt_wifi/embedded/common/cmm_info.c
-@@ -7157,21 +7157,104 @@ USHORT RTMPGetLastTxRate(PRTMP_ADAPTER p
+@@ -7158,21 +7158,104 @@ USHORT RTMPGetLastTxRate(PRTMP_ADAPTER p
  		lastTxRate.field.MCS = getLegacyOFDMMCSIndex(rTxStatResult.rEntryTxRate.MCS) & 0x0000003F;
  	else
  		lastTxRate.field.MCS = rTxStatResult.rEntryTxRate.MCS;
@@ -108,7 +108,7 @@
  
  #ifdef RACTRL_FW_OFFLOAD_SUPPORT
  	MtCmdPhyGetRxRate(pAd, CMD_PHY_STATE_CONTENTION_RX_PHYRATE, ucBand, pEntry->wcid, &rRxStatResult);
-@@ -7199,11 +7282,11 @@ VOID RTMPIoctlGetMacTableStaInfo(
+@@ -7200,11 +7283,11 @@ VOID RTMPIoctlGetMacTableStaInfo(
  {
  	INT i;
  	BOOLEAN need_send = FALSE;
@@ -123,7 +123,7 @@
  	CHAR rssi[4] = {-127, -127, -127, -127};
  
  	if (pMacTab == NULL) {
-@@ -7211,7 +7294,7 @@ VOID RTMPIoctlGetMacTableStaInfo(
+@@ -7212,7 +7295,7 @@ VOID RTMPIoctlGetMacTableStaInfo(
  		return;
  	}
  
@@ -132,7 +132,7 @@
  
  	for (i = 0; VALID_UCAST_ENTRY_WCID(pAd, i); i++) {
  		pEntry = &(pAd->MacTab.Content[i]);
-@@ -7244,8 +7327,8 @@ VOID RTMPIoctlGetMacTableStaInfo(
+@@ -7241,8 +7324,8 @@ VOID RTMPIoctlGetMacTableStaInfo(
  			pDst->AvgRssi3 = rssi[3];
  			/* the connected time per entry*/
  			pDst->ConnectedTime = pEntry->StaConnectTime;
@@ -143,7 +143,7 @@
  			pMacTab->Num += 1;
  			/* Add to avoid Array cross board */
  			if (pMacTab->Num >= MAX_LEN_OF_MAC_TABLE)
-@@ -7254,7 +7337,7 @@ VOID RTMPIoctlGetMacTableStaInfo(
+@@ -7251,7 +7334,7 @@ VOID RTMPIoctlGetMacTableStaInfo(
  		}
  	}
  

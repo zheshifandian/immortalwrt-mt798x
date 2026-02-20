@@ -30,71 +30,83 @@
 #include <sys/stat.h>
 #include <string.h>
 
-#define DTB_MAX	(16 * 1024)
+#define DTB_MAX (16 * 1024)
 
 int main(int argc, char **argv)
 {
 	int fd, fddtb, found = 0, len, ret = -1;
 	char *ptr, *ptrdtb, *p;
 	struct stat s;
-	unsigned int search_space , dtb_max_size;
+	unsigned int search_space, dtb_max_size;
 
-	if (argc <= 2 || argc > 4) {
+	if (argc <= 2 || argc > 4)
+	{
 		fprintf(stderr, "Usage: %s <file> <dtb> [size]\n", argv[0]);
 		goto err1;
-	} else if (argc == 3) {
+	}
+	else if (argc == 3)
+	{
 		fprintf(stdout, "DT size used is default of 16KB\n");
 		search_space = dtb_max_size = DTB_MAX;
-	} else {
+	}
+	else
+	{
 		search_space = dtb_max_size = atoi(argv[3]);
 	}
 
-	if (stat(argv[2], &s)) {
+	if (stat(argv[2], &s))
+	{
 		fprintf(stderr, "DTB not found\n");
 		goto err1;
 	}
 
 	len = s.st_size;
-	if (len + 8 > dtb_max_size) {
+	if (len + 8 > dtb_max_size)
+	{
 		fprintf(stderr, "DTB too big\n");
 		goto err1;
 	}
 
-        if (((fddtb = open(argv[2], O_RDONLY)) < 0) ||
-		(ptrdtb = (char *) mmap(0, dtb_max_size, PROT_READ, MAP_SHARED, fddtb, 0)) == (void *) (-1)) {
+	if (((fddtb = open(argv[2], O_RDONLY)) < 0) ||
+		(ptrdtb = (char *)mmap(0, dtb_max_size, PROT_READ, MAP_SHARED, fddtb, 0)) == (void *)(-1))
+	{
 		fprintf(stderr, "Could not open DTB");
 		goto err2;
 	}
 
 	if (((fd = open(argv[1], O_RDWR)) < 0) ||
-		(ptr = (char *) mmap(0, search_space + dtb_max_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0)) == (void *) (-1)) {
+		(ptr = (char *)mmap(0, search_space + dtb_max_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)) == (void *)(-1))
+	{
 		fprintf(stderr, "Could not open kernel image");
 		goto err3;
 	}
 
-	for (p = ptr; p < (ptr + search_space); p += 4) {
-		if (memcmp(p, "OWRTDTB:", 8) == 0) {
+	for (p = ptr; p < (ptr + search_space); p += 4)
+	{
+		if (memcmp(p, "OWRTDTB:", 8) == 0)
+		{
 			found = 1;
 			p += 8;
 			break;
 		}
 	}
-	if (!found) {
+	if (!found)
+	{
 		fprintf(stderr, "DTB marker not found!\n");
 		goto err4;
 	}
 
 	memset(p, 0, dtb_max_size - 8);
 	memcpy(p, ptrdtb, len);
-	msync(p, len, MS_SYNC|MS_INVALIDATE);
+	msync(p, len, MS_SYNC | MS_INVALIDATE);
 	ret = 0;
 
 err4:
-	munmap((void *) ptr, len);
+	munmap((void *)ptr, len);
 err3:
 	if (fd > 0)
 		close(fd);
-	munmap((void *) ptrdtb, len);
+	munmap((void *)ptrdtb, len);
 err2:
 	if (fddtb > 0)
 		close(fddtb);

@@ -28,21 +28,25 @@ static unsigned char *pad = eof_mark;
 static int pad_len = sizeof(eof_mark);
 static bool pad_to_stdout = false;
 
-#define ERR(fmt, ...) do { \
-	fflush(0); \
-	fprintf(stderr, "[%s] *** error: " fmt "\n", \
-			progname, ## __VA_ARGS__ ); \
-} while (0)
+#define ERR(fmt, ...)                                \
+	do                                               \
+	{                                                \
+		fflush(0);                                   \
+		fprintf(stderr, "[%s] *** error: " fmt "\n", \
+				progname, ##__VA_ARGS__);            \
+	} while (0)
 
-#define ERRS(fmt, ...) do { \
-	int save = errno; \
-	fflush(0); \
-	fprintf(stderr, "[%s] *** error: " fmt ", %s\n", \
-			progname, ## __VA_ARGS__, strerror(save)); \
-} while (0)
+#define ERRS(fmt, ...)                                    \
+	do                                                    \
+	{                                                     \
+		int save = errno;                                 \
+		fflush(0);                                        \
+		fprintf(stderr, "[%s] *** error: " fmt ", %s\n",  \
+				progname, ##__VA_ARGS__, strerror(save)); \
+	} while (0)
 
-#define BUF_SIZE	(64 * 1024)
-#define ALIGN(_x,_y)	(((_x) + ((_y) - 1)) & ~((_y) - 1))
+#define BUF_SIZE (64 * 1024)
+#define ALIGN(_x, _y) (((_x) + ((_y) - 1)) & ~((_y) - 1))
 
 static int pad_image(char *name, uint32_t pad_mask)
 {
@@ -54,13 +58,15 @@ static int pad_image(char *name, uint32_t pad_mask)
 	int ret = -1;
 
 	buf = malloc(BUF_SIZE);
-	if (!buf) {
+	if (!buf)
+	{
 		ERR("No memory for buffer");
 		goto out;
 	}
 
 	fd = open(name, O_RDWR);
-	if (fd < 0) {
+	if (fd < 0)
+	{
 		ERRS("Unable to open %s", name);
 		goto free_buf;
 	}
@@ -79,12 +85,14 @@ static int pad_image(char *name, uint32_t pad_mask)
 	in_len += xtra_offset;
 
 	out_len = in_len;
-	while (pad_mask) {
+	while (pad_mask)
+	{
 		uint32_t mask;
 		ssize_t t;
 		int i;
 
-		for (i = 10; i < 32; i++) {
+		for (i = 10; i < 32; i++)
+		{
 			mask = 1UL << i;
 			if (pad_mask & mask)
 				break;
@@ -92,15 +100,17 @@ static int pad_image(char *name, uint32_t pad_mask)
 
 		in_len = ALIGN(in_len, mask);
 
-		for (i = 10; i < 32; i++) {
+		for (i = 10; i < 32; i++)
+		{
 			mask = 1UL << i;
 			if ((in_len & (mask - 1)) == 0)
 				pad_mask &= ~mask;
 		}
 
-		fprintf(stderr, "padding image to %08x\n", (unsigned int) in_len - xtra_offset);
+		fprintf(stderr, "padding image to %08x\n", (unsigned int)in_len - xtra_offset);
 
-		while (out_len < in_len) {
+		while (out_len < in_len)
+		{
 			ssize_t len;
 
 			len = in_len - out_len;
@@ -108,7 +118,8 @@ static int pad_image(char *name, uint32_t pad_mask)
 				len = BUF_SIZE;
 
 			t = write(outfd, buf, len);
-			if (t != len) {
+			if (t != len)
+			{
 				ERRS("Unable to write to %s", name);
 				goto close;
 			}
@@ -118,7 +129,8 @@ static int pad_image(char *name, uint32_t pad_mask)
 
 		/* write out the JFFS end-of-filesystem marker */
 		t = write(outfd, pad, pad_len);
-		if (t != pad_len) {
+		if (t != pad_len)
+		{
 			ERRS("Unable to write to %s", name);
 			goto close;
 		}
@@ -138,20 +150,20 @@ out:
 static int usage(void)
 {
 	fprintf(stderr,
-		"Usage: %s file [<options>] [pad0] [pad1] [padN]\n"
-		"Options:\n"
-		"  -x <offset>:          Add an extra offset for padding data\n"
-		"  -J:                   Use a fake big-endian jffs2 padding element instead of EOF\n"
-		"                        This is used to work around broken boot loaders that\n"
-		"                        try to parse the entire firmware area as one big jffs2\n"
-		"  -j:                   (like -J, but little-endian instead of big-endian)\n"
-		"  -c:                   write padding to stdout\n"
-		"\n",
-		progname);
+			"Usage: %s file [<options>] [pad0] [pad1] [padN]\n"
+			"Options:\n"
+			"  -x <offset>:          Add an extra offset for padding data\n"
+			"  -J:                   Use a fake big-endian jffs2 padding element instead of EOF\n"
+			"                        This is used to work around broken boot loaders that\n"
+			"                        try to parse the entire firmware area as one big jffs2\n"
+			"  -j:                   (like -J, but little-endian instead of big-endian)\n"
+			"  -c:                   write padding to stdout\n"
+			"\n",
+			progname);
 	return EXIT_FAILURE;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
 	char *image;
 	uint32_t pad_mask;
@@ -169,12 +181,14 @@ int main(int argc, char* argv[])
 	argc--;
 
 	pad_mask = 0;
-	while ((ch = getopt(argc, argv, "x:Jjc")) != -1) {
-		switch (ch) {
+	while ((ch = getopt(argc, argv, "x:Jjc")) != -1)
+	{
+		switch (ch)
+		{
 		case 'x':
 			xtra_offset = strtoul(optarg, NULL, 0);
 			fprintf(stderr, "assuming %u bytes offset\n",
-				xtra_offset);
+					xtra_offset);
 			break;
 		case 'J':
 			pad = jffs2_pad_be;
@@ -197,7 +211,7 @@ int main(int argc, char* argv[])
 
 	if (pad_mask == 0)
 		pad_mask = (4 * 1024) | (8 * 1024) | (64 * 1024) |
-			   (128 * 1024);
+				   (128 * 1024);
 
 	err = pad_image(image, pad_mask);
 	if (err)

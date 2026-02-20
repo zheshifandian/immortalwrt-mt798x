@@ -1,7 +1,8 @@
 #ifndef __FIS_H
 #define __FIS_H
 
-struct fis_part {
+struct fis_part
+{
 	unsigned char name[16];
 	uint32_t offset;
 	uint32_t loadaddr;

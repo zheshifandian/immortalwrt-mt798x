@@ -32,12 +32,44 @@ xor() {
 	printf "%0${retlen}x" "$ret"
 }
 
+data_2bin() {
+	local data=$1
+	local len=${#1}
+	local bin_data
+
+	for i in $(seq 0 2 $(($len - 1))); do
+		bin_data="${bin_data}\x${data:i:2}"
+	done
+
+	echo -ne $bin_data
+}
+
+data_2xor_val() {
+	local data=$1
+	local len=${#1}
+	local xor_data
+
+	for i in $(seq 0 4 $(($len - 1))); do
+		xor_data="${xor_data}${data:i:4} "
+	done
+
+	echo -n ${xor_data:0:-1}
+}
+
 append() {
 	local var="$1"
 	local value="$2"
 	local sep="${3:- }"
 
 	eval "export ${NO_EXPORT:+-n} -- \"$var=\${$var:+\${$var}\${value:+\$sep}}\$value\""
+}
+
+prepend() {
+	local var="$1"
+	local value="$2"
+	local sep="${3:- }"
+
+	eval "export ${NO_EXPORT:+-n} -- \"$var=\$value\${$var:+\${sep}\${$var}}\""
 }
 
 list_contains() {
@@ -209,10 +241,10 @@ add_group_and_user() {
 	if [ -n "$rusers" ]; then
 		local tuple oIFS="$IFS"
 		for tuple in $rusers; do
-			local uid gid uname gname
+			local uid gid uname gname addngroups addngroup addngname addngid
 
 			IFS=":"
-			set -- $tuple; uname="$1"; gname="$2"
+			set -- $tuple; uname="$1"; gname="$2"; addngroups="$3"
 			IFS="="
 			set -- $uname; uname="$1"; uid="$2"
 			set -- $gname; gname="$1"; gid="$2"
@@ -232,7 +264,24 @@ add_group_and_user() {
 				group_add_user "$gname" "$uname"
 			fi
 
-			unset uid gid uname gname
+			if [ -n "$uname" ] &&  [ -n "$addngroups" ]; then
+				oIFS="$IFS"
+				IFS=","
+				for addngroup in $addngroups ; do
+					IFS="="
+					set -- $addngroup; addngname="$1"; addngid="$2"
+					if [ -n "$addngid" ]; then
+						group_exists "$addngname" || group_add "$addngname" "$addngid"
+					else
+						group_add_next "$addngname"
+					fi
+
+					group_add_user "$addngname" "$uname"
+				done
+				IFS="$oIFS"
+			fi
+
+			unset uid gid uname gname addngroups addngroup addngname addngid
 		done
 	fi
 }
@@ -244,11 +293,6 @@ default_postinst() {
 	local ret=0
 
 	add_group_and_user "${pkgname}"
-
-	if [ -f "$root/usr/lib/opkg/info/${pkgname}.postinst-pkg" ]; then
-		( . "$root/usr/lib/opkg/info/${pkgname}.postinst-pkg" )
-		ret=$?
-	fi
 
 	if [ -d "$root/rootfs-overlay" ]; then
 		cp -R $root/rootfs-overlay/. $root/
@@ -272,11 +316,16 @@ default_postinst() {
 			uci commit
 		fi
 
-		rm -f /tmp/luci-indexcache
+		rm -f /tmp/luci-indexcache.*
+	fi
+
+	if [ -f "$root/usr/lib/opkg/info/${pkgname}.postinst-pkg" ]; then
+		( . "$root/usr/lib/opkg/info/${pkgname}.postinst-pkg" )
+		ret=$?
 	fi
 
 	local shell="$(command -v bash)"
-	for i in $(grep -s "^/etc/init.d/" "$root$filelist"); do
+	for i in $(grep -s "^/etc/init.d/" "$filelist"); do
 		if [ -n "$root" ]; then
 			${shell:-/bin/sh} "$root/etc/rc.common" "$root$i" enable
 		else
@@ -296,6 +345,11 @@ include() {
 	for file in $(ls $1/*.sh 2>/dev/null); do
 		. $file
 	done
+}
+
+ipcalc() {
+	set -- $(ipcalc.sh "$@")
+	[ $? -eq 0 ] && export -- "$@"
 }
 
 find_mtd_index() {
@@ -327,7 +381,7 @@ find_mmc_part() {
 	fi
 
 	for DEVNAME in /sys/block/$ROOTDEV/mmcblk*p*; do
-		PARTNAME="$(grep PARTNAME ${DEVNAME}/uevent | cut -f2 -d'=')"
+		PARTNAME="$(grep PARTNAME ${DEVNAME}/uevent | cut -f2 -d'=' 2>/dev/null)"
 		[ "$PARTNAME" = "$1" ] && echo "/dev/$(basename $DEVNAME)" && return 0
 	done
 }
@@ -354,7 +408,7 @@ group_add_next() {
 		return
 	fi
 	gids=$(cut -d: -f3 ${IPKG_INSTROOT}/etc/group)
-	gid=65536
+	gid=32768
 	while echo "$gids" | grep -q "^$gid$"; do
 		gid=$((gid + 1))
 	done
@@ -369,6 +423,9 @@ group_add_user() {
 	echo "$grp" | grep -q ":$" && delim=""
 	[ -n "$IPKG_INSTROOT" ] || lock /var/lock/passwd
 	sed -i "s/$grp/$grp$delim$2/g" ${IPKG_INSTROOT}/etc/group
+	if [ -z "$IPKG_INSTROOT" ] && [ -x /usr/sbin/selinuxenabled ] && selinuxenabled; then
+		restorecon /etc/group
+	fi
 	[ -n "$IPKG_INSTROOT" ] || lock -u /var/lock/passwd
 }
 
@@ -382,7 +439,7 @@ user_add() {
 	local rc
 	[ -z "$uid" ] && {
 		uids=$(cut -d: -f3 ${IPKG_INSTROOT}/etc/passwd)
-		uid=65536
+		uid=32768
 		while echo "$uids" | grep -q "^$uid$"; do
 			uid=$((uid + 1))
 		done
@@ -403,4 +460,14 @@ board_name() {
 	[ -e /tmp/sysinfo/board_name ] && cat /tmp/sysinfo/board_name || echo "generic"
 }
 
-[ -z "$IPKG_INSTROOT" ] && [ -f /lib/config/uci.sh ] && . /lib/config/uci.sh
+cmdline_get_var() {
+	local var=$1
+	local cmdlinevar tmp
+
+	for cmdlinevar in $(cat /proc/cmdline); do
+		tmp=${cmdlinevar##${var}}
+		[ "=" = "${tmp:0:1}" ] && echo ${tmp:1}
+	done
+}
+
+[ -z "$IPKG_INSTROOT" ] && [ -f /lib/config/uci.sh ] && . /lib/config/uci.sh || true

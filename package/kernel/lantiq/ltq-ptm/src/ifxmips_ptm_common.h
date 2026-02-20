@@ -24,19 +24,15 @@
 #ifndef IFXMIPS_PTM_COMMON_H
 #define IFXMIPS_PTM_COMMON_H
 
-
-
 /*
  * ####################################
  *              Version No.
  * ####################################
  */
 
-#define IFX_PTM_VER_MAJOR               1
-#define IFX_PTM_VER_MID                 0
-#define IFX_PTM_VER_MINOR               27
-
-
+#define IFX_PTM_VER_MAJOR 1
+#define IFX_PTM_VER_MID 0
+#define IFX_PTM_VER_MINOR 27
 
 /*
  * ####################################
@@ -48,55 +44,68 @@
  *  Compile Options
  */
 
-#define ENABLE_DEBUG                    1
+#define ENABLE_DEBUG 1
 
-#define ENABLE_ASSERT                   1
+#define ENABLE_ASSERT 1
 
 #define INLINE
 
-#define DEBUG_DUMP_SKB                  1
+#define DEBUG_DUMP_SKB 1
 
-#define DEBUG_QOS                       1
+#define DEBUG_QOS 1
 
-#define ENABLE_DBG_PROC                 0
+#define ENABLE_DBG_PROC 0
 
-#define ENABLE_FW_PROC                  1
+#define ENABLE_FW_PROC 1
 
 #if defined(CONFIG_DSL_MEI_CPE_DRV) && !defined(CONFIG_IFXMIPS_DSL_CPE_MEI)
-  #define CONFIG_IFXMIPS_DSL_CPE_MEI    1
+#define CONFIG_IFXMIPS_DSL_CPE_MEI 1
 #endif
 
 /*
  *  Debug/Assert/Error Message
  */
 
-#define DBG_ENABLE_MASK_ERR             (1 << 0)
-#define DBG_ENABLE_MASK_DEBUG_PRINT     (1 << 1)
-#define DBG_ENABLE_MASK_ASSERT          (1 << 2)
-#define DBG_ENABLE_MASK_DUMP_SKB_RX     (1 << 8)
-#define DBG_ENABLE_MASK_DUMP_SKB_TX     (1 << 9)
-#define DBG_ENABLE_MASK_DUMP_QOS        (1 << 10)
-#define DBG_ENABLE_MASK_DUMP_INIT       (1 << 11)
-#define DBG_ENABLE_MASK_MAC_SWAP        (1 << 12)
-#define DBG_ENABLE_MASK_ALL             (DBG_ENABLE_MASK_ERR | DBG_ENABLE_MASK_DEBUG_PRINT | DBG_ENABLE_MASK_ASSERT | DBG_ENABLE_MASK_DUMP_SKB_RX | DBG_ENABLE_MASK_DUMP_SKB_TX | DBG_ENABLE_MASK_DUMP_QOS | DBG_ENABLE_MASK_DUMP_INIT | DBG_ENABLE_MASK_MAC_SWAP)
+#define DBG_ENABLE_MASK_ERR (1 << 0)
+#define DBG_ENABLE_MASK_DEBUG_PRINT (1 << 1)
+#define DBG_ENABLE_MASK_ASSERT (1 << 2)
+#define DBG_ENABLE_MASK_DUMP_SKB_RX (1 << 8)
+#define DBG_ENABLE_MASK_DUMP_SKB_TX (1 << 9)
+#define DBG_ENABLE_MASK_DUMP_QOS (1 << 10)
+#define DBG_ENABLE_MASK_DUMP_INIT (1 << 11)
+#define DBG_ENABLE_MASK_MAC_SWAP (1 << 12)
+#define DBG_ENABLE_MASK_ALL (DBG_ENABLE_MASK_ERR | DBG_ENABLE_MASK_DEBUG_PRINT | DBG_ENABLE_MASK_ASSERT | DBG_ENABLE_MASK_DUMP_SKB_RX | DBG_ENABLE_MASK_DUMP_SKB_TX | DBG_ENABLE_MASK_DUMP_QOS | DBG_ENABLE_MASK_DUMP_INIT | DBG_ENABLE_MASK_MAC_SWAP)
 
-#define err(format, arg...)             do { if ( (ifx_ptm_dbg_enable & DBG_ENABLE_MASK_ERR) ) printk(KERN_ERR __FILE__ ":%d:%s: " format "\n", __LINE__, __FUNCTION__, ##arg); } while ( 0 )
+#define err(format, arg...)                                                            \
+  do                                                                                   \
+  {                                                                                    \
+    if ((ifx_ptm_dbg_enable & DBG_ENABLE_MASK_ERR))                                    \
+      printk(KERN_ERR __FILE__ ":%d:%s: " format "\n", __LINE__, __FUNCTION__, ##arg); \
+  } while (0)
 
 #if defined(ENABLE_DEBUG) && ENABLE_DEBUG
-  #undef  dbg
-  #define dbg(format, arg...)           do { if ( (ifx_ptm_dbg_enable & DBG_ENABLE_MASK_DEBUG_PRINT) ) printk(KERN_WARNING __FILE__ ":%d:%s: " format "\n", __LINE__, __FUNCTION__, ##arg); } while ( 0 )
+#undef dbg
+#define dbg(format, arg...)                                                                \
+  do                                                                                       \
+  {                                                                                        \
+    if ((ifx_ptm_dbg_enable & DBG_ENABLE_MASK_DEBUG_PRINT))                                \
+      printk(KERN_WARNING __FILE__ ":%d:%s: " format "\n", __LINE__, __FUNCTION__, ##arg); \
+  } while (0)
 #else
-  #if !defined(dbg)
-    #define dbg(format, arg...)
-  #endif
+#if !defined(dbg)
+#define dbg(format, arg...)
+#endif
 #endif
 
 #if defined(ENABLE_ASSERT) && ENABLE_ASSERT
-  #define ASSERT(cond, format, arg...)  do { if ( (ifx_ptm_dbg_enable & DBG_ENABLE_MASK_ASSERT) && !(cond) ) printk(KERN_ERR __FILE__ ":%d:%s: " format "\n", __LINE__, __FUNCTION__, ##arg); } while ( 0 )
+#define ASSERT(cond, format, arg...)                                                   \
+  do                                                                                   \
+  {                                                                                    \
+    if ((ifx_ptm_dbg_enable & DBG_ENABLE_MASK_ASSERT) && !(cond))                      \
+      printk(KERN_ERR __FILE__ ":%d:%s: " format "\n", __LINE__, __FUNCTION__, ##arg); \
+  } while (0)
 #else
-  #define ASSERT(cond, format, arg...)
+#define ASSERT(cond, format, arg...)
 #endif
 
-
-
-#endif  //  IFXMIPS_PTM_COMMON_H
+#endif //  IFXMIPS_PTM_COMMON_H

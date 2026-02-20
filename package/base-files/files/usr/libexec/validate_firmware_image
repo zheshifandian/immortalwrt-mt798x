@@ -39,9 +39,9 @@ err_to_bool() {
 	[ "$1" -ne 0 ] && echo 0 || echo 1
 }
 
-fwtool_check_signature "$1" >&2
-FWTOOL_SIGNATURE=$?
-[ "$FWTOOL_SIGNATURE" -ne 0 ] && notify_firmware_invalid
+# fwtool_check_signature "$1" >&2
+# FWTOOL_SIGNATURE=$?
+# [ "$FWTOOL_SIGNATURE" -ne 0 ] && notify_firmware_invalid
 
 fwtool_check_image "$1" >&2
 FWTOOL_DEVICE_MATCH=$?

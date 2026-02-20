@@ -2,6 +2,7 @@
 #define __mtd_h
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #if defined(target_bcm47xx) || defined(target_bcm53xx)
 #define target_brcm 1
@@ -12,6 +13,7 @@
 extern int quiet;
 extern int mtdsize;
 extern int erasesize;
+extern uint32_t opt_trxmagic;
 
 extern int mtd_open(const char *mtd, bool block);
 extern int mtd_check_open(const char *mtd);
@@ -23,12 +25,12 @@ extern int mtd_replace_jffs2(const char *mtd, int fd, int ofs, const char *filen
 extern void mtd_parse_jffs2data(const char *buf, const char *dir);
 
 /* target specific functions */
-extern int trx_fixup(int fd, const char *name)  __attribute__ ((weak));
-extern int trx_check(int imagefd, const char *mtd, char *buf, int *len) __attribute__ ((weak));
-extern int mtd_fixtrx(const char *mtd, size_t offset, size_t data_size) __attribute__ ((weak));
-extern int mtd_fixseama(const char *mtd, size_t offset, size_t data_size) __attribute__ ((weak));
-extern int mtd_fixwrg(const char *mtd, size_t offset, size_t data_size) __attribute__ ((weak));
-extern int mtd_fixwrgg(const char *mtd, size_t offset, size_t data_size) __attribute__ ((weak));
-extern int mtd_resetbc(const char *mtd) __attribute__ ((weak));
-extern int mtd_tpl_recoverflag_write(const char *mtd, const bool recovery_active) __attribute__ ((weak));
+extern int trx_fixup(int fd, const char *name) __attribute__((weak));
+extern int trx_check(int imagefd, const char *mtd, char *buf, int *len) __attribute__((weak));
+extern int mtd_fixtrx(const char *mtd, size_t offset, size_t data_size) __attribute__((weak));
+extern int mtd_fixseama(const char *mtd, size_t offset, size_t data_size) __attribute__((weak));
+extern int mtd_fixwrg(const char *mtd, size_t offset, size_t data_size) __attribute__((weak));
+extern int mtd_fixwrgg(const char *mtd, size_t offset, size_t data_size) __attribute__((weak));
+extern int mtd_resetbc(const char *mtd) __attribute__((weak));
+extern int mtd_tpl_recoverflag_write(const char *mtd, const bool recovery_active) __attribute__((weak));
 #endif /* __mtd_h */

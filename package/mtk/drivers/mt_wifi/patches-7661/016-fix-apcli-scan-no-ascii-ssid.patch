@@ -1,5 +1,5 @@
---- a/mt_wifi/os/linux/ap_ioctl.c	2023-12-03 09:29:00.237904279 +0800
-+++ b/mt_wifi/os/linux/ap_ioctl.c	2023-12-03 09:29:11.851634173 +0800
+--- a/mt_wifi/os/linux/ap_ioctl.c
++++ b/mt_wifi/os/linux/ap_ioctl.c
 @@ -979,6 +979,8 @@ INT rt28xx_ap_ioctl(void *net_dev_obj, v
  	case RTPRIV_IOCTL_GSITESURVEY:
  		wdev = pIoctlConfig->wdev;
@@ -9,8 +9,8 @@
  		if ((wdev != NULL) && (wdev->if_up_down_state == FALSE)) {
  			MTWF_DBG(pAd, DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_ERROR,
  				"interface is down, cmd [%x] return!!!\n", cmd);
---- a/mt_wifi/embedded/common/cmm_info.c	2023-12-03 09:29:00.241237726 +0800
-+++ b/mt_wifi/embedded/common/cmm_info.c	2023-12-03 09:30:31.017670696 +0800
+--- a/mt_wifi/embedded/common/cmm_info.c
++++ b/mt_wifi/embedded/common/cmm_info.c
 @@ -6335,7 +6335,8 @@ RTMP_STRING *GetAuthMode(CHAR auth)
  VOID RTMPCommSiteSurveyData(
  	IN  RTMP_STRING *msg,

@@ -1,5 +1,5 @@
---- a/mt_wifi/embedded/common/cmm_info.c	2023-08-25 01:02:11.348135475 +0800
-+++ b/mt_wifi/embedded/common/cmm_info.c	2023-08-25 01:05:43.760179658 +0800
+--- a/mt_wifi/embedded/common/cmm_info.c
++++ b/mt_wifi/embedded/common/cmm_info.c
 @@ -6980,21 +6980,104 @@ USHORT RTMPGetLastTxRate(PRTMP_ADAPTER p
  		lastTxRate.field.MCS = getLegacyOFDMMCSIndex(rTxStatResult.rEntryTxRate.MCS) & 0x0000003F;
  	else

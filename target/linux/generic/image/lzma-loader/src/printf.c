@@ -18,11 +18,14 @@ static void myoutput(void *arg, char *s, int l)
     int i;
 
     // special termination call
-    if ((l==1) && (s[0] == '\0')) return;
-    
-    for (i=0; i< l; i++) {
-	Uart16550Put(s[i]);
-	if (s[i] == '\n') Uart16550Put('\r');
+    if ((l == 1) && (s[0] == '\0'))
+        return;
+
+    for (i = 0; i < l; i++)
+    {
+        Uart16550Put(s[i]);
+        if (s[i] == '\n')
+            Uart16550Put('\r');
     }
 }
 

@@ -1,5 +1,5 @@
---- a/mt_wifi/embedded/common/cmm_info.c	2023-11-23 21:25:14.125168685 +0800
-+++ b/mt_wifi/embedded/common/cmm_info.c	2023-11-24 01:50:15.459446886 +0800
+--- a/mt_wifi/embedded/common/cmm_info.c
++++ b/mt_wifi/embedded/common/cmm_info.c
 @@ -6317,7 +6317,7 @@ RTMP_STRING *GetAuthMode(CHAR auth)
  			3.) UI needs to prepare at least 4096bytes to get the results
      ==========================================================================

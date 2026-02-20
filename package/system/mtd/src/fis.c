@@ -22,7 +22,8 @@
 #include "mtd.h"
 #include "fis.h"
 
-struct fis_image_hdr {
+struct fis_image_hdr
+{
 	unsigned char name[16];
 	uint32_t flash_base;
 	uint32_t mem_base;
@@ -31,12 +32,14 @@ struct fis_image_hdr {
 	uint32_t data_length;
 } __attribute__((packed));
 
-struct fis_image_crc {
+struct fis_image_crc
+{
 	uint32_t desc;
 	uint32_t file;
 } __attribute__((packed));
 
-struct fis_image_desc {
+struct fis_image_desc
+{
 	struct fis_image_hdr hdr;
 	char _pad[256 - sizeof(struct fis_image_hdr) - sizeof(struct fis_image_crc)];
 	struct fis_image_crc crc;
@@ -77,7 +80,7 @@ fis_open(void)
 		goto error;
 
 	fis_erasesize = erasesize;
-	desc = mmap(NULL, erasesize, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_LOCKED, fis_fd, 0);
+	desc = mmap(NULL, erasesize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_LOCKED, fis_fd, 0);
 	if (desc == MAP_FAILED)
 		goto error;
 
@@ -89,8 +92,7 @@ error:
 	return NULL;
 }
 
-int
-fis_validate(struct fis_part *old, int n_old, struct fis_part *new, int n_new)
+int fis_validate(struct fis_part *old, int n_old, struct fis_part *new, int n_new)
 {
 	struct fis_image_desc *desc;
 	void *end;
@@ -101,8 +103,10 @@ fis_validate(struct fis_part *old, int n_old, struct fis_part *new, int n_new)
 	if (!desc)
 		return -1;
 
-	for (i = 0; i < n_new - 1; i++) {
-		if (!new[i].size) {
+	for (i = 0; i < n_new - 1; i++)
+	{
+		if (!new[i].size)
+		{
 			fprintf(stderr, "FIS error: only the last partition can detect the size automatically\n");
 			i = -1;
 			goto done;
@@ -110,18 +114,21 @@ fis_validate(struct fis_part *old, int n_old, struct fis_part *new, int n_new)
 	}
 
 	end = desc;
-	end = (char *) end + fis_erasesize;
-	while ((void *) desc < end) {
+	end = (char *)end + fis_erasesize;
+	while ((void *)desc < end)
+	{
 		if (!desc->hdr.name[0] || (desc->hdr.name[0] == 0xff))
 			break;
 
-		for (i = 0; i < n_old; i++) {
-			if (!strncmp((char *) desc->hdr.name, (char *) old[i].name, sizeof(desc->hdr.name))) {
+		for (i = 0; i < n_old; i++)
+		{
+			if (!strncmp((char *)desc->hdr.name, (char *)old[i].name, sizeof(desc->hdr.name)))
+			{
 				found++;
 				goto next;
 			}
 		}
-next:
+	next:
 		desc++;
 		continue;
 	}
@@ -136,8 +143,7 @@ done:
 	return i;
 }
 
-int
-fis_remap(struct fis_part *old, int n_old, struct fis_part *new, int n_new)
+int fis_remap(struct fis_part *old, int n_old, struct fis_part *new, int n_new)
 {
 	struct fis_image_desc *first = NULL;
 	struct fis_image_desc *last = NULL;
@@ -156,9 +162,10 @@ fis_remap(struct fis_part *old, int n_old, struct fis_part *new, int n_new)
 	if (!quiet)
 		fprintf(stderr, "Updating FIS table... \n");
 
-	start = (char *) desc;
-	end = (char *) desc + fis_erasesize;
-	while ((char *) desc < end) {
+	start = (char *)desc;
+	end = (char *)desc + fis_erasesize;
+	while ((char *)desc < end)
+	{
 		if (!desc->hdr.name[0] || (desc->hdr.name[0] == 0xff))
 			break;
 
@@ -166,8 +173,10 @@ fis_remap(struct fis_part *old, int n_old, struct fis_part *new, int n_new)
 		if (offset < desc->hdr.flash_base)
 			offset = desc->hdr.flash_base;
 
-		for (i = 0; i < n_old; i++) {
-			if (!strncmp((char *) desc->hdr.name, (char *) old[i].name, sizeof(desc->hdr.name))) {
+		for (i = 0; i < n_old; i++)
+		{
+			if (!strncmp((char *)desc->hdr.name, (char *)old[i].name, sizeof(desc->hdr.name)))
+			{
 				last = desc;
 				if (!first)
 					first = desc;
@@ -181,19 +190,21 @@ fis_remap(struct fis_part *old, int n_old, struct fis_part *new, int n_new)
 	first_fb = first;
 	last_fb = last;
 
-	if (first_fb->hdr.flash_base > last_fb->hdr.flash_base) {
+	if (first_fb->hdr.flash_base > last_fb->hdr.flash_base)
+	{
 		first_fb = last;
 		last_fb = first;
 	}
 
 	/* determine size of available space */
-	desc = (struct fis_image_desc *) start;
-	while ((char *) desc < end) {
+	desc = (struct fis_image_desc *)start;
+	while ((char *)desc < end)
+	{
 		if (!desc->hdr.name[0] || (desc->hdr.name[0] == 0xff))
 			break;
 
 		if (desc->hdr.flash_base > last_fb->hdr.flash_base &&
-		    desc->hdr.flash_base < offset)
+			desc->hdr.flash_base < offset)
 			offset = desc->hdr.flash_base;
 
 		desc++;
@@ -206,20 +217,23 @@ fis_remap(struct fis_part *old, int n_old, struct fis_part *new, int n_new)
 	desc = first + n_new;
 	offset = first_fb->hdr.flash_base;
 
-	if (desc != last) {
+	if (desc != last)
+	{
 		if (desc > last)
-			tmp = (char *) desc;
+			tmp = (char *)desc;
 		else
-			tmp = (char *) last;
+			tmp = (char *)last;
 
 		memmove(desc, last, end - tmp);
-		if (desc < last) {
+		if (desc < last)
+		{
 			tmp = end - (last - desc) * sizeof(struct fis_image_desc);
 			memset(tmp, 0xff, tmp - end);
 		}
 	}
 
-	for (part = new, desc = first; desc < first + n_new; desc++, part++) {
+	for (part = new, desc = first; desc < first + n_new; desc++, part++)
+	{
 		memset(desc, 0, sizeof(struct fis_image_desc));
 		memcpy(desc->hdr.name, part->name, sizeof(desc->hdr.name));
 		desc->crc.desc = 0;
@@ -229,13 +243,12 @@ fis_remap(struct fis_part *old, int n_old, struct fis_part *new, int n_new)
 		desc->hdr.mem_base = part->loadaddr;
 		desc->hdr.entry_point = part->loadaddr;
 		desc->hdr.size = (part->size > 0) ? part->size : size;
-		desc->hdr.data_length = (part->length > 0) ? part->length :
-								desc->hdr.size;
+		desc->hdr.data_length = (part->length > 0) ? part->length : desc->hdr.size;
 		offset += desc->hdr.size;
 		size -= desc->hdr.size;
 	}
 
-	msync(fis_desc, fis_erasesize, MS_SYNC|MS_INVALIDATE);
+	msync(fis_desc, fis_erasesize, MS_SYNC | MS_INVALIDATE);
 	fis_close();
 
 	return 0;

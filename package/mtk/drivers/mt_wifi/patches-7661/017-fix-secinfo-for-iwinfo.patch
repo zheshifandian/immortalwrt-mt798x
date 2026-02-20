@@ -1,5 +1,5 @@
---- a/mt_wifi/embedded/ap/ap_cfg.c	2023-12-03 11:58:49.612252012 +0800
-+++ b/mt_wifi/embedded/ap/ap_cfg.c	2023-12-03 11:58:03.205793459 +0800
+--- a/mt_wifi/embedded/ap/ap_cfg.c
++++ b/mt_wifi/embedded/ap/ap_cfg.c
 @@ -11419,7 +11419,7 @@ INT RTMPAPQueryInformation(
  			Status = copy_to_user(wrq->u.data.pointer, &pAd->ApCfg.MBSSID[ifIndex].AccessControlList, sizeof(RT_802_11_ACL));
  
@@ -60,8 +60,8 @@
  #ifdef WAPP_SUPPORT
  	case OID_802_11_WIFI_VER: {
  		int ret;
---- a/mt_wifi/embedded/include/oid.h	2022-11-27 21:58:55.000000000 +0800
-+++ b/mt_wifi/embedded/include/oid.h	2023-12-03 10:30:10.630435691 +0800
+--- a/mt_wifi/embedded/include/oid.h
++++ b/mt_wifi/embedded/include/oid.h
 @@ -2002,6 +2002,12 @@ struct security_type {
  	UINT8 encryp_type;
  };

@@ -21,8 +21,6 @@
 ** 07 JUL 2009  Xu Liang        Init Version
 *******************************************************************************/
 
-
-
 /*
  * ####################################
  *              Head File
@@ -60,22 +58,20 @@ static inline void init_mailbox(void);
 static inline void init_atm_tc(void);
 static inline void clear_share_buffer(void);
 
-#define IFX_PMU_MODULE_PPE_SLL01  BIT(19)
-#define IFX_PMU_MODULE_PPE_TC     BIT(21)
-#define IFX_PMU_MODULE_PPE_EMA    BIT(22)
-#define IFX_PMU_MODULE_PPE_QSB    BIT(18)
-#define IFX_PMU_MODULE_AHBS       BIT(13)
-#define IFX_PMU_MODULE_DSL_DFE    BIT(9)
-
+#define IFX_PMU_MODULE_PPE_SLL01 BIT(19)
+#define IFX_PMU_MODULE_PPE_TC BIT(21)
+#define IFX_PMU_MODULE_PPE_EMA BIT(22)
+#define IFX_PMU_MODULE_PPE_QSB BIT(18)
+#define IFX_PMU_MODULE_AHBS BIT(13)
+#define IFX_PMU_MODULE_DSL_DFE BIT(9)
 
 static inline void init_pmu(void)
 {
-	ltq_pmu_enable(IFX_PMU_MODULE_PPE_SLL01 |
-		IFX_PMU_MODULE_PPE_TC |
-		IFX_PMU_MODULE_PPE_EMA |
-		IFX_PMU_MODULE_AHBS |
-		IFX_PMU_MODULE_DSL_DFE);
-
+    ltq_pmu_enable(IFX_PMU_MODULE_PPE_SLL01 |
+                   IFX_PMU_MODULE_PPE_TC |
+                   IFX_PMU_MODULE_PPE_EMA |
+                   IFX_PMU_MODULE_AHBS |
+                   IFX_PMU_MODULE_DSL_DFE);
 }
 
 static inline void uninit_pmu(void)
@@ -84,42 +80,45 @@ static inline void uninit_pmu(void)
 
 static inline void reset_ppe(struct platform_device *pdev)
 {
-	struct device *dev = &pdev->dev;
-	struct reset_control *dsp;
-	struct reset_control *dfe;
-	struct reset_control *tc;
+    struct device *dev = &pdev->dev;
+    struct reset_control *dsp;
+    struct reset_control *dfe;
+    struct reset_control *tc;
 
-	dsp = devm_reset_control_get(dev, "dsp");
-	if (IS_ERR(dsp)) {
-		if (PTR_ERR(dsp) != -EPROBE_DEFER)
-			dev_err(dev, "Failed to lookup dsp reset\n");
-// 		return PTR_ERR(dsp);
-	}
+    dsp = devm_reset_control_get(dev, "dsp");
+    if (IS_ERR(dsp))
+    {
+        if (PTR_ERR(dsp) != -EPROBE_DEFER)
+            dev_err(dev, "Failed to lookup dsp reset\n");
+        // 		return PTR_ERR(dsp);
+    }
 
-	dfe = devm_reset_control_get(dev, "dfe");
-	if (IS_ERR(dfe)) {
-		if (PTR_ERR(dfe) != -EPROBE_DEFER)
-			dev_err(dev, "Failed to lookup dfe reset\n");
-// 		return PTR_ERR(dfe);
-	}
+    dfe = devm_reset_control_get(dev, "dfe");
+    if (IS_ERR(dfe))
+    {
+        if (PTR_ERR(dfe) != -EPROBE_DEFER)
+            dev_err(dev, "Failed to lookup dfe reset\n");
+        // 		return PTR_ERR(dfe);
+    }
 
-	tc = devm_reset_control_get(dev, "tc");
-	if (IS_ERR(tc)) {
-		if (PTR_ERR(tc) != -EPROBE_DEFER)
-			dev_err(dev, "Failed to lookup tc reset\n");
-// 		return PTR_ERR(tc);
-	}
+    tc = devm_reset_control_get(dev, "tc");
+    if (IS_ERR(tc))
+    {
+        if (PTR_ERR(tc) != -EPROBE_DEFER)
+            dev_err(dev, "Failed to lookup tc reset\n");
+        // 		return PTR_ERR(tc);
+    }
 
-	reset_control_assert(dsp);
-	udelay(1000);
-	reset_control_assert(dfe);
-	udelay(1000);
-	reset_control_assert(tc);
-	udelay(1000);
-	*PP32_SRST &= ~0x000303CF;
-	udelay(1000);
-	*PP32_SRST |= 0x000303CF;
-	udelay(1000);
+    reset_control_assert(dsp);
+    udelay(1000);
+    reset_control_assert(dfe);
+    udelay(1000);
+    reset_control_assert(tc);
+    udelay(1000);
+    *PP32_SRST &= ~0x000303CF;
+    udelay(1000);
+    *PP32_SRST |= 0x000303CF;
+    udelay(1000);
 }
 
 static inline void init_pdma(void)
@@ -169,18 +168,18 @@ static inline void init_atm_tc(void)
     IFX_REG_W32(0x000001E0, DREG_AT_CFG1);
 
     /*  clear sync state    */
-    //IFX_REG_W32(0, SFSM_STATE0);
-    //IFX_REG_W32(0, SFSM_STATE1);
+    // IFX_REG_W32(0, SFSM_STATE0);
+    // IFX_REG_W32(0, SFSM_STATE1);
 
-    IFX_REG_W32_MASK(0, 1 << 14, SFSM_CFG0);    //  enable SFSM storing
+    IFX_REG_W32_MASK(0, 1 << 14, SFSM_CFG0); //  enable SFSM storing
     IFX_REG_W32_MASK(0, 1 << 14, SFSM_CFG1);
 
-    IFX_REG_W32_MASK(0, 1 << 15, SFSM_CFG0);    //  HW keep the IDLE cells in RTHA buffer
+    IFX_REG_W32_MASK(0, 1 << 15, SFSM_CFG0); //  HW keep the IDLE cells in RTHA buffer
     IFX_REG_W32_MASK(0, 1 << 15, SFSM_CFG1);
 
     IFX_REG_W32(0xF0D10000, FFSM_IDLE_HEAD_BC0);
     IFX_REG_W32(0xF0D10000, FFSM_IDLE_HEAD_BC1);
-    IFX_REG_W32(0x00030028, FFSM_CFG0);         //  Force_idle
+    IFX_REG_W32(0x00030028, FFSM_CFG0); //  Force_idle
     IFX_REG_W32(0x00030028, FFSM_CFG1);
 }
 
@@ -190,11 +189,11 @@ static inline void clear_share_buffer(void)
     unsigned int i;
 
     p = SB_RAM0_ADDR(0);
-    for ( i = 0; i < SB_RAM0_DWLEN + SB_RAM1_DWLEN + SB_RAM2_DWLEN + SB_RAM3_DWLEN; i++ )
+    for (i = 0; i < SB_RAM0_DWLEN + SB_RAM1_DWLEN + SB_RAM2_DWLEN + SB_RAM3_DWLEN; i++)
         IFX_REG_W32(0, p++);
 
     p = SB_RAM6_ADDR(0);
-    for ( i = 0; i < SB_RAM6_DWLEN; i++ )
+    for (i = 0; i < SB_RAM6_DWLEN; i++)
         IFX_REG_W32(0, p++);
 }
 
@@ -214,31 +213,28 @@ static inline int pp32_download_code(int pp32, u32 *code_src, unsigned int code_
     unsigned int clr, set;
     volatile u32 *dest;
 
-    if ( code_src == 0 || ((unsigned long)code_src & 0x03) != 0
-        || data_src == 0 || ((unsigned long)data_src & 0x03) != 0 )
+    if (code_src == 0 || ((unsigned long)code_src & 0x03) != 0 || data_src == 0 || ((unsigned long)data_src & 0x03) != 0)
         return -1;
 
     clr = pp32 ? 0xF0 : 0x0F;
-    if ( code_dword_len <= CDM_CODE_MEMORYn_DWLEN(0) )
-        set = pp32 ? (3 << 6): (2 << 2);
+    if (code_dword_len <= CDM_CODE_MEMORYn_DWLEN(0))
+        set = pp32 ? (3 << 6) : (2 << 2);
     else
         set = 0x00;
     IFX_REG_W32_MASK(clr, set, CDM_CFG);
 
     /*  copy code   */
     dest = CDM_CODE_MEMORY(pp32, 0);
-    while ( code_dword_len-- > 0 )
+    while (code_dword_len-- > 0)
         IFX_REG_W32(*code_src++, dest++);
 
     /*  copy data   */
     dest = CDM_DATA_MEMORY(pp32, 0);
-    while ( data_dword_len-- > 0 )
+    while (data_dword_len-- > 0)
         IFX_REG_W32(*data_src++, dest++);
 
     return 0;
 }
-
-
 
 /*
  * ####################################
@@ -251,14 +247,16 @@ void ifx_ptm_get_fw_ver(unsigned int *major, unsigned int *mid, unsigned int *mi
     ASSERT(major != NULL, "pointer is NULL");
     ASSERT(minor != NULL, "pointer is NULL");
 
-    if ( *(volatile unsigned int *)FW_VER_ID_NEW == 0 ) {
+    if (*(volatile unsigned int *)FW_VER_ID_NEW == 0)
+    {
         *major = FW_VER_ID->major;
-        *mid   = ~0;
+        *mid = ~0;
         *minor = FW_VER_ID->minor;
     }
-    else {
+    else
+    {
         *major = FW_VER_ID_NEW->major;
-        *mid   = FW_VER_ID_NEW->middle;
+        *mid = FW_VER_ID_NEW->middle;
         *minor = FW_VER_ID_NEW->minor;
     }
 }
@@ -299,7 +297,7 @@ int ifx_pp32_start(int pp32)
 
     /*  download firmware   */
     ret = pp32_download_code(pp32, firmware_binary_code, sizeof(firmware_binary_code) / sizeof(*firmware_binary_code), firmware_binary_data, sizeof(firmware_binary_data) / sizeof(*firmware_binary_data));
-    if ( ret != 0 )
+    if (ret != 0)
         return ret;
 
     /*  run PP32    */

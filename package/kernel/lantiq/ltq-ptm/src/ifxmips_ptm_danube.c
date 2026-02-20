@@ -21,8 +21,6 @@
 ** 07 JUL 2009  Xu Liang        Init Version
 *******************************************************************************/
 
-
-
 /*
  * ####################################
  *              Head File
@@ -61,14 +59,12 @@
 /*
  *  EMA Settings
  */
-#define EMA_CMD_BUF_LEN      0x0040
-#define EMA_CMD_BASE_ADDR    (0x00001580 << 2)
-#define EMA_DATA_BUF_LEN     0x0100
-#define EMA_DATA_BASE_ADDR   (0x00000B00 << 2)
-#define EMA_WRITE_BURST      0x2
-#define EMA_READ_BURST       0x2
-
-
+#define EMA_CMD_BUF_LEN 0x0040
+#define EMA_CMD_BASE_ADDR (0x00001580 << 2)
+#define EMA_DATA_BUF_LEN 0x0100
+#define EMA_DATA_BASE_ADDR (0x00000B00 << 2)
+#define EMA_WRITE_BURST 0x2
+#define EMA_READ_BURST 0x2
 
 /*
  * ####################################
@@ -87,21 +83,18 @@ static inline void init_mailbox(void);
 static inline void init_atm_tc(void);
 static inline void clear_share_buffer(void);
 
-
-
 /*
  * ####################################
  *            Local Variable
  * ####################################
  */
 
-
-#define IFX_PMU_MODULE_PPE_SLL01  BIT(19)
-#define IFX_PMU_MODULE_PPE_TC     BIT(21)
-#define IFX_PMU_MODULE_PPE_EMA    BIT(22)
-#define IFX_PMU_MODULE_PPE_QSB    BIT(18)
-#define IFX_PMU_MODULE_TPE       BIT(13)
-#define IFX_PMU_MODULE_DSL_DFE    BIT(9)
+#define IFX_PMU_MODULE_PPE_SLL01 BIT(19)
+#define IFX_PMU_MODULE_PPE_TC BIT(21)
+#define IFX_PMU_MODULE_PPE_EMA BIT(22)
+#define IFX_PMU_MODULE_PPE_QSB BIT(18)
+#define IFX_PMU_MODULE_TPE BIT(13)
+#define IFX_PMU_MODULE_DSL_DFE BIT(9)
 
 /*
  * ####################################
@@ -111,20 +104,20 @@ static inline void clear_share_buffer(void);
 
 static inline void init_pmu(void)
 {
-	ltq_pmu_enable(IFX_PMU_MODULE_PPE_SLL01 |
-		IFX_PMU_MODULE_PPE_TC |
-		IFX_PMU_MODULE_PPE_EMA |
-		IFX_PMU_MODULE_TPE |
-		IFX_PMU_MODULE_DSL_DFE);
+    ltq_pmu_enable(IFX_PMU_MODULE_PPE_SLL01 |
+                   IFX_PMU_MODULE_PPE_TC |
+                   IFX_PMU_MODULE_PPE_EMA |
+                   IFX_PMU_MODULE_TPE |
+                   IFX_PMU_MODULE_DSL_DFE);
 }
 
 static inline void uninit_pmu(void)
 {
-	ltq_pmu_disable(IFX_PMU_MODULE_PPE_SLL01 |
-		IFX_PMU_MODULE_PPE_TC |
-		IFX_PMU_MODULE_PPE_EMA |
-		IFX_PMU_MODULE_TPE |
-		IFX_PMU_MODULE_DSL_DFE);
+    ltq_pmu_disable(IFX_PMU_MODULE_PPE_SLL01 |
+                    IFX_PMU_MODULE_PPE_TC |
+                    IFX_PMU_MODULE_PPE_EMA |
+                    IFX_PMU_MODULE_TPE |
+                    IFX_PMU_MODULE_DSL_DFE);
 }
 
 static inline void reset_ppe(struct platform_device *pdev)
@@ -155,7 +148,7 @@ static inline void reset_ppe(struct platform_device *pdev)
 static inline void init_ema(void)
 {
     //  Configure share buffer master selection
-	*SB_MST_SEL |= 0x03;
+    *SB_MST_SEL |= 0x03;
 
     //  EMA Settings
     IFX_REG_W32((EMA_CMD_BUF_LEN << 16) | (EMA_CMD_BASE_ADDR >> 2), EMA_CMDCFG);
@@ -174,23 +167,23 @@ static inline void init_mailbox(void)
 
 static inline void init_atm_tc(void)
 {
-    IFX_REG_W32(0x0F00,     DREG_AT_CTRL);
-    IFX_REG_W32(0x3C00,     DREG_AR_CTRL);
-    IFX_REG_W32(0x0,        DREG_AT_IDLE0);
-    IFX_REG_W32(0x0,        DREG_AT_IDLE1);
-    IFX_REG_W32(0x0,        DREG_AR_IDLE0);
-    IFX_REG_W32(0x0,        DREG_AR_IDLE1);
-    IFX_REG_W32(0x0,        RFBI_CFG);
-    IFX_REG_W32(0x1600,     SFSM_DBA0);
-    IFX_REG_W32(0x1721,     SFSM_DBA1);
-    IFX_REG_W32(0x1842,     SFSM_CBA0);
-    IFX_REG_W32(0x1853,     SFSM_CBA1);
-    IFX_REG_W32(0x14011,    SFSM_CFG0);
-    IFX_REG_W32(0x14011,    SFSM_CFG1);
-    IFX_REG_W32(0x1864,     FFSM_DBA0);
-    IFX_REG_W32(0x1930,     FFSM_DBA1);
-    IFX_REG_W32(0x3000C,    FFSM_CFG0);
-    IFX_REG_W32(0x3000C,    FFSM_CFG1);
+    IFX_REG_W32(0x0F00, DREG_AT_CTRL);
+    IFX_REG_W32(0x3C00, DREG_AR_CTRL);
+    IFX_REG_W32(0x0, DREG_AT_IDLE0);
+    IFX_REG_W32(0x0, DREG_AT_IDLE1);
+    IFX_REG_W32(0x0, DREG_AR_IDLE0);
+    IFX_REG_W32(0x0, DREG_AR_IDLE1);
+    IFX_REG_W32(0x0, RFBI_CFG);
+    IFX_REG_W32(0x1600, SFSM_DBA0);
+    IFX_REG_W32(0x1721, SFSM_DBA1);
+    IFX_REG_W32(0x1842, SFSM_CBA0);
+    IFX_REG_W32(0x1853, SFSM_CBA1);
+    IFX_REG_W32(0x14011, SFSM_CFG0);
+    IFX_REG_W32(0x14011, SFSM_CFG1);
+    IFX_REG_W32(0x1864, FFSM_DBA0);
+    IFX_REG_W32(0x1930, FFSM_DBA1);
+    IFX_REG_W32(0x3000C, FFSM_CFG0);
+    IFX_REG_W32(0x3000C, FFSM_CFG1);
     IFX_REG_W32(0xF0D10000, FFSM_IDLE_HEAD_BC0);
     IFX_REG_W32(0xF0D10000, FFSM_IDLE_HEAD_BC1);
 }
@@ -200,7 +193,7 @@ static inline void clear_share_buffer(void)
     volatile u32 *p = SB_RAM0_ADDR(0);
     unsigned int i;
 
-    for ( i = 0; i < SB_RAM0_DWLEN + SB_RAM1_DWLEN + SB_RAM2_DWLEN + SB_RAM3_DWLEN; i++ )
+    for (i = 0; i < SB_RAM0_DWLEN + SB_RAM1_DWLEN + SB_RAM2_DWLEN + SB_RAM3_DWLEN; i++)
         IFX_REG_W32(0, p++);
 }
 
@@ -218,29 +211,26 @@ static inline int pp32_download_code(u32 *code_src, unsigned int code_dword_len,
 {
     volatile u32 *dest;
 
-    if ( code_src == 0 || ((unsigned long)code_src & 0x03) != 0
-        || data_src == 0 || ((unsigned long)data_src & 0x03) != 0 )
+    if (code_src == 0 || ((unsigned long)code_src & 0x03) != 0 || data_src == 0 || ((unsigned long)data_src & 0x03) != 0)
         return -1;
 
-    if ( code_dword_len <= CDM_CODE_MEMORYn_DWLEN(0) )
+    if (code_dword_len <= CDM_CODE_MEMORYn_DWLEN(0))
         IFX_REG_W32(0x00, CDM_CFG);
     else
         IFX_REG_W32(0x04, CDM_CFG);
 
     /*  copy code   */
     dest = CDM_CODE_MEMORY(0, 0);
-    while ( code_dword_len-- > 0 )
+    while (code_dword_len-- > 0)
         IFX_REG_W32(*code_src++, dest++);
 
     /*  copy data   */
     dest = CDM_DATA_MEMORY(0, 0);
-    while ( data_dword_len-- > 0 )
+    while (data_dword_len-- > 0)
         IFX_REG_W32(*data_src++, dest++);
 
     return 0;
 }
-
-
 
 /*
  * ####################################
@@ -292,7 +282,7 @@ int ifx_pp32_start(int pp32)
 
     /*  download firmware   */
     ret = pp32_download_code(firmware_binary_code, sizeof(firmware_binary_code) / sizeof(*firmware_binary_code), firmware_binary_data, sizeof(firmware_binary_data) / sizeof(*firmware_binary_data));
-    if ( ret != 0 )
+    if (ret != 0)
         return ret;
 
     /*  run PP32    */

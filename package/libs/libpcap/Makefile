@@ -8,21 +8,25 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libpcap
-PKG_VERSION:=1.9.1
-PKG_RELEASE:=3.1
+PKG_VERSION:=1.10.6
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://www.tcpdump.org/release/
-PKG_HASH:=635237637c5b619bcceba91900666b64d56ecb7be63f298f601ec786ce087094
+PKG_SOURCE_URL:=https://www.tcpdump.org/release/
+PKG_HASH:=872dd11337fe1ab02ad9d4fee047c9da244d695c6ddf34e2ebb733efd4ed8aa9
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
+PKG_LICENSE:=BSD-3-Clause
+PKG_LICENSE_FILES:=LICENSE
 PKG_CPE_ID:=cpe:/a:tcpdump:libpcap
 
 PKG_ASLR_PIE_REGULAR:=1
-PKG_BUILD_PARALLEL:=1
 
-PKG_LICENSE:=BSD-3-Clause
-PKG_LICENSE_FILES:=LICENSE
+PKG_CONFIG_DEPENDS := \
+	CONFIG_PACKAGE_rpcapd \
+	CONFIG_PCAP_HAS_USB \
+	CONFIG_PCAP_HAS_BT \
+	CONFIG_PCAP_HAS_NETFILTER
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
@@ -31,7 +35,7 @@ define Package/libpcap
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Low-level packet capture library
-  URL:=http://www.tcpdump.org/
+  URL:=https://www.tcpdump.org/
   MENU:=1
   ABI_VERSION:=1
 endef
@@ -49,8 +53,8 @@ define Package/rpcapd
   SECTION:=net
   CATEGORY:=Network
   TITLE:=Capture daemon to be controlled by a remote libpcap application
-  URL:=http://www.tcpdump.org/
-  DEPENDS+= +libpcap
+  URL:=https://www.tcpdump.org/
+  DEPENDS+= +USE_GLIBC:libcrypt-compat +libpcap
 endef
 
 ifdef CONFIG_PACKAGE_rpcapd
@@ -61,11 +65,16 @@ endif
 CMAKE_OPTIONS += \
 	-DBUILD_SHARED_LIBS=ON \
 	-DBUILD_WITH_LIBNL=OFF \
+	-DINET6=O$(if $(CONFIG_IPV6),N,FF) \
+	-DPCAP_SUPPORT_NETFILTER=O$(if $(CONFIG_PCAP_HAS_NETFILTER),N,FF)
 
 # grep 'option(DISABLE_' CMakeLists.txt | cut -f2 -d'(' | cut -f1 -d' ' | sort --unique
 CMAKE_OPTIONS += \
+	-DDISABLE_BLUETOOTH=O$(if $(CONFIG_PCAP_HAS_BT),FF,N) \
 	-DDISABLE_DAG=ON \
 	-DDISABLE_DBUS=ON \
+	-DDISABLE_DPDK=ON \
+	-DDISABLE_LINUX_USBMON=O$(if $(CONFIG_PCAP_HAS_USB),FF,N) \
 	-DDISABLE_NETMAP=ON \
 	-DDISABLE_RDMA=ON \
 	-DDISABLE_SEPTEL=ON \
@@ -76,12 +85,6 @@ CMAKE_OPTIONS += \
 CMAKE_OPTIONS += \
 	-DBDEBUG=OFF \
 	-DYYDEBUG=OFF \
-
-CMAKE_OPTIONS += $(if $(CONFIG_PCAP_HAS_USB)       ,,-DDISABLE_USB=ON)
-CMAKE_OPTIONS += $(if $(CONFIG_PCAP_HAS_BT)        ,,-DDISABLE_BLUETOOTH=ON)
-CMAKE_OPTIONS += $(if $(CONFIG_PCAP_HAS_NETFILTER) ,,-DPCAP_SUPPORT_NETFILTER=OFF)
-
-CMAKE_OPTIONS += $(if $(CONFIG_IPV6),-DINET6=ON,-DINET6=OFF)
 
 define Build/InstallDev
 	$(call Build/InstallDev/cmake,$(1))
@@ -98,8 +101,8 @@ define Package/libpcap/install
 endef
 
 define Package/rpcapd/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/rpcapd $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/rpcapd $(1)/usr/sbin/
 endef
 
 $(eval $(call BuildPackage,libpcap))

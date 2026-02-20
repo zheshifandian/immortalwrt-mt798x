@@ -21,6 +21,4 @@ static inline unsigned int crc32buf(char *buf, size_t len)
 	return crc32(0xFFFFFFFF, buf, len);
 }
 
-
-
 #endif

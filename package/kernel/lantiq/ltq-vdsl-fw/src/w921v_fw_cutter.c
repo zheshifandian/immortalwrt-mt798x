@@ -26,26 +26,26 @@
 
 #include "LzmaWrapper.h"
 
-#define FW_NAME		"/tmp/firmware-speedport-w921v-1.46.000.bin"
+#define FW_NAME "/tmp/firmware-speedport-w921v-1.46.000.bin"
 
-#define MAGIC		0x50
-#define MAGIC_SZ	0x3FFC00
+#define MAGIC 0x50
+#define MAGIC_SZ 0x3FFC00
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-#define MAGIC_PART	0x12345678
-#define MAGIC_LZMA	0x8000005D
-#define MAGIC_ANNEX_B	0x3C
-#define MAGIC_TAPI	0x5A
+#define MAGIC_PART 0x12345678
+#define MAGIC_LZMA 0x8000005D
+#define MAGIC_ANNEX_B 0x3C
+#define MAGIC_TAPI 0x5A
 #else
-#define MAGIC_PART	0x78563412
-#define MAGIC_LZMA	0x5D000080
-#define MAGIC_ANNEX_B	0x3C000000
-#define MAGIC_TAPI	0x5A000000
+#define MAGIC_PART 0x78563412
+#define MAGIC_LZMA 0x5D000080
+#define MAGIC_ANNEX_B 0x3C000000
+#define MAGIC_TAPI 0x5A000000
 #endif
 
-
-const char* part_type(unsigned int id)
+const char *part_type(unsigned int id)
 {
-	switch(id) {
+	switch (id)
+	{
 	case MAGIC_ANNEX_B:
 		return "/tmp/vr9_dsl_fw_annex_b.bin";
 	case MAGIC_TAPI:
@@ -76,7 +76,8 @@ int main(int argc, char **argv)
 	if (getchar() != 'y')
 		return -1;
 
-	if (stat(FW_NAME, &s) != 0) {
+	if (stat(FW_NAME, &s) != 0)
+	{
 		printf("Failed to find %s\n", FW_NAME);
 		printf("Ask Google or try https://www.telekom.de/hilfe/downloads/firmware-speedport-w921v-1.45.000.bin\n");
 		return -1;
@@ -84,21 +85,23 @@ int main(int argc, char **argv)
 
 	buf_orig = malloc(s.st_size);
 	buf = malloc(s.st_size);
-	if (!buf_orig || !buf) {
+	if (!buf_orig || !buf)
+	{
 		printf("Failed to alloc %d bytes\n", s.st_size);
 		return -1;
 	}
 
 	fd = open(FW_NAME, O_RDONLY);
-	if (fd < 0) {
+	if (fd < 0)
+	{
 		printf("Unable to open %s\n", FW_NAME);
 		return -1;
 	}
 
-
 	buflen = read(fd, buf_orig, s.st_size);
 	close(fd);
-	if (buflen != s.st_size) {
+	if (buflen != s.st_size)
+	{
 		printf("Loaded %d instead of %d bytes inside %s\n", buflen, s.st_size, FW_NAME);
 		return -1;
 	}
@@ -106,7 +109,8 @@ int main(int argc, char **argv)
 	/* <magic> */
 	buf_orig++;
 	buflen -= 1;
-	for (i = 0; i < MAGIC_SZ; i++) {
+	for (i = 0; i < MAGIC_SZ; i++)
+	{
 		if ((i % 16) < 3)
 			buf_orig[i] = buf_orig[i + 16] ^ MAGIC;
 		else
@@ -117,13 +121,16 @@ int main(int argc, char **argv)
 	memcpy(buf, buf_orig, s.st_size);
 
 	/* </magic> */
-	do {
-		if (buf[end] == MAGIC_PART) {
+	do
+	{
+		if (buf[end] == MAGIC_PART)
+		{
 			end += 2;
 			printf("Found partition at 0x%08X with size %d\n",
-				start * sizeof(unsigned int),
-				(end - start) * sizeof(unsigned int));
-			if (buf[start] == MAGIC_LZMA) {
+				   start * sizeof(unsigned int),
+				   (end - start) * sizeof(unsigned int));
+			if (buf[start] == MAGIC_LZMA)
+			{
 				int dest_len = 1024 * 1024;
 				int len = buf[end - 3];
 				unsigned int id = buf[end - 6];
@@ -131,35 +138,44 @@ int main(int argc, char **argv)
 				unsigned char *dest;
 
 				dest = malloc(dest_len);
-				if (!dest) {
+				if (!dest)
+				{
 					printf("Failed to alloc dest buffer\n");
 					return -1;
 				}
 
-				if (lzma_inflate((unsigned char*)&buf[start], len, dest, &dest_len)) {
+				if (lzma_inflate((unsigned char *)&buf[start], len, dest, &dest_len))
+				{
 					printf("Failed to decompress data\n");
 					return -1;
 				}
 
 				fd = creat(type, S_IRUSR | S_IWUSR);
-				if (fd != -1) {
+				if (fd != -1)
+				{
 					if (write(fd, dest, dest_len) != dest_len)
 						printf("\tFailed to write %d bytes\n", dest_len);
 					else
 						printf("\tWrote %d bytes to %s\n", dest_len, type);
 					close(fd);
-				} else {
+				}
+				else
+				{
 					printf("\tFailed to open %s\n", type);
 				}
 				free(dest);
-			} else {
+			}
+			else
+			{
 				printf("\tThis is not lzma\n");
 			}
 			start = end;
-		} else {
+		}
+		else
+		{
 			end++;
 		}
-	} while(end < buflen / sizeof(unsigned int));
+	} while (end < buflen / sizeof(unsigned int));
 
 	return 0;
 }

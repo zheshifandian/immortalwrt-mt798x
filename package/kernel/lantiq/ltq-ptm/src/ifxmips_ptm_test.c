@@ -21,8 +21,6 @@
 ** 07 JUL 2009  Xu Liang        Init Version
 *******************************************************************************/
 
-
-
 #ifdef CONFIG_IFX_PTM_TEST_PROC
 
 /*
@@ -53,15 +51,11 @@
 #include "ifxmips_ptm_common.h"
 #include "ifxmips_ptm_ppe_common.h"
 
-
-
 /*
  * ####################################
  *              Definition
  * ####################################
  */
-
-
 
 /*
  * ####################################
@@ -87,15 +81,11 @@ static int get_token(char **, char **, int *, int *);
 static int get_number(char **, int *, int);
 static inline void ignore_space(char **, int *);
 
-
-
 /*
  * ####################################
  *            Local Variable
  * ####################################
  */
-
-
 
 /*
  * ####################################
@@ -110,7 +100,7 @@ static inline void proc_file_create(void)
     res = create_proc_entry("driver/ifx_ptm/mem",
                             0,
                             NULL);
-    if ( res != NULL )
+    if (res != NULL)
         res->write_proc = proc_write_mem;
     else
         printk("%s:%s:%d: failed to create proc mem!", __FILE__, __func__, __LINE__);
@@ -118,7 +108,8 @@ static inline void proc_file_create(void)
     res = create_proc_entry("driver/ifx_ptm/pp32",
                             0,
                             NULL);
-    if ( res != NULL ) {
+    if (res != NULL)
+    {
         res->read_proc = proc_read_pp32;
         res->write_proc = proc_write_pp32;
     }
@@ -135,12 +126,14 @@ static inline void proc_file_delete(void)
 
 static inline unsigned long sb_addr_to_fpi_addr_convert(unsigned long sb_addr)
 {
-#define PP32_SB_ADDR_END        0xFFFF
+#define PP32_SB_ADDR_END 0xFFFF
 
-    if ( sb_addr < PP32_SB_ADDR_END) {
-        return (unsigned long ) SB_BUFFER(sb_addr);
+    if (sb_addr < PP32_SB_ADDR_END)
+    {
+        return (unsigned long)SB_BUFFER(sb_addr);
     }
-    else {
+    else
+    {
         return sb_addr;
     }
 }
@@ -160,42 +153,42 @@ static int proc_write_mem(struct file *file, const char *buf, unsigned long coun
 
     p1 = local_buf;
     colon = 1;
-    while ( get_token(&p1, &p2, &len, &colon) )
+    while (get_token(&p1, &p2, &len, &colon))
     {
-        if ( stricmp(p1, "w") == 0 || stricmp(p1, "write") == 0 || stricmp(p1, "r") == 0 || stricmp(p1, "read") == 0 )
+        if (stricmp(p1, "w") == 0 || stricmp(p1, "write") == 0 || stricmp(p1, "r") == 0 || stricmp(p1, "read") == 0)
             break;
 
         p1 = p2;
         colon = 1;
     }
 
-    if ( *p1 == 'w' )
+    if (*p1 == 'w')
     {
         ignore_space(&p2, &len);
         p = (unsigned long *)get_number(&p2, &len, 1);
-        p = (unsigned long *)sb_addr_to_fpi_addr_convert( (unsigned long) p);
+        p = (unsigned long *)sb_addr_to_fpi_addr_convert((unsigned long)p);
 
-        if ( (u32)p >= KSEG0 )
-            while ( 1 )
+        if ((u32)p >= KSEG0)
+            while (1)
             {
                 ignore_space(&p2, &len);
-                if ( !len || !((*p2 >= '0' && *p2 <= '9') || (*p2 >= 'a' && *p2 <= 'f') || (*p2 >= 'A' && *p2 <= 'F')) )
+                if (!len || !((*p2 >= '0' && *p2 <= '9') || (*p2 >= 'a' && *p2 <= 'f') || (*p2 >= 'A' && *p2 <= 'F')))
                     break;
 
                 *p++ = (u32)get_number(&p2, &len, 1);
             }
     }
-    else if ( *p1 == 'r' )
+    else if (*p1 == 'r')
     {
         ignore_space(&p2, &len);
         p = (unsigned long *)get_number(&p2, &len, 1);
-        p = (unsigned long *)sb_addr_to_fpi_addr_convert( (unsigned long) p);
+        p = (unsigned long *)sb_addr_to_fpi_addr_convert((unsigned long)p);
 
-        if ( (u32)p >= KSEG0 )
+        if ((u32)p >= KSEG0)
         {
             ignore_space(&p2, &len);
             n = (int)get_number(&p2, &len, 0);
-            if ( n )
+            if (n)
             {
                 char str[32] = {0};
                 char *pch = str;
@@ -205,14 +198,14 @@ static int proc_write_mem(struct file *file, const char *buf, unsigned long coun
 
                 n += (l = ((int)p >> 2) & 0x03);
                 p = (unsigned long *)((u32)p & ~0x0F);
-                for ( i = 0; i < n; i++ )
+                for (i = 0; i < n; i++)
                 {
-                    if ( (i & 0x03) == 0 )
+                    if ((i & 0x03) == 0)
                     {
                         printk("%08X:", (u32)p);
                         pch = str;
                     }
-                    if ( i < l )
+                    if (i < l)
                     {
                         printk("         ");
                         sprintf(pch, "    ");
@@ -221,23 +214,23 @@ static int proc_write_mem(struct file *file, const char *buf, unsigned long coun
                     {
                         data = (u32)*p;
                         printk(" %08X", data);
-                        for ( k = 0; k < 4; k++ )
+                        for (k = 0; k < 4; k++)
                         {
-                            c = ((char*)&data)[k];
+                            c = ((char *)&data)[k];
                             pch[k] = c < ' ' ? '.' : c;
                         }
                     }
                     p++;
                     pch += 4;
-                    if ( (i & 0x03) == 0x03 )
+                    if ((i & 0x03) == 0x03)
                     {
                         pch[0] = 0;
                         printk(" ; %s\n", str);
                     }
                 }
-                if ( (n & 0x03) != 0x00 )
+                if ((n & 0x03) != 0x00)
                 {
-                    for ( k = 4 - (n & 0x03); k > 0; k-- )
+                    for (k = 4 - (n & 0x03); k > 0; k--)
                         printk("         ");
                     pch[0] = 0;
                     printk(" ; %s\n", str);
@@ -260,8 +253,7 @@ static int proc_read_pp32(char *page, char **start, off_t off, int count, int *e
         "step",
         "code",
         "data0",
-        "data1"
-    };
+        "data1"};
     static const char *brk_src_data[] = {
         "off",
         "read",
@@ -270,12 +262,10 @@ static int proc_read_pp32(char *page, char **start, off_t off, int count, int *e
         "write_equal",
         "N/A",
         "N/A",
-        "N/A"
-    };
+        "N/A"};
     static const char *brk_src_code[] = {
         "off",
-        "on"
-    };
+        "on"};
 
     int len = 0;
     int cur_task;
@@ -285,16 +275,16 @@ static int proc_read_pp32(char *page, char **start, off_t off, int count, int *e
 
     len += sprintf(page + off + len, "Task No %d, PC %04x\n", *PP32_DBG_TASK_NO & 0x03, *PP32_DBG_CUR_PC & 0xFFFF);
 
-    if ( !(*PP32_HALT_STAT & 0x01) )
+    if (!(*PP32_HALT_STAT & 0x01))
         len += sprintf(page + off + len, "  Halt State: Running\n");
     else
     {
         len += sprintf(page + off + len, "  Halt State: Stopped");
         k = 0;
-        for ( bit = 2, i = 0; bit <= (1 << 7); bit <<= 1, i++ )
-            if ( (*PP32_HALT_STAT & bit) )
+        for (bit = 2, i = 0; bit <= (1 << 7); bit <<= 1, i++)
+            if ((*PP32_HALT_STAT & bit))
             {
-                if ( !k )
+                if (!k)
                 {
                     len += sprintf(page + off + len, ", ");
                     k++;
@@ -308,21 +298,21 @@ static int proc_read_pp32(char *page, char **start, off_t off, int count, int *e
 
         cur_task = *PP32_DBG_TASK_NO & 0x03;
         len += sprintf(page + off + len, "General Purpose Register (Task %d):\n", cur_task);
-        for ( i = 0; i < 4; i++ )
+        for (i = 0; i < 4; i++)
         {
-            for ( j = 0; j < 4; j++ )
+            for (j = 0; j < 4; j++)
                 len += sprintf(page + off + len, "   %2d: %08x", i + j * 4, *PP32_DBG_TASK_GPR(cur_task, i + j * 4));
             len += sprintf(page + off + len, "\n");
         }
     }
 
     len += sprintf(page + off + len, "  Break Src:  data1 - %s, data0 - %s, pc3 - %s, pc2 - %s, pc1 - %s, pc0 - %s\n",
-                                                    brk_src_data[(*PP32_BRK_SRC >> 11) & 0x07], brk_src_data[(*PP32_BRK_SRC >> 8) & 0x07], brk_src_code[(*PP32_BRK_SRC >> 3) & 0x01], brk_src_code[(*PP32_BRK_SRC >> 2) & 0x01], brk_src_code[(*PP32_BRK_SRC >> 1) & 0x01], brk_src_code[*PP32_BRK_SRC & 0x01]);
+                   brk_src_data[(*PP32_BRK_SRC >> 11) & 0x07], brk_src_data[(*PP32_BRK_SRC >> 8) & 0x07], brk_src_code[(*PP32_BRK_SRC >> 3) & 0x01], brk_src_code[(*PP32_BRK_SRC >> 2) & 0x01], brk_src_code[(*PP32_BRK_SRC >> 1) & 0x01], brk_src_code[*PP32_BRK_SRC & 0x01]);
 
-    for ( i = 0; i < 4; i++ )
+    for (i = 0; i < 4; i++)
         len += sprintf(page + off + len, "    pc%d:      %04x - %04x\n", i, *PP32_DBG_PC_MIN(i), *PP32_DBG_PC_MAX(i));
 
-    for ( i = 0; i < 2; i++ )
+    for (i = 0; i < 2; i++)
         len += sprintf(page + off + len, "    data%d:    %04x - %04x (%08x)\n", i, *PP32_DBG_DATA_MIN(i), *PP32_DBG_DATA_MAX(i), *PP32_DBG_DATA_VAL(i));
 
     *eof = 1;
@@ -342,36 +332,37 @@ static int proc_write_pp32(struct file *file, const char *buf, unsigned long cou
 
     len = count < sizeof(str) ? count : sizeof(str) - 1;
     rlen = len - copy_from_user(str, buf, len);
-    while ( rlen && str[rlen - 1] <= ' ' )
+    while (rlen && str[rlen - 1] <= ' ')
         rlen--;
     str[rlen] = 0;
-    for ( p = str; *p && *p <= ' '; p++, rlen-- );
-    if ( !*p )
+    for (p = str; *p && *p <= ' '; p++, rlen--)
+        ;
+    if (!*p)
     {
         return 0;
     }
 
-    if ( stricmp(str, "start") == 0 )
+    if (stricmp(str, "start") == 0)
         *PP32_DBG_CTRL = DBG_CTRL_START_SET(1);
-    else if ( stricmp(str, "stop") == 0 )
+    else if (stricmp(str, "stop") == 0)
         *PP32_DBG_CTRL = DBG_CTRL_STOP_SET(1);
-    else if ( stricmp(str, "step") == 0 )
+    else if (stricmp(str, "step") == 0)
         *PP32_DBG_CTRL = DBG_CTRL_STEP_SET(1);
-    else if ( strincmp(p, "pc", 2) == 0 && p[2] >= '0' && p[2] <= '3' && p[3] == ' ' )
+    else if (strincmp(p, "pc", 2) == 0 && p[2] >= '0' && p[2] <= '3' && p[3] == ' ')
     {
         id = (int)(p[2] - '0');
         p += 4;
         rlen -= 4;
         *PP32_BRK_SRC &= ~PP32_BRK_SRC_PC(id);
-        if ( stricmp(p, "off") != 0 )
+        if (stricmp(p, "off") != 0)
         {
             ignore_space(&p, &rlen);
             *PP32_DBG_PC_MIN(id) = *PP32_DBG_PC_MAX(id) = get_number(&p, &rlen, 1);
             ignore_space(&p, &rlen);
-            if ( rlen > 0 )
+            if (rlen > 0)
             {
                 addr = get_number(&p, &rlen, 1);
-                if ( addr >= *PP32_DBG_PC_MIN(id) )
+                if (addr >= *PP32_DBG_PC_MIN(id))
                     *PP32_DBG_PC_MAX(id) = addr;
                 else
                     *PP32_DBG_PC_MIN(id) = addr;
@@ -379,30 +370,30 @@ static int proc_write_pp32(struct file *file, const char *buf, unsigned long cou
             *PP32_BRK_SRC |= PP32_BRK_SRC_PC(id);
         }
     }
-    else if ( strincmp(p, "daddr", 5) == 0 && p[5] >= '0' && p[5] <= '1' && p[6] == ' ' )
+    else if (strincmp(p, "daddr", 5) == 0 && p[5] >= '0' && p[5] <= '1' && p[6] == ' ')
     {
         id = (int)(p[5] - '0');
         p += 7;
         rlen -= 7;
         *PP32_BRK_SRC &= ~PP32_BRK_SRC_DATA(id, 7);
-        if ( stricmp(p, "off") != 0 )
+        if (stricmp(p, "off") != 0)
         {
             ignore_space(&p, &rlen);
             *PP32_DBG_DATA_MIN(id) = *PP32_DBG_DATA_MAX(id) = get_number(&p, &rlen, 1);
             cmd = 1;
             ignore_space(&p, &rlen);
-            if ( rlen > 0 && ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F')) )
+            if (rlen > 0 && ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F')))
             {
                 addr = get_number(&p, &rlen, 1);
-                if ( addr >= *PP32_DBG_PC_MIN(id) )
+                if (addr >= *PP32_DBG_PC_MIN(id))
                     *PP32_DBG_DATA_MAX(id) = addr;
                 else
                     *PP32_DBG_DATA_MIN(id) = addr;
                 ignore_space(&p, &rlen);
             }
-            if ( *p == 'w' )
+            if (*p == 'w')
                 cmd = 2;
-            else if ( *p == 'r' && p[1] == 'w' )
+            else if (*p == 'r' && p[1] == 'w')
             {
                 cmd = 3;
                 p++;
@@ -410,10 +401,10 @@ static int proc_write_pp32(struct file *file, const char *buf, unsigned long cou
             }
             p++;
             rlen--;
-            if ( rlen > 0 )
+            if (rlen > 0)
             {
                 ignore_space(&p, &rlen);
-                if ( (*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F'))
+                if ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F'))
                 {
                     *PP32_DBG_DATA_VAL(id) = get_number(&p, &rlen, 1);
                     cmd = 4;
@@ -457,140 +448,140 @@ static int proc_read_pp32(char *page, char **start, off_t off, int count, int *e
 
     int pp32;
 
-    for ( pp32 = 0; pp32 < NUM_OF_PP32; pp32++ )
+    for (pp32 = 0; pp32 < NUM_OF_PP32; pp32++)
     {
         f_stopped = 0;
 
         len += sprintf(page + off + len, "===== pp32 core %d =====\n", pp32);
 
-  #ifdef CONFIG_VR9
-        if ( (*PP32_FREEZE & (1 << (pp32 << 4))) != 0 )
+#ifdef CONFIG_VR9
+        if ((*PP32_FREEZE & (1 << (pp32 << 4))) != 0)
         {
             sprintf(str, "freezed");
             f_stopped = 1;
         }
-  #else
-        if ( 0 )
+#else
+        if (0)
         {
         }
-  #endif
-        else if ( PP32_CPU_USER_STOPPED(pp32) || PP32_CPU_USER_BREAKIN_RCV(pp32) || PP32_CPU_USER_BREAKPOINT_MET(pp32) )
+#endif
+        else if (PP32_CPU_USER_STOPPED(pp32) || PP32_CPU_USER_BREAKIN_RCV(pp32) || PP32_CPU_USER_BREAKPOINT_MET(pp32))
         {
             strlength = 0;
-            if ( PP32_CPU_USER_STOPPED(pp32) )
+            if (PP32_CPU_USER_STOPPED(pp32))
                 strlength += sprintf(str + strlength, "stopped");
-            if ( PP32_CPU_USER_BREAKPOINT_MET(pp32) )
+            if (PP32_CPU_USER_BREAKPOINT_MET(pp32))
                 strlength += sprintf(str + strlength, strlength ? " | breakpoint" : "breakpoint");
-            if ( PP32_CPU_USER_BREAKIN_RCV(pp32) )
+            if (PP32_CPU_USER_BREAKIN_RCV(pp32))
                 strlength += sprintf(str + strlength, strlength ? " | breakin" : "breakin");
             f_stopped = 1;
         }
-        else if ( PP32_CPU_CUR_PC(pp32) == PP32_CPU_CUR_PC(pp32) )
+        else if (PP32_CPU_CUR_PC(pp32) == PP32_CPU_CUR_PC(pp32))
         {
             unsigned int pc_value[64] = {0};
 
             f_stopped = 1;
-            for ( i = 0; f_stopped && i < NUM_ENTITY(pc_value); i++ )
+            for (i = 0; f_stopped && i < NUM_ENTITY(pc_value); i++)
             {
                 pc_value[i] = PP32_CPU_CUR_PC(pp32);
-                for ( j = 0; j < i; j++ )
-                    if ( pc_value[j] != pc_value[i] )
+                for (j = 0; j < i; j++)
+                    if (pc_value[j] != pc_value[i])
                     {
                         f_stopped = 0;
                         break;
                     }
             }
-            if ( f_stopped )
+            if (f_stopped)
                 sprintf(str, "hang");
         }
-        if ( !f_stopped )
+        if (!f_stopped)
             sprintf(str, "running");
         cur_context = PP32_BRK_CUR_CONTEXT(pp32);
         len += sprintf(page + off + len, "Context: %d, PC: 0x%04x, %s\n", cur_context, PP32_CPU_CUR_PC(pp32), str);
 
-        if ( PP32_CPU_USER_BREAKPOINT_MET(pp32) )
+        if (PP32_CPU_USER_BREAKPOINT_MET(pp32))
         {
             strlength = 0;
-            if ( PP32_BRK_PC_MET(pp32, 0) )
+            if (PP32_BRK_PC_MET(pp32, 0))
                 strlength += sprintf(str + strlength, "pc0");
-            if ( PP32_BRK_PC_MET(pp32, 1) )
+            if (PP32_BRK_PC_MET(pp32, 1))
                 strlength += sprintf(str + strlength, strlength ? " | pc1" : "pc1");
-            if ( PP32_BRK_DATA_ADDR_MET(pp32, 0) )
+            if (PP32_BRK_DATA_ADDR_MET(pp32, 0))
                 strlength += sprintf(str + strlength, strlength ? " | daddr0" : "daddr0");
-            if ( PP32_BRK_DATA_ADDR_MET(pp32, 1) )
+            if (PP32_BRK_DATA_ADDR_MET(pp32, 1))
                 strlength += sprintf(str + strlength, strlength ? " | daddr1" : "daddr1");
-            if ( PP32_BRK_DATA_VALUE_RD_MET(pp32, 0) )
+            if (PP32_BRK_DATA_VALUE_RD_MET(pp32, 0))
             {
                 strlength += sprintf(str + strlength, strlength ? " | rdval0" : "rdval0");
-                if ( PP32_BRK_DATA_VALUE_RD_LO_EQ(pp32, 0) )
+                if (PP32_BRK_DATA_VALUE_RD_LO_EQ(pp32, 0))
                 {
-                    if ( PP32_BRK_DATA_VALUE_RD_GT_EQ(pp32, 0) )
+                    if (PP32_BRK_DATA_VALUE_RD_GT_EQ(pp32, 0))
                         strlength += sprintf(str + strlength, " ==");
                     else
                         strlength += sprintf(str + strlength, " <=");
                 }
-                else if ( PP32_BRK_DATA_VALUE_RD_GT_EQ(pp32, 0) )
+                else if (PP32_BRK_DATA_VALUE_RD_GT_EQ(pp32, 0))
                     strlength += sprintf(str + strlength, " >=");
             }
-            if ( PP32_BRK_DATA_VALUE_RD_MET(pp32, 1) )
+            if (PP32_BRK_DATA_VALUE_RD_MET(pp32, 1))
             {
                 strlength += sprintf(str + strlength, strlength ? " | rdval1" : "rdval1");
-                if ( PP32_BRK_DATA_VALUE_RD_LO_EQ(pp32, 1) )
+                if (PP32_BRK_DATA_VALUE_RD_LO_EQ(pp32, 1))
                 {
-                    if ( PP32_BRK_DATA_VALUE_RD_GT_EQ(pp32, 1) )
+                    if (PP32_BRK_DATA_VALUE_RD_GT_EQ(pp32, 1))
                         strlength += sprintf(str + strlength, " ==");
                     else
                         strlength += sprintf(str + strlength, " <=");
                 }
-                else if ( PP32_BRK_DATA_VALUE_RD_GT_EQ(pp32, 1) )
+                else if (PP32_BRK_DATA_VALUE_RD_GT_EQ(pp32, 1))
                     strlength += sprintf(str + strlength, " >=");
             }
-            if ( PP32_BRK_DATA_VALUE_WR_MET(pp32, 0) )
+            if (PP32_BRK_DATA_VALUE_WR_MET(pp32, 0))
             {
                 strlength += sprintf(str + strlength, strlength ? " | wtval0" : "wtval0");
-                if ( PP32_BRK_DATA_VALUE_WR_LO_EQ(pp32, 0) )
+                if (PP32_BRK_DATA_VALUE_WR_LO_EQ(pp32, 0))
                 {
-                    if ( PP32_BRK_DATA_VALUE_WR_GT_EQ(pp32, 0) )
+                    if (PP32_BRK_DATA_VALUE_WR_GT_EQ(pp32, 0))
                         strlength += sprintf(str + strlength, " ==");
                     else
                         strlength += sprintf(str + strlength, " <=");
                 }
-                else if ( PP32_BRK_DATA_VALUE_WR_GT_EQ(pp32, 0) )
+                else if (PP32_BRK_DATA_VALUE_WR_GT_EQ(pp32, 0))
                     strlength += sprintf(str + strlength, " >=");
             }
-            if ( PP32_BRK_DATA_VALUE_WR_MET(pp32, 1) )
+            if (PP32_BRK_DATA_VALUE_WR_MET(pp32, 1))
             {
                 strlength += sprintf(str + strlength, strlength ? " | wtval1" : "wtval1");
-                if ( PP32_BRK_DATA_VALUE_WR_LO_EQ(pp32, 1) )
+                if (PP32_BRK_DATA_VALUE_WR_LO_EQ(pp32, 1))
                 {
-                    if ( PP32_BRK_DATA_VALUE_WR_GT_EQ(pp32, 1) )
+                    if (PP32_BRK_DATA_VALUE_WR_GT_EQ(pp32, 1))
                         strlength += sprintf(str + strlength, " ==");
                     else
                         strlength += sprintf(str + strlength, " <=");
                 }
-                else if ( PP32_BRK_DATA_VALUE_WR_GT_EQ(pp32, 1) )
+                else if (PP32_BRK_DATA_VALUE_WR_GT_EQ(pp32, 1))
                     strlength += sprintf(str + strlength, " >=");
             }
             len += sprintf(page + off + len, "break reason: %s\n", str);
         }
 
-        if ( f_stopped )
+        if (f_stopped)
         {
             len += sprintf(page + off + len, "General Purpose Register (Context %d):\n", cur_context);
-            for ( i = 0; i < 4; i++ )
+            for (i = 0; i < 4; i++)
             {
-                for ( j = 0; j < 4; j++ )
+                for (j = 0; j < 4; j++)
                     len += sprintf(page + off + len, "   %2d: %08x", i + j * 4, *PP32_GP_CONTEXTi_REGn(pp32, cur_context, i + j * 4));
                 len += sprintf(page + off + len, "\n");
             }
         }
 
         len += sprintf(page + off + len, "break out on: break in - %s, stop - %s\n",
-                                            PP32_CTRL_OPT_BREAKOUT_ON_BREAKIN(pp32) ? stron : stroff,
-                                            PP32_CTRL_OPT_BREAKOUT_ON_STOP(pp32) ? stron : stroff);
+                       PP32_CTRL_OPT_BREAKOUT_ON_BREAKIN(pp32) ? stron : stroff,
+                       PP32_CTRL_OPT_BREAKOUT_ON_STOP(pp32) ? stron : stroff);
         len += sprintf(page + off + len, "     stop on: break in - %s, break point - %s\n",
-                                            PP32_CTRL_OPT_STOP_ON_BREAKIN(pp32) ? stron : stroff,
-                                            PP32_CTRL_OPT_STOP_ON_BREAKPOINT(pp32) ? stron : stroff);
+                       PP32_CTRL_OPT_STOP_ON_BREAKIN(pp32) ? stron : stroff,
+                       PP32_CTRL_OPT_STOP_ON_BREAKPOINT(pp32) ? stron : stroff);
         len += sprintf(page + off + len, "breakpoint:\n");
         len += sprintf(page + off + len, "     pc0: 0x%08x, %s\n", *PP32_BRK_PC(pp32, 0), PP32_BRK_GRPi_PCn(pp32, 0, 0) ? "group 0" : "off");
         len += sprintf(page + off + len, "     pc1: 0x%08x, %s\n", *PP32_BRK_PC(pp32, 1), PP32_BRK_GRPi_PCn(pp32, 1, 1) ? "group 1" : "off");
@@ -618,74 +609,75 @@ static int proc_write_pp32(struct file *file, const char *buf, unsigned long cou
 
     len = count < sizeof(str) ? count : sizeof(str) - 1;
     rlen = len - copy_from_user(str, buf, len);
-    while ( rlen && str[rlen - 1] <= ' ' )
+    while (rlen && str[rlen - 1] <= ' ')
         rlen--;
     str[rlen] = 0;
-    for ( p = str; *p && *p <= ' '; p++, rlen-- );
-    if ( !*p )
+    for (p = str; *p && *p <= ' '; p++, rlen--)
+        ;
+    if (!*p)
         return 0;
 
-    if ( strincmp(p, "pp32 ", 5) == 0 )
+    if (strincmp(p, "pp32 ", 5) == 0)
     {
         p += 5;
         rlen -= 5;
 
-        while ( rlen > 0 && *p >= '0' && *p <= '9' )
+        while (rlen > 0 && *p >= '0' && *p <= '9')
         {
             pp32 += *p - '0';
             p++;
             rlen--;
         }
-        while ( rlen > 0 && *p && *p <= ' ' )
+        while (rlen > 0 && *p && *p <= ' ')
         {
             p++;
             rlen--;
         }
 
-        if ( pp32 >= NUM_OF_PP32 )
+        if (pp32 >= NUM_OF_PP32)
         {
             printk(KERN_ERR __FILE__ ":%d:%s: incorrect pp32 index - %d\n", __LINE__, __FUNCTION__, pp32);
             return count;
         }
     }
 
-    if ( stricmp(p, "start") == 0 )
+    if (stricmp(p, "start") == 0)
     {
-  #ifdef CONFIG_AMAZON_SE
+#ifdef CONFIG_AMAZON_SE
         *PP32_CTRL_CMD(pp32) = 0;
-  #endif
+#endif
         *PP32_CTRL_CMD(pp32) = PP32_CTRL_CMD_RESTART;
     }
-    else if ( stricmp(p, "stop") == 0 )
+    else if (stricmp(p, "stop") == 0)
     {
-  #ifdef CONFIG_AMAZON_SE
+#ifdef CONFIG_AMAZON_SE
         *PP32_CTRL_CMD(pp32) = 0;
-  #endif
+#endif
         *PP32_CTRL_CMD(pp32) = PP32_CTRL_CMD_STOP;
     }
-    else if ( stricmp(p, "step") == 0 )
+    else if (stricmp(p, "step") == 0)
     {
-  #ifdef CONFIG_AMAZON_SE
+#ifdef CONFIG_AMAZON_SE
         *PP32_CTRL_CMD(pp32) = 0;
-  #endif
+#endif
         *PP32_CTRL_CMD(pp32) = PP32_CTRL_CMD_STEP;
     }
-  #ifdef CONFIG_VR9
-    else if ( stricmp(p, "unfreeze") == 0 )
+#ifdef CONFIG_VR9
+    else if (stricmp(p, "unfreeze") == 0)
         *PP32_FREEZE &= ~(1 << (pp32 << 4));
-    else if ( stricmp(p, "freeze") == 0 )
+    else if (stricmp(p, "freeze") == 0)
         *PP32_FREEZE |= 1 << (pp32 << 4);
-  #else
-    else if ( stricmp(p, "unfreeze") == 0 )
+#else
+    else if (stricmp(p, "unfreeze") == 0)
         *PP32_DBG_CTRL(pp32) = DBG_CTRL_RESTART;
-    else if ( stricmp(p, "freeze") == 0 )
+    else if (stricmp(p, "freeze") == 0)
         *PP32_DBG_CTRL(pp32) = DBG_CTRL_STOP;
-  #endif
-    else if ( strincmp(p, "pc0 ", 4) == 0 )
+#endif
+    else if (strincmp(p, "pc0 ", 4) == 0)
     {
         p += 4;
         rlen -= 4;
-        if ( stricmp(p, "off") == 0 )
+        if (stricmp(p, "off") == 0)
         {
             *PP32_BRK_TRIG(pp32) = PP32_BRK_GRPi_PCn_OFF(0, 0);
             *PP32_BRK_PC_MASK(pp32, 0) = PP32_BRK_CONTEXT_MASK_EN;
@@ -699,11 +691,11 @@ static int proc_write_pp32(struct file *file, const char *buf, unsigned long cou
             *PP32_BRK_TRIG(pp32) = PP32_BRK_GRPi_PCn_ON(0, 0);
         }
     }
-    else if ( strincmp(p, "pc1 ", 4) == 0 )
+    else if (strincmp(p, "pc1 ", 4) == 0)
     {
         p += 4;
         rlen -= 4;
-        if ( stricmp(p, "off") == 0 )
+        if (stricmp(p, "off") == 0)
         {
             *PP32_BRK_TRIG(pp32) = PP32_BRK_GRPi_PCn_OFF(1, 1);
             *PP32_BRK_PC_MASK(pp32, 1) = PP32_BRK_CONTEXT_MASK_EN;
@@ -717,11 +709,11 @@ static int proc_write_pp32(struct file *file, const char *buf, unsigned long cou
             *PP32_BRK_TRIG(pp32) = PP32_BRK_GRPi_PCn_ON(1, 1);
         }
     }
-    else if ( strincmp(p, "daddr0 ", 7) == 0 )
+    else if (strincmp(p, "daddr0 ", 7) == 0)
     {
         p += 7;
         rlen -= 7;
-        if ( stricmp(p, "off") == 0 )
+        if (stricmp(p, "off") == 0)
         {
             *PP32_BRK_TRIG(pp32) = PP32_BRK_GRPi_DATA_ADDRn_OFF(0, 0);
             *PP32_BRK_DATA_ADDR_MASK(pp32, 0) = PP32_BRK_CONTEXT_MASK_EN;
@@ -735,11 +727,11 @@ static int proc_write_pp32(struct file *file, const char *buf, unsigned long cou
             *PP32_BRK_TRIG(pp32) = PP32_BRK_GRPi_DATA_ADDRn_ON(0, 0);
         }
     }
-    else if ( strincmp(p, "daddr1 ", 7) == 0 )
+    else if (strincmp(p, "daddr1 ", 7) == 0)
     {
         p += 7;
         rlen -= 7;
-        if ( stricmp(p, "off") == 0 )
+        if (stricmp(p, "off") == 0)
         {
             *PP32_BRK_TRIG(pp32) = PP32_BRK_GRPi_DATA_ADDRn_OFF(1, 1);
             *PP32_BRK_DATA_ADDR_MASK(pp32, 1) = PP32_BRK_CONTEXT_MASK_EN;
@@ -770,7 +762,7 @@ static int proc_write_pp32(struct file *file, const char *buf, unsigned long cou
         printk("    help     - print this screen\n");
     }
 
-    if ( *PP32_BRK_TRIG(pp32) )
+    if (*PP32_BRK_TRIG(pp32))
         *PP32_CTRL_OPT(pp32) = PP32_CTRL_OPT_STOP_ON_BREAKPOINT_ON;
     else
         *PP32_CTRL_OPT(pp32) = PP32_CTRL_OPT_STOP_ON_BREAKPOINT_OFF;
@@ -784,11 +776,11 @@ static int stricmp(const char *p1, const char *p2)
 {
     int c1, c2;
 
-    while ( *p1 && *p2 )
+    while (*p1 && *p2)
     {
         c1 = *p1 >= 'A' && *p1 <= 'Z' ? *p1 + 'a' - 'A' : *p1;
         c2 = *p2 >= 'A' && *p2 <= 'Z' ? *p2 + 'a' - 'A' : *p2;
-        if ( (c1 -= c2) )
+        if ((c1 -= c2))
             return c1;
         p1++;
         p2++;
@@ -801,11 +793,11 @@ static int strincmp(const char *p1, const char *p2, int n)
 {
     int c1 = 0, c2;
 
-    while ( n && *p1 && *p2 )
+    while (n && *p1 && *p2)
     {
         c1 = *p1 >= 'A' && *p1 <= 'Z' ? *p1 + 'a' - 'A' : *p1;
         c2 = *p2 >= 'A' && *p2 <= 'Z' ? *p2 + 'a' - 'A' : *p2;
-        if ( (c1 -= c2) )
+        if ((c1 -= c2))
             return c1;
         p1++;
         p2++;
@@ -819,21 +811,21 @@ static int get_token(char **p1, char **p2, int *len, int *colon)
 {
     int tlen = 0;
 
-    while ( *len && !((**p1 >= 'A' && **p1 <= 'Z') || (**p1 >= 'a' && **p1<= 'z')) )
+    while (*len && !((**p1 >= 'A' && **p1 <= 'Z') || (**p1 >= 'a' && **p1 <= 'z')))
     {
         (*p1)++;
         (*len)--;
     }
-    if ( !*len )
+    if (!*len)
         return 0;
 
-    if ( *colon )
+    if (*colon)
     {
         *colon = 0;
         *p2 = *p1;
-        while ( *len && **p2 > ' ' && **p2 != ',' )
+        while (*len && **p2 > ' ' && **p2 != ',')
         {
-            if ( **p2 == ':' )
+            if (**p2 == ':')
             {
                 *colon = 1;
                 break;
@@ -847,7 +839,7 @@ static int get_token(char **p1, char **p2, int *len, int *colon)
     else
     {
         *p2 = *p1;
-        while ( *len && **p2 > ' ' && **p2 != ',' )
+        while (*len && **p2 > ' ' && **p2 != ',')
         {
             (*p2)++;
             (*len)--;
@@ -864,22 +856,22 @@ static int get_number(char **p, int *len, int is_hex)
     int ret = 0;
     int n = 0;
 
-    if ( (*p)[0] == '0' && (*p)[1] == 'x' )
+    if ((*p)[0] == '0' && (*p)[1] == 'x')
     {
         is_hex = 1;
         (*p) += 2;
         (*len) -= 2;
     }
 
-    if ( is_hex )
+    if (is_hex)
     {
-        while ( *len && ((**p >= '0' && **p <= '9') || (**p >= 'a' && **p <= 'f') || (**p >= 'A' && **p <= 'F')) )
+        while (*len && ((**p >= '0' && **p <= '9') || (**p >= 'a' && **p <= 'f') || (**p >= 'A' && **p <= 'F')))
         {
-            if ( **p >= '0' && **p <= '9' )
+            if (**p >= '0' && **p <= '9')
                 n = **p - '0';
-            else if ( **p >= 'a' && **p <= 'f' )
-               n = **p - 'a' + 10;
-            else if ( **p >= 'A' && **p <= 'F' )
+            else if (**p >= 'a' && **p <= 'f')
+                n = **p - 'a' + 10;
+            else if (**p >= 'A' && **p <= 'F')
                 n = **p - 'A' + 10;
             ret = (ret << 4) | n;
             (*p)++;
@@ -888,7 +880,7 @@ static int get_number(char **p, int *len, int is_hex)
     }
     else
     {
-        while ( *len && **p >= '0' && **p <= '9' )
+        while (*len && **p >= '0' && **p <= '9')
         {
             n = **p - '0';
             ret = ret * 10 + n;
@@ -902,22 +894,18 @@ static int get_number(char **p, int *len, int is_hex)
 
 static inline void ignore_space(char **p, int *len)
 {
-    while ( *len && (**p <= ' ' || **p == ':' || **p == '.' || **p == ',') )
+    while (*len && (**p <= ' ' || **p == ':' || **p == '.' || **p == ','))
     {
         (*p)++;
         (*len)--;
     }
 }
 
-
-
 /*
  * ####################################
  *           Global Function
  * ####################################
  */
-
-
 
 /*
  * ####################################

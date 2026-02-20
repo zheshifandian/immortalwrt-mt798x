@@ -1,5 +1,5 @@
---- a/mt_wifi/embedded/common/cmm_info.c	2023-08-25 01:53:57.822614787 +0800
-+++ b/mt_wifi/embedded/common/cmm_info.c	2023-08-25 01:51:04.886997741 +0800
+--- a/mt_wifi/embedded/common/cmm_info.c
++++ b/mt_wifi/embedded/common/cmm_info.c
 @@ -7045,6 +7045,7 @@ typedef struct _RT_802_11_MAC_TABLE_FIX
  UINT32 RTMPGetLastTxRate_fix(PRTMP_ADAPTER pAd, MAC_TABLE_ENTRY *pEntry)
  {
@@ -15,7 +15,7 @@
 -	lastTxRate.field.MODE = rTxStatResult.rEntryTxRate.MODE;
 +	phy_mode = rTxStatResult.rEntryTxRate.MODE;
 +	if (phy_mode >> 3)
-+		phy_mode >>= 3;	
++		phy_mode >>= 3;
 +	lastTxRate.field.MODE = phy_mode;
  	lastTxRate.field.BW = rTxStatResult.rEntryTxRate.BW;
  	lastTxRate.field.ldpc = rTxStatResult.rEntryTxRate.ldpc ? 1 : 0;

@@ -20,14 +20,15 @@
 #include <linux/rtnetlink.h>
 #include <linux/debugfs.h>
 
-#define trelay_log(loglevel, tr, fmt, ...) \
+#define trelay_log(loglevel, tr, fmt, ...)          \
 	printk(loglevel "trelay: %s <-> %s: " fmt "\n", \
-		tr->dev1->name, tr->dev2->name, ##__VA_ARGS__);
+		   tr->dev1->name, tr->dev2->name, ##__VA_ARGS__);
 
 static LIST_HEAD(trelay_devs);
 static struct dentry *debugfs_dir;
 
-struct trelay {
+struct trelay
+{
 	struct list_head list;
 	struct net_device *dev1, *dev2;
 	struct dentry *debugfs;
@@ -86,7 +87,8 @@ static struct trelay *trelay_find(struct net_device *dev)
 {
 	struct trelay *tr;
 
-	list_for_each_entry(tr, &trelay_devs, list) {
+	list_for_each_entry(tr, &trelay_devs, list)
+	{
 		if (tr->dev1 == dev || tr->dev2 == dev)
 			return tr;
 	}
@@ -94,7 +96,7 @@ static struct trelay *trelay_find(struct net_device *dev)
 }
 
 static int tr_device_event(struct notifier_block *unused, unsigned long event,
-			   void *ptr)
+						   void *ptr)
 {
 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
 	struct trelay *tr;
@@ -113,7 +115,7 @@ out:
 }
 
 static ssize_t trelay_remove_write(struct file *file, const char __user *ubuf,
-				   size_t count, loff_t *ppos)
+								   size_t count, loff_t *ppos)
 {
 	struct trelay *tr = file->private_data;
 	tr->to_remove = 1;
@@ -129,9 +131,8 @@ static int trelay_remove_release(struct inode *inode, struct file *file)
 	 * context which means that: (1) this file can be removed and
 	 * (2) file->private_data may no longer be valid */
 	rtnl_lock();
-	list_for_each_entry_safe(tr, tmp, &trelay_devs, list)
-		if (tr->to_remove)
-			trelay_do_remove(tr);
+	list_for_each_entry_safe(tr, tmp, &trelay_devs, list) if (tr->to_remove)
+		trelay_do_remove(tr);
 	rtnl_unlock();
 
 	return 0;
@@ -144,7 +145,6 @@ static const struct file_operations fops_remove = {
 	.llseek = default_llseek,
 	.release = trelay_remove_release,
 };
-
 
 static int trelay_do_add(char *name, char *devn1, char *devn2)
 {
@@ -160,7 +160,8 @@ static int trelay_do_add(char *name, char *devn1, char *devn2)
 	rcu_read_lock();
 
 	ret = -EEXIST;
-	list_for_each_entry(tr1, &trelay_devs, list) {
+	list_for_each_entry(tr1, &trelay_devs, list)
+	{
 		if (!strcmp(tr1->name, name))
 			goto out;
 	}
@@ -176,7 +177,8 @@ static int trelay_do_add(char *name, char *devn1, char *devn2)
 		goto out;
 
 	ret = netdev_rx_handler_register(dev2, trelay_handle_frame, dev1);
-	if (ret < 0) {
+	if (ret < 0)
+	{
 		netdev_rx_handler_unregister(dev1);
 		goto out;
 	}
@@ -205,7 +207,7 @@ out:
 }
 
 static ssize_t trelay_add_write(struct file *file, const char __user *ubuf,
-				size_t count, loff_t *ppos)
+								size_t count, loff_t *ppos)
 {
 	char buf[256];
 	char *dev1, *dev2, *tmp;
@@ -251,8 +253,7 @@ static const struct file_operations fops_add = {
 };
 
 static struct notifier_block tr_dev_notifier = {
-	.notifier_call = tr_device_event
-};
+	.notifier_call = tr_device_event};
 
 static int __init trelay_init(void)
 {

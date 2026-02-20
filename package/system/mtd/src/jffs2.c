@@ -30,12 +30,12 @@
 #include "crc32.h"
 #include "mtd.h"
 
-#define PAD(x) (((x)+3)&~3)
+#define PAD(x) (((x) + 3) & ~3)
 
 #if BYTE_ORDER == BIG_ENDIAN
-# define CLEANMARKER "\x19\x85\x20\x03\x00\x00\x00\x0c\xf0\x60\xdc\x98"
+#define CLEANMARKER "\x19\x85\x20\x03\x00\x00\x00\x0c\xf0\x60\xdc\x98"
 #else
-# define CLEANMARKER "\x85\x19\x03\x20\x0c\x00\x00\x00\xb1\xb0\x1e\xe4"
+#define CLEANMARKER "\x85\x19\x03\x20\x0c\x00\x00\x00\xb1\xb0\x1e\xe4"
 #endif
 
 static int last_ino = 0;
@@ -53,13 +53,16 @@ static void pad(int size)
 	if ((ofs % size == 0) && (ofs < erasesize))
 		return;
 
-	if (ofs < erasesize) {
+	if (ofs < erasesize)
+	{
 		memset(buf + ofs, 0xff, (size - (ofs % size)));
 		ofs += (size - (ofs % size));
 	}
 	ofs = ofs % erasesize;
-	if (ofs == 0) {
-		while (mtd_block_is_bad(outfd, mtdofs) && (mtdofs < mtdsize)) {
+	if (ofs == 0)
+	{
+		while (mtd_block_is_bad(outfd, mtdofs) && (mtdofs < mtdsize))
+		{
 			if (!quiet)
 				fprintf(stderr, "\nSkipping bad block at 0x%08x   ", mtdofs);
 
@@ -81,7 +84,8 @@ static inline int rbytes(void)
 
 static inline void add_data(char *ptr, int len)
 {
-	if (ofs + len > erasesize) {
+	if (ofs + len > erasesize)
+	{
 		pad(erasesize);
 		prep_eraseblock();
 	}
@@ -107,7 +111,7 @@ static int add_dirent(const char *name, const char type, int parent)
 	prep_eraseblock();
 	last_ino++;
 	memset(buf + ofs, 0, sizeof(struct jffs2_raw_dirent));
-	de = (struct jffs2_raw_dirent *) (buf + ofs);
+	de = (struct jffs2_raw_dirent *)(buf + ofs);
 
 	de->magic = JFFS2_MAGIC_BITMASK;
 	de->nodetype = JFFS2_NODETYPE_DIRENT;
@@ -116,11 +120,11 @@ static int add_dirent(const char *name, const char type, int parent)
 	de->ino = last_ino++;
 	de->pino = parent;
 	de->totlen = sizeof(*de) + strlen(name);
-	de->hdr_crc = crc32(0, (void *) de, sizeof(struct jffs2_unknown_node) - 4);
+	de->hdr_crc = crc32(0, (void *)de, sizeof(struct jffs2_unknown_node) - 4);
 	de->version = last_version++;
 	de->mctime = 0;
 	de->nsize = strlen(name);
-	de->node_crc = crc32(0, (void *) de, sizeof(*de) - 8);
+	de->node_crc = crc32(0, (void *)de, sizeof(*de) - 8);
 	memcpy(de->name, name, strlen(name));
 
 	ofs += sizeof(struct jffs2_raw_dirent) + de->nsize;
@@ -155,7 +159,7 @@ static int add_dir(const char *name, int parent)
 	ri.node_crc = crc32(0, &ri, sizeof(ri) - 8);
 	ri.data_crc = 0;
 
-	add_data((char *) &ri, sizeof(ri));
+	add_data((char *)&ri, sizeof(ri));
 	pad(4);
 	return inode;
 }
@@ -168,7 +172,8 @@ static void add_file(const char *name, int parent)
 	char wbuf[4096];
 	const char *fname;
 
-	if (stat(name, &st)) {
+	if (stat(name, &st))
+	{
 		fprintf(stderr, "File %s does not exist\n", name);
 		return;
 	}
@@ -195,15 +200,18 @@ static void add_file(const char *name, int parent)
 	ri.usercompr = 0;
 
 	fd = open(name, 0);
-	if (fd < 0) {
+	if (fd < 0)
+	{
 		fprintf(stderr, "File %s does not exist\n", name);
 		return;
 	}
 
-	for (;;) {
+	for (;;)
+	{
 		int len = 0;
 
-		for (;;) {
+		for (;;)
+		{
 			len = rbytes() - sizeof(ri);
 			if (len > 128)
 				break;
@@ -227,7 +235,7 @@ static void add_file(const char *name, int parent)
 		ri.node_crc = crc32(0, &ri, sizeof(ri) - 8);
 		ri.data_crc = crc32(0, wbuf, len);
 		f_offset += len;
-		add_data((char *) &ri, sizeof(ri));
+		add_data((char *)&ri, sizeof(ri));
 		add_data(wbuf, len);
 		pad(4);
 		prep_eraseblock();
@@ -258,20 +266,22 @@ int mtd_replace_jffs2(const char *mtd, int fd, int ofs, const char *filename)
 
 void mtd_parse_jffs2data(const char *buf, const char *dir)
 {
-	struct jffs2_unknown_node *node = (struct jffs2_unknown_node *) buf;
+	struct jffs2_unknown_node *node = (struct jffs2_unknown_node *)buf;
 	unsigned int ofs = 0;
 
-	while (ofs < erasesize) {
-		node = (struct jffs2_unknown_node *) (buf + ofs);
+	while (ofs < erasesize)
+	{
+		node = (struct jffs2_unknown_node *)(buf + ofs);
 		if (node->magic != 0x1985)
 			break;
 
 		ofs += PAD(node->totlen);
-		if (node->nodetype == JFFS2_NODETYPE_DIRENT) {
-			struct jffs2_raw_dirent *de = (struct jffs2_raw_dirent *) node;
+		if (node->nodetype == JFFS2_NODETYPE_DIRENT)
+		{
+			struct jffs2_raw_dirent *de = (struct jffs2_raw_dirent *)node;
 
 			/* is this the right directory name and is it a subdirectory of / */
-			if (*dir && (de->pino == 1) && !strncmp((char *) de->name, dir, de->nsize))
+			if (*dir && (de->pino == 1) && !strncmp((char *)de->name, dir, de->nsize))
 				target_ino = de->ino;
 
 			/* store the last inode and version numbers for adding extra files */
@@ -293,9 +303,10 @@ int mtd_write_jffs2(const char *mtd, const char *filename, const char *dir)
 
 	if (quiet < 2)
 		fprintf(stderr, "Appending %s to jffs2 partition %s\n", filename, mtd);
-	
+
 	buf = malloc(erasesize);
-	if (!buf) {
+	if (!buf)
+	{
 		fprintf(stderr, "Out of memory!\n");
 		goto done;
 	}
@@ -305,16 +316,19 @@ int mtd_write_jffs2(const char *mtd, const char *filename, const char *dir)
 
 	/* parse the structure of the jffs2 first
 	 * locate the directory that the file is going to be placed in */
-	for(;;) {
-		struct jffs2_unknown_node *node = (struct jffs2_unknown_node *) buf;
+	for (;;)
+	{
+		struct jffs2_unknown_node *node = (struct jffs2_unknown_node *)buf;
 
-		if (read(outfd, buf, erasesize) != erasesize) {
+		if (read(outfd, buf, erasesize) != erasesize)
+		{
 			fdeof = 1;
 			break;
 		}
 		mtdofs += erasesize;
 
-		if (node->magic == 0x8519) {
+		if (node->magic == 0x8519)
+		{
 			fprintf(stderr, "Error: wrong endianness filesystem\n");
 			goto done;
 		}
@@ -327,7 +341,8 @@ int mtd_write_jffs2(const char *mtd, const char *filename, const char *dir)
 		mtd_parse_jffs2data(buf, dir);
 	}
 
-	if (fdeof) {
+	if (fdeof)
+	{
 		fprintf(stderr, "Error: No room for additional data\n");
 		goto done;
 	}
@@ -353,8 +368,9 @@ int mtd_write_jffs2(const char *mtd, const char *filename, const char *dir)
 
 	err = 0;
 
-	if (trx_fixup) {
-	  trx_fixup(outfd, mtd);
+	if (trx_fixup)
+	{
+		trx_fixup(outfd, mtd);
 	}
 
 done:

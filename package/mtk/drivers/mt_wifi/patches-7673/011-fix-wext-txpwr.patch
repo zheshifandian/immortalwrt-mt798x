@@ -1,6 +1,6 @@
 --- a/mt_wifi/embedded/ap/ap_cfg.c
 +++ b/mt_wifi/embedded/ap/ap_cfg.c
-@@ -29235,6 +29235,46 @@ INT32 rtmp_get_macPower(IN VOID *pAdSrc)
+@@ -29908,6 +29908,46 @@ INT32 rtmp_get_macPower(IN VOID *pAdSrc)
  	return retPwr;
  }
  
@@ -67,7 +67,7 @@
 -			MTWF_DBG(pAd, DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_ERROR,
 -			"RT_PRIV_IOCTL interface is down, cmd [%x] return!!!\n", cmd);
 -			return -ENETDOWN;
-+		if (RT_DEV_PRIV_FLAGS_GET(net_dev) == INT_MAIN || 
++		if (RT_DEV_PRIV_FLAGS_GET(net_dev) == INT_MAIN ||
 +			RT_DEV_PRIV_FLAGS_GET(net_dev) == INT_MBSSID) {
 +			wdev = pIoctlConfig->wdev;
 +			if (wdev->if_up_down_state == FALSE) {

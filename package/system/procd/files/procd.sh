@@ -101,9 +101,11 @@ _procd_close_service() {
 	_procd_open_trigger
 	service_triggers
 	_procd_close_trigger
-	_procd_open_data
-	service_data
-	_procd_close_data
+	type service_data >/dev/null 2>&1 && {
+		_procd_open_data
+		service_data
+		_procd_close_data
+	}
 	_procd_ubus_call ${1:-set}
 }
 
@@ -191,6 +193,7 @@ _procd_add_jail() {
 		case $a in
 		log)	json_add_boolean "log" "1";;
 		ubus)	json_add_boolean "ubus" "1";;
+		udebug)	json_add_boolean "udebug" "1";;
 		procfs)	json_add_boolean "procfs" "1";;
 		sysfs)	json_add_boolean "sysfs" "1";;
 		ronly)	json_add_boolean "ronly" "1";;
@@ -198,7 +201,6 @@ _procd_add_jail() {
 		netns)	json_add_boolean "netns" "1";;
 		userns)	json_add_boolean "userns" "1";;
 		cgroupsns)	json_add_boolean "cgroupsns" "1";;
-		console)	json_add_boolean "console" "1";;
 		esac
 	done
 	json_add_object "mount"
@@ -307,6 +309,36 @@ _procd_add_reload_interface_trigger() {
 	_procd_close_trigger
 }
 
+_procd_add_data_trigger() {
+	json_add_array
+	_procd_add_array_data "service.data.update"
+
+	json_add_array
+	_procd_add_array_data "if"
+
+	json_add_array
+	_procd_add_array_data "eq" "name" "$1"
+	shift
+	json_close_array
+
+	json_add_array
+	_procd_add_array_data "run_script" "$@"
+	json_close_array
+
+	json_close_array
+	_procd_add_timeout
+	json_close_array
+}
+
+_procd_add_reload_data_trigger() {
+	local script=$(readlink "$initscript")
+	local name=$(basename ${script:-$initscript})
+
+	_procd_open_trigger
+	_procd_add_data_trigger $1 /etc/init.d/$name reload
+	_procd_close_trigger
+}
+
 _procd_add_config_trigger() {
 	json_add_array
 	_procd_add_array_data "$1"
@@ -327,6 +359,79 @@ _procd_add_config_trigger() {
 	json_close_array
 	_procd_add_timeout
 	json_close_array
+}
+
+_procd_add_mount_trigger() {
+	json_add_array
+	_procd_add_array_data "$1"
+	local action="$2"
+	local multi=0
+	shift ; shift
+
+	json_add_array
+	_procd_add_array_data "if"
+
+	if [ "$2" ]; then
+		json_add_array
+		_procd_add_array_data "or"
+		multi=1
+	fi
+
+	while [ "$1" ]; do
+		json_add_array
+		_procd_add_array_data "eq" "target" "$1"
+		shift
+		json_close_array
+	done
+
+	[ $multi = 1 ] && json_close_array
+
+	json_add_array
+	_procd_add_array_data "run_script" /etc/init.d/$name $action
+	json_close_array
+
+	json_close_array
+	_procd_add_timeout
+	json_close_array
+}
+
+_procd_add_action_mount_trigger() {
+	local action="$1"
+	shift
+	local mountpoints="$(procd_get_mountpoints "$@")"
+	[ "${mountpoints//[[:space:]]}" ] || return 0
+	local script=$(readlink "$initscript")
+	local name=$(basename ${script:-$initscript})
+
+	_procd_open_trigger
+	_procd_add_mount_trigger mount.add $action "$mountpoints"
+	_procd_close_trigger
+}
+
+procd_get_mountpoints() {
+	(
+		__procd_check_mount() {
+			local cfg="$1"
+			local path="${2%%/}/"
+			local target
+			config_get target "$cfg" target
+			target="${target%%/}/"
+			[ "$path" != "${path##$target}" ] && echo "${target%%/}"
+		}
+		local mpath
+		config_load fstab
+		for mpath in "$@"; do
+			config_foreach __procd_check_mount mount "$mpath"
+		done
+	) | sort -u
+}
+
+_procd_add_restart_mount_trigger() {
+	_procd_add_action_mount_trigger restart "$@"
+}
+
+_procd_add_reload_mount_trigger() {
+	_procd_add_action_mount_trigger reload "$@"
 }
 
 _procd_add_raw_trigger() {
@@ -452,7 +557,10 @@ _procd_send_signal() {
 _procd_status() {
 	local service="$1"
 	local instance="$2"
-	local data
+	local data state
+	local n_running=0
+	local n_stopped=0
+	local n_total=0
 
 	json_init
 	[ -n "$service" ] && json_add_string name "$service"
@@ -467,10 +575,29 @@ _procd_status() {
 	fi
 
 	[ -n "$instance" ] && instance="\"$instance\"" || instance='*'
-	if [ -z "$(echo "$data" | jsonfilter -e '$['"$instance"']')" ]; then
-		echo "unknown instance $instance"; return 4
+
+	for state in $(jsonfilter -s "$data" -e '$['"$instance"'].running'); do
+		n_total=$((n_total + 1))
+		case "$state" in
+		false) n_stopped=$((n_stopped + 1)) ;;
+		true)  n_running=$((n_running + 1)) ;;
+		esac
+	done
+
+	if [ $n_total -gt 0 ]; then
+		if [ $n_running -gt 0 ] && [ $n_stopped -eq 0 ]; then
+			echo "running"
+			return 0
+		elif [ $n_running -gt 0 ]; then
+			echo "running ($n_running/$n_total)"
+			return 0
+		else
+			echo "not running"
+			return 5
+		fi
 	else
-		echo "running"; return 0
+		echo "unknown instance $instance"
+		return 4
 	fi
 }
 
@@ -498,18 +625,21 @@ _procd_set_config_changed() {
 }
 
 procd_add_mdns_service() {
-	local service proto port
+	local service proto port txt_count=0
 	service=$1; shift
 	proto=$1; shift
 	port=$1; shift
 	json_add_object "${service}_$port"
 	json_add_string "service" "_$service._$proto.local"
 	json_add_int port "$port"
-	[ -n "$1" ] && {
-		json_add_array txt
-		for txt in "$@"; do json_add_string "" "$txt"; done
-		json_select ..
-	}
+	for txt in "$@"; do
+		[ -z "$txt" ] && continue
+		txt_count=$((txt_count+1))
+		[ $txt_count -eq 1 ] && json_add_array txt
+		json_add_string "" "$txt"
+	done
+	[ $txt_count -gt 0 ] && json_select ..
+
 	json_select ..
 }
 
@@ -560,8 +690,13 @@ _procd_wrapper \
 	procd_add_raw_trigger \
 	procd_add_config_trigger \
 	procd_add_interface_trigger \
+	procd_add_mount_trigger \
 	procd_add_reload_trigger \
+	procd_add_reload_data_trigger \
 	procd_add_reload_interface_trigger \
+	procd_add_action_mount_trigger \
+	procd_add_reload_mount_trigger \
+	procd_add_restart_mount_trigger \
 	procd_open_trigger \
 	procd_close_trigger \
 	procd_open_instance \

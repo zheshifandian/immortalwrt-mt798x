@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=acx-mac80211
 PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=http://git.code.sf.net/p/acx100/acx-mac80211
+PKG_SOURCE_URL:=https://git.code.sf.net/p/acx100/acx-mac80211
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_DATE:=2014-02-16
 PKG_SOURCE_VERSION:=b6fc31491020cb01d2cd1acc170cfa03ced7e726

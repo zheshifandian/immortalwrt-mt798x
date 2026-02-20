@@ -27,6 +27,7 @@ CFLAGS=""
 TOOLCHAIN="."
 
 LIBC_TYPE=""
+GCC_VERSION=""
 
 
 # Library specs
@@ -40,6 +41,12 @@ LIB_SPECS="
 	ssp:      libssp
 	gfortran: libgfortran
 	gomp:	  libgomp
+	atomic:	  libatomic
+	quadmath: libquadmath
+	asan:	  libasan
+	tasan:	  libtsan
+	lasan:	  liblsan
+	ubasan:	  libubsan
 "
 
 # Binary specs
@@ -147,6 +154,11 @@ test_feature() {
 find_libs() {
 	local spec="$(echo "$LIB_SPECS" | sed -ne "s#^[[:space:]]*$1:##ip")"
 
+	# glibc doesn't have libcrypt since 2.39
+	if [ "$LIBC_TYPE" = "glibc" ]; then
+		spec=$(printf '%s' "${spec}" | sed 's/,crypt,//')
+	fi
+
 	if [ -n "$spec" ] && probe_cpp; then
 		local libdir libdirs
 		for libdir in $(
@@ -197,6 +209,19 @@ find_bins() {
 	fi
 
 	return 1
+}
+
+find_gcc_version() {
+	if [ -f $TOOLCHAIN/info.mk ]; then
+		GCC_VERSION=$(grep GCC_VERSION $TOOLCHAIN/info.mk | sed 's/GCC_VERSION=//')
+		return 0
+	fi
+
+	echo "Warning! Can't find info.mk, trying to detect with alternative way."
+
+	# Very fragile detection
+	GCC_VERSION=$(find $TOOLCHAIN/bin | grep -oE "gcc-[0-9]+\.[0-9]+\.[0-9]+$" | \
+		head -1 | sed 's/gcc-//')
 }
 
 
@@ -257,6 +282,9 @@ wrap_bins() {
 				fi
 
 				case "${cmd##*/}" in
+					*-gcc-ar|*-gcc-nm|*-gcc-ranlib)
+						wrap_bin_other "$out" "$bin"
+					;;
 					*-*cc|*-*cc-*|*-*++|*-*++-*|*-cpp)
 						wrap_bin_cc "$out" "$bin"
 					;;
@@ -383,8 +411,15 @@ print_config() {
 		return 1
 	fi
 
+	if [ -n "$GCC_VERSION" ]; then
+		echo "CONFIG_EXTERNAL_GCC_VERSION=\"$GCC_VERSION\"" >> "$config"
+	else
+		echo "Can't detect GCC version. Aborting!" >&2
+		return 1
+	fi
+
 	local lib
-	for lib in C RT PTHREAD GCC STDCPP SSP GFORTRAN GOMP; do
+	for lib in C RT PTHREAD GCC STDCPP SSP GFORTRAN GOMP ATOMIC QUADMATH ASAN TSAN LSAN UBSAN; do
 		local file
 		local spec=""
 		local llib="$(echo "$lib" | sed -e 's#.*#\L&#')"
@@ -564,6 +599,7 @@ while [ -n "$1" ]; do
 		--config)
 			if probe_cc; then
 				probe_libc
+				find_gcc_version
 				print_config "$1"
 				exit $?
 			fi

@@ -5,5 +5,5 @@ uci -q batch <<-EOF >/dev/null
 	add ucitrack eqos
 EOF
 
-rm -f /tmp/luci-indexcache
+rm -f /tmp/luci-indexcache.*
 exit 0

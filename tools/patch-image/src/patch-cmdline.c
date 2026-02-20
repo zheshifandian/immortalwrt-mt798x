@@ -28,8 +28,8 @@
 #include <sys/stat.h>
 #include <string.h>
 
-#define SEARCH_SPACE	(16 * 1024)
-#define CMDLINE_MAX		512
+#define SEARCH_SPACE (16 * 1024)
+#define CMDLINE_MAX 512
 
 int main(int argc, char **argv)
 {
@@ -37,46 +37,56 @@ int main(int argc, char **argv)
 	char *ptr, *p;
 	unsigned int search_space;
 
-	if (argc <= 2 || argc > 4) {
+	if (argc <= 2 || argc > 4)
+	{
 		fprintf(stderr, "Usage: %s <file> <cmdline> [size]\n", argv[0]);
 		goto err1;
-	} else if (argc == 3) {
+	}
+	else if (argc == 3)
+	{
 		fprintf(stdout, "search space used is default of 16KB\n");
 		search_space = SEARCH_SPACE;
-	} else {
+	}
+	else
+	{
 		search_space = atoi(argv[3]);
 	}
 	len = strlen(argv[2]);
-	if (len + 9 > CMDLINE_MAX) {
+	if (len + 9 > CMDLINE_MAX)
+	{
 		fprintf(stderr, "Command line string too long\n");
 		goto err1;
 	}
-	
+
 	if (((fd = open(argv[1], O_RDWR)) < 0) ||
-		(ptr = (char *) mmap(0, search_space + CMDLINE_MAX, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0)) == (void *) (-1)) {
+		(ptr = (char *)mmap(0, search_space + CMDLINE_MAX, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)) == (void *)(-1))
+	{
 		fprintf(stderr, "Could not open kernel image");
 		goto err2;
 	}
-	
-	for (p = ptr; p < (ptr + search_space); p += 4) {
-		if (memcmp(p, "CMDLINE:", 8) == 0) {
+
+	for (p = ptr; p < (ptr + search_space); p += 4)
+	{
+		if (memcmp(p, "CMDLINE:", 8) == 0)
+		{
 			found = 1;
 			p += 8;
 			break;
 		}
 	}
-	if (!found) {
+	if (!found)
+	{
 		fprintf(stderr, "Command line marker not found!\n");
 		goto err3;
 	}
 
 	memset(p, 0, CMDLINE_MAX - 8);
 	strcpy(p, argv[2]);
-	msync(p, CMDLINE_MAX, MS_SYNC|MS_INVALIDATE);
+	msync(p, CMDLINE_MAX, MS_SYNC | MS_INVALIDATE);
 	ret = 0;
 
 err3:
-	munmap((void *) ptr, len);
+	munmap((void *)ptr, len);
 err2:
 	if (fd > 0)
 		close(fd);

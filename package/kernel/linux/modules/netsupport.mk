@@ -42,6 +42,24 @@ endef
 $(eval $(call KernelPackage,atmtcp))
 
 
+define KernelPackage/appletalk
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=Appletalk protocol support
+  KCONFIG:= \
+        CONFIG_ATALK \
+        CONFIG_DEV_APPLETALK \
+        CONFIG_IPDDP=n
+  FILES:=$(LINUX_DIR)/net/appletalk/appletalk.ko
+  AUTOLOAD:=$(call AutoLoad,40,appletalk)
+endef
+
+define KernelPackage/appletalk/description
+  Kernel module for AppleTalk protocol.
+endef
+
+$(eval $(call KernelPackage,appletalk))
+
+
 define KernelPackage/bonding
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=Ethernet bonding driver
@@ -729,6 +747,70 @@ endef
 $(eval $(call KernelPackage,sched-core))
 
 
+define KernelPackage/sched-act-police
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=Traffic Policing
+  DEPENDS:=+kmod-sched-core
+  KCONFIG:=CONFIG_NET_ACT_POLICE
+  FILES:=$(LINUX_DIR)/net/sched/act_police.ko
+  AUTOLOAD:=$(call AutoProbe,act_police)
+endef
+
+$(eval $(call KernelPackage,sched-act-police))
+
+
+define KernelPackage/sched-act-sample
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=Traffic Sampling
+  DEPENDS:=+kmod-sched-core
+  KCONFIG:= \
+	CONFIG_NET_ACT_SAMPLE \
+	CONFIG_PSAMPLE
+  FILES:= \
+	$(LINUX_DIR)/net/psample/psample.ko \
+	$(LINUX_DIR)/net/sched/act_sample.ko
+  AUTOLOAD:=$(call AutoProbe,act_sample psample)
+endef
+
+define KernelPackage/sched-act-sample/description
+ Packet sampling tc action.
+endef
+
+$(eval $(call KernelPackage,sched-act-sample))
+
+
+define KernelPackage/sched-act-ipt
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=IPtables targets
+  DEPENDS:=@LINUX_6_6 +kmod-ipt-core +kmod-sched-core
+  KCONFIG:=CONFIG_NET_ACT_IPT
+  FILES:=$(LINUX_DIR)/net/sched/act_ipt.ko
+  AUTOLOAD:=$(call AutoProbe, act_ipt)
+endef
+
+define KernelPackage/sched-act-ipt/description
+  Allows to invoke iptables targets after successful classification.
+endef
+
+$(eval $(call KernelPackage,sched-act-ipt))
+
+
+define KernelPackage/sched-act-vlan
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=Traffic VLAN manipulation
+  DEPENDS:=+kmod-sched-core
+  KCONFIG:=CONFIG_NET_ACT_VLAN
+  FILES:=$(LINUX_DIR)/net/sched/act_vlan.ko
+  AUTOLOAD:=$(call AutoProbe, act_vlan)
+endef
+
+define KernelPackage/sched-act-vlan/description
+ Allows to configure rules to push or pop vlan headers.
+endef
+
+$(eval $(call KernelPackage,sched-act-vlan))
+
+
 define KernelPackage/sched-cake
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=Cake fq_codel/blue derived shaper
@@ -915,6 +997,25 @@ define KernelPackage/tcp-bbr/install
 endef
 
 $(eval $(call KernelPackage,tcp-bbr))
+
+
+define KernelPackage/tls
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=In-kernel TLS Support with HW Offload
+  KCONFIG:=CONFIG_TLS \
+	CONFIG_TLS_DEVICE=y
+  FILES:=$(LINUX_DIR)/net/tls/tls.ko
+  AUTOLOAD:=$(call AutoProbe,tls)
+endef
+
+define KernelPackage/tls/description
+ Kernel module for in-kernel TLS protocol support and hw offload
+ (to supported interfaces).
+ This allows symmetric encryption handling of the TLS protocol to
+ be done in-kernel and it's HW offload when available.
+endef
+
+$(eval $(call KernelPackage,tls))
 
 
 define KernelPackage/tcp-hybla
@@ -1251,6 +1352,22 @@ endef
 $(eval $(call KernelPackage,inet-diag))
 
 
+define KernelPackage/xdp-sockets-diag
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=PF_XDP sockets monitoring interface support for ss utility
+  DEPENDS:=@KERNEL_XDP_SOCKETS
+  KCONFIG:=CONFIG_XDP_SOCKETS_DIAG
+  FILES:=$(LINUX_DIR)/net/xdp/xsk_diag.ko
+  AUTOLOAD:=$(call AutoLoad,31,xsk_diag)
+endef
+
+define KernelPackage/xdp-sockets-diag/description
+ Support for PF_XDP sockets monitoring interface used by the ss tool
+endef
+
+$(eval $(call KernelPackage,xdp-sockets-diag))
+
+
 define KernelPackage/wireguard
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=WireGuard secure network tunnel
@@ -1276,3 +1393,72 @@ define KernelPackage/wireguard/description
 endef
 
 $(eval $(call KernelPackage,wireguard))
+
+
+define KernelPackage/qrtr
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=Qualcomm IPC Router support
+  HIDDEN:=1
+  KCONFIG:=CONFIG_QRTR
+  FILES:= \
+  $(LINUX_DIR)/net/qrtr/qrtr.ko
+  AUTOLOAD:=$(call AutoProbe,qrtr)
+endef
+
+define KernelPackage/qrtr/description
+ Qualcomm IPC Router support
+endef
+
+$(eval $(call KernelPackage,qrtr))
+
+
+define KernelPackage/qrtr-tun
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=TUN device for Qualcomm IPC Router
+  DEPENDS:=+kmod-qrtr
+  KCONFIG:=CONFIG_QRTR_TUN
+  FILES:= $(LINUX_DIR)/net/qrtr/qrtr-tun.ko
+  AUTOLOAD:=$(call AutoProbe,qrtr-tun)
+endef
+
+define KernelPackage/qrtr-tun/description
+ TUN device for Qualcomm IPC Router
+endef
+
+$(eval $(call KernelPackage,qrtr-tun))
+
+
+define KernelPackage/qrtr-smd
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=SMD IPC Router channels
+  DEPENDS:=+kmod-qrtr @TARGET_qualcommax
+  KCONFIG:=CONFIG_QRTR_SMD
+  FILES:= $(LINUX_DIR)/net/qrtr/qrtr-smd.ko
+  AUTOLOAD:=$(call AutoProbe,qrtr-smd)
+endef
+
+define KernelPackage/qrtr-smd/description
+ SMD IPC Router channels
+endef
+
+$(eval $(call KernelPackage,qrtr-smd))
+
+
+define KernelPackage/unix-diag
+  TITLE:=UNIX socket monitoring interface
+  KCONFIG:=CONFIG_UNIX_DIAG
+  FILES:= $(LINUX_DIR)/net/unix/unix_diag.ko
+  AUTOLOAD:=$(call AutoProbe,unix_diag)
+endef
+
+$(eval $(call KernelPackage,unix-diag))
+
+
+define KernelPackage/packet-diag
+  TITLE:=Packet sockets monitoring interface
+  KCONFIG:=CONFIG_PACKET_DIAG
+  FILES:= $(LINUX_DIR)/net/packet/af_packet_diag.ko
+  AUTOLOAD:=$(call AutoProbe,af_packet_diag)
+endef
+
+$(eval $(call KernelPackage,packet-diag))

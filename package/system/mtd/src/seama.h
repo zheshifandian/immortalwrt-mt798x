@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-#define SEAMA_MAGIC		0x5EA3A417
+#define SEAMA_MAGIC 0x5EA3A417
 
 /*
  *	SEAMA looks like the following map.
@@ -81,7 +81,6 @@
  *  +-------------+-------------+-------------
  */
 
-
 /*
  *	SEAMA header
  *
@@ -96,13 +95,13 @@
  */
 
 /* seama header */
-struct seama_entity_header {
-	uint32_t	magic;			/* should always be SEAMA_MAGIC. */
-	uint16_t	reserved;		/* reserved for  */
-	uint16_t	metasize;		/* size of the META data */
-	uint32_t	size;			/* size of the image */
-	uint8_t		md5[16];
-} __attribute__ ((packed));
-
+struct seama_entity_header
+{
+	uint32_t magic;	   /* should always be SEAMA_MAGIC. */
+	uint16_t reserved; /* reserved for  */
+	uint16_t metasize; /* size of the META data */
+	uint32_t size;	   /* size of the image */
+	uint8_t md5[16];
+} __attribute__((packed));
 
 #endif

@@ -34,7 +34,7 @@ static const char *kCantReadMessage = "Can not read from source buffer";
 static const char *kCantAllocateMessage = "Not enough buffer for decompression";
 #endif
 
-static size_t rpos=0, dpos=0;
+static size_t rpos = 0, dpos = 0;
 
 static int MyReadFileAndCheck(unsigned char *src, void *dest, size_t size)
 {
@@ -54,20 +54,21 @@ int lzma_inflate(unsigned char *source, int s_len, unsigned char *dest, int *d_l
   UInt32 outSizeHigh = 0;
   SizeT outSizeFull;
   unsigned char *outStream;
-  
-  int waitEOS = 1; 
-  /* waitEOS = 1, if there is no uncompressed size in headers, 
+
+  int waitEOS = 1;
+  /* waitEOS = 1, if there is no uncompressed size in headers,
    so decoder will wait EOS (End of Stream Marker) in compressed stream */
 
   SizeT compressedSize;
   unsigned char *inStream;
 
-  CLzmaDecoderState state;  /* it's about 24-80 bytes structure, if int is 32-bit */
+  CLzmaDecoderState state; /* it's about 24-80 bytes structure, if int is 32-bit */
   unsigned char properties[LZMA_PROPERTIES_SIZE];
 
   int res;
 
-  rpos=0; dpos=0;
+  rpos = 0;
+  dpos = 0;
 
   if (sizeof(UInt32) < 4)
   {
@@ -78,7 +79,7 @@ int lzma_inflate(unsigned char *source, int s_len, unsigned char *dest, int *d_l
   }
 
   {
-    long length=s_len;
+    long length = s_len;
     if ((long)(SizeT)length != length)
     {
 #if defined(DEBUG_ENABLE_BOOTSTRAP_PRINTF) || !defined(CFG_BOOTSTRAP_CODE)
@@ -119,7 +120,7 @@ int lzma_inflate(unsigned char *source, int s_len, unsigned char *dest, int *d_l
       else
         outSizeHigh += (UInt32)(b) << ((i - 4) * 8);
     }
-    
+
     if (waitEOS)
     {
 #if defined(DEBUG_ENABLE_BOOTSTRAP_PRINTF) || !defined(CFG_BOOTSTRAP_CODE)
@@ -163,16 +164,13 @@ int lzma_inflate(unsigned char *source, int s_len, unsigned char *dest, int *d_l
     inStream = 0;
   else
   {
-    if ((compressedSize+rpos) > s_len )
+    if ((compressedSize + rpos) > s_len)
       inStream = 0;
     else
       inStream = source + rpos;
   }
 
-  if (state.Probs == 0 
-    || (outStream == 0 && outSizeFull != 0)
-    || (inStream == 0 && compressedSize != 0)
-    )
+  if (state.Probs == 0 || (outStream == 0 && outSizeFull != 0) || (inStream == 0 && compressedSize != 0))
   {
     free(state.Probs);
 #if defined(DEBUG_ENABLE_BOOTSTRAP_PRINTF) || !defined(CFG_BOOTSTRAP_CODE)
@@ -186,8 +184,8 @@ int lzma_inflate(unsigned char *source, int s_len, unsigned char *dest, int *d_l
     SizeT inProcessed;
     SizeT outProcessed;
     res = LzmaDecode(&state,
-      inStream, compressedSize, &inProcessed,
-      outStream, outSizeFull, &outProcessed);
+                     inStream, compressedSize, &inProcessed,
+                     outStream, outSizeFull, &outProcessed);
     if (res != 0)
     {
 #if defined(DEBUG_ENABLE_BOOTSTRAP_PRINTF) || !defined(CFG_BOOTSTRAP_CODE)

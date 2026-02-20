@@ -56,7 +56,6 @@ TARGET_LDFLAGS += -L$(STAGING_DIR)/usr/lib
 CMAKE_OPTIONS = \
         -DLUAPATH=/usr/lib/lua
 
-
 define Package/libkvcutil/install
 	$(INSTALL_DIR) $(1)/lib
 	$(CP) $(PKG_BUILD_DIR)/kvcutil/libkvcutil.so* $(1)/lib/

@@ -26,12 +26,11 @@
 
 #include "mtd.h"
 
+#define TPL_RECOVER_MAGIC 0x89abcdef
+#define TPL_NO_RECOVER_MAGIC 0x00000000
 
-#define TPL_RECOVER_MAGIC	0x89abcdef
-#define TPL_NO_RECOVER_MAGIC	0x00000000
-
-
-struct uboot_args {
+struct uboot_args
+{
 	uint32_t magic;
 };
 
@@ -44,13 +43,15 @@ int mtd_tpl_recoverflag_write(const char *mtd, const bool recovery_active)
 	int fd;
 
 	args = malloc(erasesize);
-	if (!args) {
+	if (!args)
+	{
 		fprintf(stderr, "Could not allocate memory!\n");
 		return -1;
 	}
 
 	fd = mtd_check_open(mtd);
-	if (fd < 0) {
+	if (fd < 0)
+	{
 		fprintf(stderr, "Could not open mtd device: %s\n", mtd);
 		ret = -1;
 		goto out;
@@ -73,7 +74,8 @@ int mtd_tpl_recoverflag_write(const char *mtd, const bool recovery_active)
 	erase_info.length = erasesize;
 
 	ret = ioctl(fd, MEMERASE, &erase_info);
-	if (ret < 0) {
+	if (ret < 0)
+	{
 		fprintf(stderr, "failed to erase block: %i\n", ret);
 		goto out;
 	}

@@ -29,7 +29,7 @@ define Package/arptables
 endef
 
 MAKE_FLAGS += \
-	COPT_FLAGS="$(TARGET_CFLAGS) -D__OPTIMIZE__=1" \
+	COPT_FLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS) -D__OPTIMIZE__=1" \
 	KERNEL_DIR="$(LINUX_DIR)"
 
 define Package/arptables/install

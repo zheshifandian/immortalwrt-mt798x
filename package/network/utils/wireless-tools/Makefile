@@ -25,7 +25,7 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/wireless_tools.$(PKG_VERSION)
 include $(INCLUDE_DIR)/package.mk
 
 define Package/wireless-tools/Default
-  URL:=http://hplabs.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html
+  URL:=https://hplabs.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html
 endef
 
 define Package/wireless-tools
@@ -58,7 +58,7 @@ define Build/Compile
 	mkdir -p $(PKG_INSTALL_DIR)
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		$(TARGET_CONFIGURE_OPTS) \
-		CFLAGS="$(TARGET_CFLAGS) -I." \
+		CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS) -I." \
 		BUILD_WE_ESSENTIAL=y \
 		LIBS="-lm -Wl,--gc-sections" \
 		libiw.so.$(PKG_VERSION) iwmulticall

@@ -1,7 +1,6 @@
-diff -rupw tmp-orig/mt_wifi/embedded/common/cmm_info.c tmp/mt_wifi/embedded/common/cmm_info.c
---- tmp-orig/mt_wifi/embedded/common/cmm_info.c	2022-04-25 18:12:15.000000000 +0800
-+++ tmp/mt_wifi/embedded/common/cmm_info.c	2022-11-12 18:39:29.117486205 +0800
-@@ -6898,6 +6898,35 @@ USHORT RTMPGetLastTxRate(PRTMP_ADAPTER p
+--- a/mt_wifi/embedded/common/cmm_info.c
++++ b/mt_wifi/embedded/common/cmm_info.c
+@@ -6987,6 +6987,35 @@ USHORT RTMPGetLastTxRate(PRTMP_ADAPTER p
  	return lastTxRate.word;
  }
  
@@ -37,7 +36,7 @@ diff -rupw tmp-orig/mt_wifi/embedded/common/cmm_info.c tmp/mt_wifi/embedded/comm
  VOID RTMPIoctlGetMacTableStaInfo(
  	IN PRTMP_ADAPTER pAd,
  	IN RTMP_IOCTL_INPUT_STRUCT *wrq)
-@@ -6909,6 +6938,7 @@ VOID RTMPIoctlGetMacTableStaInfo(
+@@ -6998,6 +7027,7 @@ VOID RTMPIoctlGetMacTableStaInfo(
  	MAC_TABLE_ENTRY *pEntry;
  	/* allocate memory */
  	os_alloc_mem(NULL, (UCHAR **)&pMacTab, sizeof(RT_802_11_MAC_TABLE));
@@ -45,7 +44,7 @@ diff -rupw tmp-orig/mt_wifi/embedded/common/cmm_info.c tmp/mt_wifi/embedded/comm
  
  	if (pMacTab == NULL) {
  		MTWF_DBG(pAd, DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_ERROR, "Allocate memory fail!!!\n");
-@@ -6937,13 +6967,14 @@ VOID RTMPIoctlGetMacTableStaInfo(
+@@ -7026,13 +7056,14 @@ VOID RTMPIoctlGetMacTableStaInfo(
  			pDst->MimoPs = pEntry->MmpsMode;
  #endif /* DOT11_N_SUPPORT */
  			/* Fill in RSSI per entry*/

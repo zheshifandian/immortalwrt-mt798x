@@ -105,7 +105,8 @@ ifeq ($(DUMP),)
     IDIR_$(1):=$(PKG_BUILD_DIR)/ipkg-$(PKGARCH)/$(1)
     KEEP_$(1):=$(strip $(call Package/$(1)/conffiles))
 
-    ifeq ($(BUILD_VARIANT),$$(if $$(VARIANT),$$(VARIANT),$(BUILD_VARIANT)))
+    TARGET_VARIANT:=$$(if $(ALL_VARIANTS),$$(if $$(VARIANT),$$(filter-out *,$$(VARIANT)),$(firstword $(ALL_VARIANTS))))
+    ifeq ($(BUILD_VARIANT),$$(if $$(TARGET_VARIANT),$$(TARGET_VARIANT),$(BUILD_VARIANT)))
     do_install=
     ifdef Package/$(1)/install
       do_install=yes
@@ -157,6 +158,7 @@ ifeq ($(DUMP),)
     $(STAGING_DIR_ROOT)/stamp/.$(1)_installed: $(PKG_BUILD_DIR)/.pkgdir/$(1).installed
 	mkdir -p $(STAGING_DIR_ROOT)/stamp
 	$(if $(ABI_VERSION),echo '$(ABI_VERSION)' | cmp -s - $(PKG_INFO_DIR)/$(1).version || { \
+		mkdir -p $(PKG_INFO_DIR); \
 		echo '$(ABI_VERSION)' > $(PKG_INFO_DIR)/$(1).version; \
 		$(foreach pkg,$(filter-out $(1),$(PROVIDES)), \
 			cp $(PKG_INFO_DIR)/$(1).version $(PKG_INFO_DIR)/$(pkg).version; \
@@ -221,7 +223,7 @@ $(_endef)
     ifneq ($$(CONFIG_IPK_FILES_CHECKSUMS),)
 	(cd $$(IDIR_$(1)); \
 		( \
-			find . -type f \! -path ./CONTROL/\* -exec mkhash sha256 -n \{\} \; 2> /dev/null | \
+			find . -type f \! -path ./CONTROL/\* -exec $(MKHASH) sha256 -n \{\} \; 2> /dev/null | \
 			sed 's|\([[:blank:]]\)\./| \1/|' > $$(IDIR_$(1))/CONTROL/files-sha256sum \
 		) || true \
 	)

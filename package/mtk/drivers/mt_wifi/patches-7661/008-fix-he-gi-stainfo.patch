@@ -1,5 +1,5 @@
---- a/mt_wifi/embedded/common/cmm_info.c	2023-08-25 11:12:38.595484902 +0800
-+++ b/mt_wifi/embedded/common/cmm_info.c	2023-08-25 11:14:03.403925229 +0800
+--- a/mt_wifi/embedded/common/cmm_info.c
++++ b/mt_wifi/embedded/common/cmm_info.c
 @@ -6995,7 +6995,7 @@ typedef union _HTTRANSMIT_SETTING_FIX {
  		USHORT iTxBF:1;
  		USHORT eTxBF:1;

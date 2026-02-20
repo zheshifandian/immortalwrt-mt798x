@@ -6,18 +6,18 @@
 #include <dt-bindings/leds/common.h>
 / {
 	model = "GL.iNet GL-MT6000";
- 	compatible = "glinet,gl-mt6000","mediatek,mt7986a-emmc-rfb";
+	compatible = "glinet,gl-mt6000","mediatek,mt7986a-emmc-rfb";
 	chosen {
 		bootargs = "console=ttyS0,115200n1 loglevel=8  \
 				earlycon=uart8250,mmio32,0x11002000 \
-				root=PARTLABEL=rootfs rootwait";
+				root=PARTLABEL=rootfs rootwait rootfstype=squashfs,f2fs";
 	};
-	
+
 	aliases {
 		led-boot = &led_status_white;
- 		led-failsafe = &led_status_white;
- 		led-running = &led_status_blue;
- 		led-upgrade = &led_status_blue;
+		led-failsafe = &led_status_white;
+		led-running = &led_status_blue;
+		led-upgrade = &led_status_blue;
 	};
 
 	memory {
@@ -34,19 +34,19 @@
  		};
 
  	};
-	
+
 	leds {
 		compatible = "gpio-leds";
 
 		led_status_white: status_white {
- 			label = "white:status";
- 			gpios = <&pio 37 GPIO_ACTIVE_LOW>;
- 		};
+			label = "white:status";
+			gpios = <&pio 37 GPIO_ACTIVE_LOW>;
+		};
 
- 		led_status_blue: status_blue {
- 			label = "blue:status";
- 			gpios = <&pio 38 GPIO_ACTIVE_LOW>;
- 		};
+		led_status_blue: status_blue {
+			label = "blue:status";
+			gpios = <&pio 38 GPIO_ACTIVE_LOW>;
+		};
 	};
 
 	reg_1p8v: regulator-1p8v {
@@ -67,7 +67,6 @@
 		regulator-always-on;
 	};
 
-
 	usb_vbus: regulator-usb-vbus {
 		compatible = "regulator-fixed";
 		regulator-name = "usb_vbus";
@@ -77,27 +76,15 @@
 		enable-active-high;
 		regulator-boot-on;
 	};
-
-	sound {
-		compatible = "mediatek,mt7986-wm8960-machine";
-		mediatek,platform = <&afe>;
-		audio-routing = "Headphone", "HP_L",
-				"Headphone", "HP_R",
-				"LINPUT1", "AMIC",
-				"RINPUT1", "AMIC";
-		mediatek,audio-codec = <&wm8960>;
-		status = "okay";
-	};
-};
-
-&fan {
-	pwms = <&pwm 1 50000 0>;
-	status = "disabled";
 };
 
 &pwm {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pwm0_pin &pwm1_pin_g1>;
+	status = "okay";
+};
+
+&crypto {
 	status = "okay";
 };
 
@@ -149,7 +136,7 @@
 			speed = <2500>;
 			full-duplex;
 			pause;
-		};	
+		};
 	};
 
 	gmac1: mac@1 {
@@ -157,7 +144,7 @@
 		reg = <1>;
 		phy-mode = "2500base-x";
 		ext-phy-reg = <7>;
-		ext-phy-reset-gpios = <&pio 19 0>;	
+		ext-phy-reset-gpios = <&pio 19 0>;
 		fixed-link {
 			speed = <2500>;
 			full-duplex;
@@ -168,7 +155,7 @@
 	mdio: mdio-bus {
 		#address-cells = <1>;
 		#size-cells = <0>;
- 		
+
 		switch@0 {
 			compatible = "mediatek,mt7531";
 			reg = <31>;
@@ -197,7 +184,6 @@
 					reg = <3>;
 					label = "lan4";
 				};
-
 
 				port@5 {
 					reg = <5>;

@@ -21,8 +21,8 @@
 ** 2 Nov 2006   Lin Mars        init version which derived from LzmaTest.c from
 **                              LZMA v4.43 SDK
 *******************************************************************************/
-#ifndef  __LZMA_WRAPPER_H__
-#define  __LZMA_WRAPPER_H__
+#ifndef __LZMA_WRAPPER_H__
+#define __LZMA_WRAPPER_H__
 
 #ifndef LZMA_RESULT_OK
 #define LZMA_RESULT_OK 0

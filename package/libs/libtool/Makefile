@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libtool
-PKG_VERSION:=2.4.6
-PKG_RELEASE:=2
+PKG_VERSION:=2.5.4
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@GNU/libtool
-PKG_HASH:=7c87a8c2c8c0fc9cd5019e402bed4292462d00a718a7cd5f11218153bf28b26f
+PKG_HASH:=f81f5860666b0bc7d84baddefa60d1cb9fa6fceb2398cc3baca6afaa60266675
 
 PKG_LICENSE:=GPL-2.0+
 PKG_LICENSE_FILES:=COPYING
@@ -30,7 +30,7 @@ define Package/libltdl
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=A generic dynamic object loading library
-  URL:=http://www.gnu.org/software/libtool/
+  URL:=https://www.gnu.org/software/libtool/
   ABI_VERSION:=7
 endef
 

@@ -1,4 +1,5 @@
 KERNEL_LOADADDR := 0x48080000
+include ./filogic.mk
 
 MT7981_USB_PKGS := automount blkid blockdev fdisk \
     kmod-nls-cp437 kmod-nls-iso8859-1 kmod-usb2 kmod-usb3 \
@@ -593,8 +594,6 @@ define Device/cmcc_rax3000m
   PAGESIZE := 2048
   IMAGE_SIZE := 116736k
   KERNEL_IN_UBI := 1
-  IMAGES += factory.bin
-  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += cmcc_rax3000m

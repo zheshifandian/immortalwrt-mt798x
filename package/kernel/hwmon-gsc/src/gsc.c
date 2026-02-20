@@ -1,5 +1,5 @@
 /*
- * A hwmon driver for the Gateworks System Controller 
+ * A hwmon driver for the Gateworks System Controller
  * Copyright (C) 2009 Gateworks Corporation
  *
  * Author: Chris Lang <clang@gateworks.com>
@@ -18,32 +18,36 @@
 
 #define DRV_VERSION "0.2"
 
-enum chips { gsp };
+enum chips
+{
+	gsp
+};
 
 /* AD7418 registers */
-#define GSP_REG_TEMP_IN		0x00
-#define GSP_REG_VIN		0x02
-#define GSP_REG_3P3		0x05
-#define GSP_REG_BAT		0x08
-#define GSP_REG_5P0		0x0b
-#define GSP_REG_CORE		0x0e
-#define GSP_REG_CPU1		0x11
-#define GSP_REG_CPU2		0x14
-#define GSP_REG_DRAM		0x17
-#define GSP_REG_EXT_BAT		0x1a
-#define GSP_REG_IO1		0x1d
-#define GSP_REG_IO2 		0x20
-#define GSP_REG_PCIE		0x23
-#define GSP_REG_CURRENT		0x26
-#define GSP_FAN_0		0x2C
-#define GSP_FAN_1		0x2E
-#define GSP_FAN_2		0x30
-#define GSP_FAN_3		0x32
-#define GSP_FAN_4		0x34
-#define GSP_FAN_5		0x36
+#define GSP_REG_TEMP_IN 0x00
+#define GSP_REG_VIN 0x02
+#define GSP_REG_3P3 0x05
+#define GSP_REG_BAT 0x08
+#define GSP_REG_5P0 0x0b
+#define GSP_REG_CORE 0x0e
+#define GSP_REG_CPU1 0x11
+#define GSP_REG_CPU2 0x14
+#define GSP_REG_DRAM 0x17
+#define GSP_REG_EXT_BAT 0x1a
+#define GSP_REG_IO1 0x1d
+#define GSP_REG_IO2 0x20
+#define GSP_REG_PCIE 0x23
+#define GSP_REG_CURRENT 0x26
+#define GSP_FAN_0 0x2C
+#define GSP_FAN_1 0x2E
+#define GSP_FAN_2 0x30
+#define GSP_FAN_3 0x32
+#define GSP_FAN_4 0x34
+#define GSP_FAN_5 0x36
 
-struct gsp_sensor_info {
-	const char* name;
+struct gsp_sensor_info
+{
+	const char *name;
 	int reg;
 };
 
@@ -70,29 +74,29 @@ static const struct gsp_sensor_info gsp_sensors[] = {
 	{"fan_point5", GSP_FAN_5},
 };
 
-struct gsp_data {
-	struct device		*hwmon_dev;
-	struct attribute_group	attrs;
-	enum chips		type;
+struct gsp_data
+{
+	struct device *hwmon_dev;
+	struct attribute_group attrs;
+	enum chips type;
 };
 
 static int gsp_probe(struct i2c_client *client,
-			const struct i2c_device_id *id);
+					 const struct i2c_device_id *id);
 static int gsp_remove(struct i2c_client *client);
 
 static const struct i2c_device_id gsp_id[] = {
-	{ "gsp", 0 },
-	{ }
-};
+	{"gsp", 0},
+	{}};
 MODULE_DEVICE_TABLE(i2c, gsp_id);
 
 static struct i2c_driver gsp_driver = {
 	.driver = {
-		.name	= "gsp",
+		.name = "gsp",
 	},
-	.probe		= gsp_probe,
-	.remove		= gsp_remove,
-	.id_table	= gsp_id,
+	.probe = gsp_probe,
+	.remove = gsp_remove,
+	.id_table = gsp_id,
 };
 
 /* All registers are word-sized, except for the configuration registers.
@@ -125,7 +129,7 @@ static inline int gsp_write(struct i2c_client *client, u8 reg, u16 value)
 }
 
 static ssize_t show_adc(struct device *dev, struct device_attribute *devattr,
-			char *buf)
+						char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct i2c_client *client = to_i2c_client(dev);
@@ -133,7 +137,7 @@ static ssize_t show_adc(struct device *dev, struct device_attribute *devattr,
 }
 
 static ssize_t show_label(struct device *dev,
-			struct device_attribute *devattr, char *buf)
+						  struct device_attribute *devattr, char *buf)
 {
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 
@@ -141,7 +145,7 @@ static ssize_t show_label(struct device *dev,
 }
 
 static ssize_t store_fan(struct device *dev,
-			struct device_attribute *devattr, const char *buf, size_t count)
+						 struct device_attribute *devattr, const char *buf, size_t count)
 {
 	u16 val;
 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
@@ -225,24 +229,24 @@ static struct attribute *gsp_attributes[] = {
 	&sensor_dev_attr_fan0_point3.dev_attr.attr,
 	&sensor_dev_attr_fan0_point4.dev_attr.attr,
 	&sensor_dev_attr_fan0_point5.dev_attr.attr,
-	NULL
-};
-
+	NULL};
 
 static int gsp_probe(struct i2c_client *client,
-			 const struct i2c_device_id *id)
+					 const struct i2c_device_id *id)
 {
 	struct i2c_adapter *adapter = client->adapter;
 	struct gsp_data *data;
 	int err;
 
 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
-					I2C_FUNC_SMBUS_WORD_DATA)) {
+											  I2C_FUNC_SMBUS_WORD_DATA))
+	{
 		err = -EOPNOTSUPP;
 		goto exit;
 	}
 
-	if (!(data = kzalloc(sizeof(struct gsp_data), GFP_KERNEL))) {
+	if (!(data = kzalloc(sizeof(struct gsp_data), GFP_KERNEL)))
+	{
 		err = -ENOMEM;
 		goto exit;
 	}
@@ -251,7 +255,8 @@ static int gsp_probe(struct i2c_client *client,
 
 	data->type = id->driver_data;
 
-	switch (data->type) {
+	switch (data->type)
+	{
 	case 0:
 		data->attrs.attrs = gsp_attributes;
 		break;
@@ -264,7 +269,8 @@ static int gsp_probe(struct i2c_client *client,
 		goto exit_free;
 
 	data->hwmon_dev = hwmon_device_register(&client->dev);
-	if (IS_ERR(data->hwmon_dev)) {
+	if (IS_ERR(data->hwmon_dev))
+	{
 		err = PTR_ERR(data->hwmon_dev);
 		goto exit_remove;
 	}
@@ -305,4 +311,3 @@ MODULE_AUTHOR("Chris Lang <clang@gateworks.com>");
 MODULE_DESCRIPTION("GSC HWMON driver");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(DRV_VERSION);
-

@@ -21,8 +21,6 @@
 ** 07 JUL 2009  Xu Liang        Init Version
 *******************************************************************************/
 
-
-
 /*
  * ####################################
  *              Head File
@@ -51,12 +49,12 @@
 
 #include <lantiq_soc.h>
 
-#define IFX_PMU_MODULE_PPE_SLL01  BIT(19)
-#define IFX_PMU_MODULE_PPE_TC     BIT(21)
-#define IFX_PMU_MODULE_PPE_EMA    BIT(22)
-#define IFX_PMU_MODULE_PPE_QSB    BIT(18)
-#define IFX_PMU_MODULE_AHBS       BIT(13)
-#define IFX_PMU_MODULE_DSL_DFE    BIT(9)
+#define IFX_PMU_MODULE_PPE_SLL01 BIT(19)
+#define IFX_PMU_MODULE_PPE_TC BIT(21)
+#define IFX_PMU_MODULE_PPE_EMA BIT(22)
+#define IFX_PMU_MODULE_PPE_QSB BIT(18)
+#define IFX_PMU_MODULE_AHBS BIT(13)
+#define IFX_PMU_MODULE_DSL_DFE BIT(9)
 
 static inline void vr9_reset_ppe(struct platform_device *pdev)
 {
@@ -66,24 +64,27 @@ static inline void vr9_reset_ppe(struct platform_device *pdev)
 	struct reset_control *tc;
 
 	dsp = devm_reset_control_get(dev, "dsp");
-	if (IS_ERR(dsp)) {
+	if (IS_ERR(dsp))
+	{
 		if (PTR_ERR(dsp) != -EPROBE_DEFER)
 			dev_err(dev, "Failed to lookup dsp reset\n");
-// 		return PTR_ERR(dsp);
+		// 		return PTR_ERR(dsp);
 	}
 
 	dfe = devm_reset_control_get(dev, "dfe");
-	if (IS_ERR(dfe)) {
+	if (IS_ERR(dfe))
+	{
 		if (PTR_ERR(dfe) != -EPROBE_DEFER)
 			dev_err(dev, "Failed to lookup dfe reset\n");
-// 		return PTR_ERR(dfe);
+		// 		return PTR_ERR(dfe);
 	}
 
 	tc = devm_reset_control_get(dev, "tc");
-	if (IS_ERR(tc)) {
+	if (IS_ERR(tc))
+	{
 		if (PTR_ERR(tc) != -EPROBE_DEFER)
 			dev_err(dev, "Failed to lookup tc reset\n");
-// 		return PTR_ERR(tc);
+		// 		return PTR_ERR(tc);
 	}
 
 	reset_control_assert(dsp);
@@ -103,23 +104,22 @@ static inline int vr9_pp32_download_code(int pp32, u32 *code_src, unsigned int c
 	unsigned int clr, set;
 	volatile u32 *dest;
 
-	if ( code_src == 0 || ((unsigned long)code_src & 0x03) != 0
-			|| data_src == 0 || ((unsigned long)data_src & 0x03) != 0 )
+	if (code_src == 0 || ((unsigned long)code_src & 0x03) != 0 || data_src == 0 || ((unsigned long)data_src & 0x03) != 0)
 		return -1;
 
 	clr = pp32 ? 0xF0 : 0x0F;
-	if ( code_dword_len <= CDM_CODE_MEMORYn_DWLEN(0) )
-		set = pp32 ? (3 << 6): (2 << 2);
+	if (code_dword_len <= CDM_CODE_MEMORYn_DWLEN(0))
+		set = pp32 ? (3 << 6) : (2 << 2);
 	else
 		set = 0x00;
 	IFX_REG_W32_MASK(clr, set, CDM_CFG);
 
 	dest = CDM_CODE_MEMORY(pp32, 0);
-	while ( code_dword_len-- > 0 )
+	while (code_dword_len-- > 0)
 		IFX_REG_W32(*code_src++, dest++);
 
 	dest = CDM_DATA_MEMORY(pp32, 0);
-	while ( data_dword_len-- > 0 )
+	while (data_dword_len-- > 0)
 		IFX_REG_W32(*data_src++, dest++);
 
 	return 0;
@@ -128,8 +128,8 @@ static inline int vr9_pp32_download_code(int pp32, u32 *code_src, unsigned int c
 static void vr9_fw_ver(unsigned int *major, unsigned int *minor)
 {
 
-    *major = FW_VER_ID->major;
-    *minor = FW_VER_ID->minor;
+	*major = FW_VER_ID->major;
+	*minor = FW_VER_ID->minor;
 }
 
 static void vr9_init(struct platform_device *pdev)
@@ -139,16 +139,16 @@ static void vr9_init(struct platform_device *pdev)
 
 	/* setup pmu */
 	ltq_pmu_enable(IFX_PMU_MODULE_PPE_SLL01 |
-		IFX_PMU_MODULE_PPE_TC |
-		IFX_PMU_MODULE_PPE_EMA |
-		IFX_PMU_MODULE_PPE_QSB |
-		IFX_PMU_MODULE_AHBS |
-		IFX_PMU_MODULE_DSL_DFE);
+				   IFX_PMU_MODULE_PPE_TC |
+				   IFX_PMU_MODULE_PPE_EMA |
+				   IFX_PMU_MODULE_PPE_QSB |
+				   IFX_PMU_MODULE_AHBS |
+				   IFX_PMU_MODULE_DSL_DFE);
 
 	vr9_reset_ppe(pdev);
 
 	/* pdma init */
-	IFX_REG_W32(0x08,       PDMA_CFG);
+	IFX_REG_W32(0x08, PDMA_CFG);
 	IFX_REG_W32(0x00203580, SAR_PDMA_RX_CMDBUF_CFG);
 	IFX_REG_W32(0x004035A0, SAR_PDMA_RX_FW_CMDBUF_CFG);
 
@@ -164,11 +164,11 @@ static void vr9_init(struct platform_device *pdev)
 
 	/* init shared buffer */
 	p = SB_RAM0_ADDR(0);
-	for ( i = 0; i < SB_RAM0_DWLEN + SB_RAM1_DWLEN + SB_RAM2_DWLEN + SB_RAM3_DWLEN; i++ )
+	for (i = 0; i < SB_RAM0_DWLEN + SB_RAM1_DWLEN + SB_RAM2_DWLEN + SB_RAM3_DWLEN; i++)
 		IFX_REG_W32(0, p++);
 
 	p = SB_RAM6_ADDR(0);
-	for ( i = 0; i < SB_RAM6_DWLEN; i++ )
+	for (i = 0; i < SB_RAM6_DWLEN; i++)
 		IFX_REG_W32(0, p++);
 }
 
@@ -183,9 +183,9 @@ static int vr9_start(int pp32)
 
 	/*  download firmware   */
 	ret = vr9_pp32_download_code(pp32,
-		vr9_fw_bin, sizeof(vr9_fw_bin) / sizeof(*vr9_fw_bin),
-		vr9_fw_data, sizeof(vr9_fw_data) / sizeof(*vr9_fw_data));
-	if ( ret != 0 )
+								 vr9_fw_bin, sizeof(vr9_fw_bin) / sizeof(*vr9_fw_bin),
+								 vr9_fw_data, sizeof(vr9_fw_data) / sizeof(*vr9_fw_data));
+	if (ret != 0)
 		return ret;
 
 	/*  run PP32    */

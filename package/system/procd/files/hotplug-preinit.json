@@ -1,18 +1,43 @@
 [
-	[ "case", "ACTION", {
-		"add": [
-			[ "if",
-				[ "has", "FIRMWARE" ],
+	[
+		"case",
+		"ACTION",
+		{
+			"add": [
 				[
-					[ "exec", "/sbin/hotplug-call", "%SUBSYSTEM%" ],
-					[ "load-firmware", "/lib/firmware" ],
-					[ "return" ]
+					"if",
+					[
+						"has",
+						"FIRMWARE"
+					],
+					[
+						[
+							"exec",
+							"/sbin/hotplug-call",
+							"%SUBSYSTEM%"
+						],
+						[
+							"load-firmware",
+							"/lib/firmware"
+						],
+						[
+							"return"
+						]
+					]
 				]
 			]
+		}
+	],
+	[
+		"if",
+		[
+			"eq",
+			"SUBSYSTEM",
+			"button"
+		],
+		[
+			"exec",
+			"/etc/rc.button/failsafe"
 		]
-	} ],
-	[ "if",
-		[ "eq", "SUBSYSTEM", "button" ],
-		[ "exec", "/etc/rc.button/failsafe" ]
 	]
 ]
